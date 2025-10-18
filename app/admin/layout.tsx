@@ -57,7 +57,7 @@ export default function AdminLayout({
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex">
             {/* 移动端侧边栏遮罩 */}
             {sidebarOpen && (
                 <div
@@ -139,7 +139,7 @@ export default function AdminLayout({
             </div>
 
             {/* 主内容区域 */}
-            <div className="lg:pl-72">
+            <div className="flex-1 flex flex-col">
                 {/* 顶部导航栏 */}
                 <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
                     <div className="px-4 sm:px-6 lg:px-8">
@@ -184,9 +184,9 @@ export default function AdminLayout({
                     </div>
                 </div>
 
-                {/* 页面内容 - 移除顶部padding，让内容直接贴近导航栏 */}
+                {/* 页面内容 */}
                 <main className="flex-1">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                         {children}
                     </div>
                 </main>
