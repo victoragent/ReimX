@@ -18,6 +18,11 @@ jest.mock('next-auth', () => ({
     getServerSession: jest.fn(),
 }))
 
+// Mock authOptions
+jest.mock('@/app/api/auth/[...nextauth]/route', () => ({
+    authOptions: {}
+}))
+
 const mockPrisma = prisma as any
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>
 

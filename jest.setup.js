@@ -44,10 +44,18 @@ jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({
     data: null,
     status: 'unauthenticated',
+    update: jest.fn(),
   })),
   signIn: jest.fn(),
   signOut: jest.fn(),
   getSession: jest.fn(),
+}))
+
+// Mock NextAuth server
+jest.mock('next-auth', () => ({
+  getServerSession: jest.fn(),
+  default: jest.fn(),
+  __esModule: true,
 }))
 
 // Mock fetch

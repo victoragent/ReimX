@@ -49,11 +49,11 @@ export default function ProfilePage() {
         try {
             console.log("Fetching user profile...", { session });
             const response = await fetch("/api/users/profile");
-            const data = await response.json();
+            const data = await response.json() as { user?: User; error?: string };
 
             console.log("Profile API response:", { status: response.status, data });
 
-            if (response.ok) {
+            if (response.ok && data.user) {
                 setUser(data.user);
                 setFormData({
                     username: data.user.username,
@@ -96,10 +96,10 @@ export default function ProfilePage() {
                 body: JSON.stringify(formData),
             });
 
-            const data = await response.json();
+            const data = await response.json() as { user?: User; error?: string; message?: string };
 
-            if (response.ok) {
-                setSuccess(data.message);
+            if (response.ok && data.user) {
+                setSuccess(data.message || "更新成功");
                 setUser(data.user);
             } else {
                 setError(data.error || "更新失败");
@@ -154,8 +154,8 @@ export default function ProfilePage() {
                                 <div>
                                     <span className="font-medium text-gray-500">角色：</span>
                                     <span className={`ml-2 px-2 py-1 rounded-full text-xs ${user.role === "admin" ? "bg-red-100 text-red-800" :
-                                            user.role === "reviewer" ? "bg-yellow-100 text-yellow-800" :
-                                                "bg-green-100 text-green-800"
+                                        user.role === "reviewer" ? "bg-yellow-100 text-yellow-800" :
+                                            "bg-green-100 text-green-800"
                                         }`}>
                                         {user.role === "admin" ? "管理员" :
                                             user.role === "reviewer" ? "审核员" : "用户"}
@@ -164,8 +164,8 @@ export default function ProfilePage() {
                                 <div>
                                     <span className="font-medium text-gray-500">状态：</span>
                                     <span className={`ml-2 px-2 py-1 rounded-full text-xs ${user.status === "active" ? "bg-green-100 text-green-800" :
-                                            user.status === "pending" ? "bg-yellow-100 text-yellow-800" :
-                                                "bg-red-100 text-red-800"
+                                        user.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                                            "bg-red-100 text-red-800"
                                         }`}>
                                         {user.status === "active" ? "正常" :
                                             user.status === "pending" ? "待审核" : "已禁用"}

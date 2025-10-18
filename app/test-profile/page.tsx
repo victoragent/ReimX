@@ -24,7 +24,7 @@ export default function TestProfilePage() {
 
             setResult(res);
         } catch (error) {
-            setResult({ error: error.message });
+            setResult({ error: (error as Error).message });
         } finally {
             setLoading(false);
         }
@@ -36,7 +36,7 @@ export default function TestProfilePage() {
             const data = await response.json();
             setResult({ profile: data, status: response.status });
         } catch (error) {
-            setResult({ error: error.message });
+            setResult({ error: (error as Error).message });
         }
     };
 

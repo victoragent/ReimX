@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/auth";
 
 const userUpdateSchema = z.object({
     id: z.string(),
@@ -17,7 +18,7 @@ const userUpdateSchema = z.object({
 
 export async function GET(request: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
 
         if (!session?.user?.email || session.user.role !== "admin") {
             return NextResponse.json(
@@ -99,7 +100,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
 
         if (!session?.user?.email || session.user.role !== "admin") {
             return NextResponse.json(
@@ -167,7 +168,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
 
         if (!session?.user?.email || session.user.role !== "admin") {
             return NextResponse.json(
