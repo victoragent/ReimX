@@ -40,9 +40,41 @@ pnpm prisma db push
 ```
 
 4. **启动开发服务器**
-```bash
-pnpm dev
-```
+
+   **方式一：使用便捷脚本（推荐）**
+   ```bash
+   # 启动开发环境
+   pnpm dev:start
+   
+   # 停止开发环境
+   pnpm dev:stop
+   
+   # 重启开发环境
+   pnpm dev:restart
+   
+   # 查看运行状态
+   pnpm dev:status
+   ```
+
+   **方式二：直接使用脚本**
+   ```bash
+   # Linux/macOS
+   ./scripts/dev.sh start
+   ./scripts/dev.sh stop
+   ./scripts/dev.sh restart
+   ./scripts/dev.sh status
+   
+   # Windows
+   scripts\dev.bat start
+   scripts\dev.bat stop
+   scripts\dev.bat restart
+   scripts\dev.bat status
+   ```
+
+   **方式三：传统方式**
+   ```bash
+   pnpm dev
+   ```
 
 5. **访问应用**
 - 主页：http://localhost:3000
