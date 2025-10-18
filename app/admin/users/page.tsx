@@ -14,6 +14,9 @@ interface User {
     solanaAddress?: string;
     role: string;
     status: string;
+    isApproved: boolean;
+    approvedBy?: string;
+    approvedAt?: string;
     createdAt: string;
     updatedAt: string;
     _count: {
@@ -49,6 +52,11 @@ export default function AdminUsersPage() {
         whatsappAccount: "",
         evmAddress: "",
         solanaAddress: ""
+    });
+    const [approvingUser, setApprovingUser] = useState<User | null>(null);
+    const [approveForm, setApproveForm] = useState({
+        approved: true,
+        role: "user"
     });
 
     useEffect(() => {
@@ -128,6 +136,44 @@ export default function AdminUsersPage() {
                 fetchUsers();
             } else {
                 setError(data.error || "更新失败");
+            }
+        } catch (error) {
+            setError("网络错误，请重试");
+        }
+    };
+
+    const handleApprove = (user: User) => {
+        setApprovingUser({
+            ...user,
+            isApproved: user.isApproved || false,
+            approvedBy: user.approvedBy || undefined,
+            approvedAt: user.approvedAt || undefined
+        });
+        setApproveForm({
+            approved: true,
+            role: user.role
+        });
+    };
+
+    const handleApproveUser = async () => {
+        if (!approvingUser) return;
+
+        try {
+            const response = await fetch(`/api/admin/users/${approvingUser.id}/approve`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(approveForm),
+            });
+
+            const data = await response.json() as { error?: string };
+
+            if (response.ok) {
+                setApprovingUser(null);
+                fetchUsers();
+            } else {
+                setError(data.error || "审核用户失败");
             }
         } catch (error) {
             setError("网络错误，请重试");
@@ -305,18 +351,28 @@ export default function AdminUsersPage() {
                                         {user._count.reimbursements}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button
-                                            onClick={() => handleEdit(user)}
-                                            className="text-indigo-600 hover:text-indigo-900 mr-3"
-                                        >
-                                            编辑
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(user.id)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                                            禁用
-                                        </button>
+                                        <div className="flex space-x-2">
+                                            {!user.isApproved && user.status === "pending" && (
+                                                <button
+                                                    onClick={() => handleApprove(user)}
+                                                    className="text-green-600 hover:text-green-900"
+                                                >
+                                                    审核
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleEdit(user)}
+                                                className="text-indigo-600 hover:text-indigo-900"
+                                            >
+                                                编辑
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(user.id)}
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                                                禁用
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -417,8 +473,65 @@ export default function AdminUsersPage() {
                         </div>
                     </div>
                 </div>
-            )
-            }
-        </div >
+            )}
+
+            {/* 审核用户模态框 */}
+            {approvingUser && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                        <div className="mt-3">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">审核用户</h3>
+                            <div className="mb-4">
+                                <p className="text-sm text-gray-600">
+                                    用户：{approvingUser.username} ({approvingUser.email})
+                                </p>
+                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">审核结果</label>
+                                    <select
+                                        value={approveForm.approved ? "approved" : "rejected"}
+                                        onChange={(e) => setApproveForm({ 
+                                            ...approveForm, 
+                                            approved: e.target.value === "approved" 
+                                        })}
+                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                    >
+                                        <option value="approved">通过</option>
+                                        <option value="rejected">拒绝</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">分配角色</label>
+                                    <select
+                                        value={approveForm.role}
+                                        onChange={(e) => setApproveForm({ ...approveForm, role: e.target.value })}
+                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                    >
+                                        <option value="user">普通用户</option>
+                                        <option value="reviewer">审核员</option>
+                                        <option value="admin">管理员</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex justify-end space-x-3 mt-6">
+                                <button
+                                    onClick={() => setApprovingUser(null)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                                >
+                                    取消
+                                </button>
+                                <button
+                                    onClick={handleApproveUser}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
+                                >
+                                    确认审核
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

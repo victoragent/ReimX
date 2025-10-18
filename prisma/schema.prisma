@@ -17,7 +17,10 @@ model User {
   evmAddress      String?
   solanaAddress   String?
   role            String          @default("user")
-  status          String          @default("active")
+  status          String          @default("pending") // pending, active, suspended
+  isApproved      Boolean         @default(false) // 管理员审核状态
+  approvedBy      String?         // 审核管理员ID
+  approvedAt      DateTime?       // 审核时间
   reimbursements  Reimbursement[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
