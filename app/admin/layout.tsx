@@ -159,7 +159,7 @@ export default function AdminLayout({
                                     </h2>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center space-x-4">
                                 {/* 通知按钮 */}
                                 <button className="p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
@@ -167,7 +167,7 @@ export default function AdminLayout({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.828 7l2.586 2.586a2 2 0 002.828 0L12 7H4.828z" />
                                     </svg>
                                 </button>
-                                
+
                                 {/* 用户菜单 */}
                                 <div className="flex items-center space-x-3">
                                     <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">

@@ -962,3 +962,69 @@ Import trace for requested module:
  GET /_next/static/webpack/fa8daa303bdc8173.webpack.hot-update.json 500 in 395ms
  ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
  GET /admin 500 in 5ms
+ ⨯ ./app/admin/reimbursements/page.tsx
+Error:   [31mx[0m Expected ',', got '{'
+     ,-[[36;1;4m/Users/xiaoyi/codespace/ai/ReimX/app/admin/reimbursements/page.tsx[0m:347:1]
+ [2m344[0m |             </div>
+ [2m345[0m |         </div>
+ [2m346[0m | 
+ [2m347[0m |             {/* 报销详情模态框 */ }
+     : [35;1m            ^[0m
+ [2m348[0m |     {
+ [2m349[0m |         selectedReimbursement && (
+ [2m350[0m |             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/admin/reimbursements/page.tsx
+ ⨯ ./app/admin/reimbursements/page.tsx
+Error:   [31mx[0m Expected ',', got '{'
+     ,-[[36;1;4m/Users/xiaoyi/codespace/ai/ReimX/app/admin/reimbursements/page.tsx[0m:347:1]
+ [2m344[0m |             </div>
+ [2m345[0m |         </div>
+ [2m346[0m | 
+ [2m347[0m |             {/* 报销详情模态框 */ }
+     : [35;1m            ^[0m
+ [2m348[0m |     {
+ [2m349[0m |         selectedReimbursement && (
+ [2m350[0m |             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/admin/reimbursements/page.tsx
+ GET /admin 500 in 5ms
+ GET /admin 500 in 25ms
+ GET / 500 in 18ms
+ ✓ Compiled /_not-found in 307ms (535 modules)
+ GET / 500 in 5ms
+ ⨯ ./app/admin/users/page.tsx
+Error:   [31mx[0m Expected ',', got '{'
+     ,-[[36;1;4m/Users/xiaoyi/codespace/ai/ReimX/app/admin/users/page.tsx[0m:354:1]
+ [2m351[0m |             </div>
+ [2m352[0m |         </div>
+ [2m353[0m | 
+ [2m354[0m |             {/* 编辑用户模态框 */ }
+     : [35;1m            ^[0m
+ [2m355[0m |     {
+ [2m356[0m |         editingUser && (
+ [2m357[0m |             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/admin/users/page.tsx
+ GET /_next/static/chunks/fallback/webpack.js 500 in 158ms
+ GET /_next/static/chunks/fallback/main.js 500 in 156ms
+ GET /_next/static/chunks/fallback/react-refresh.js 500 in 156ms
+ GET /_next/static/chunks/fallback/pages/_app.js 500 in 4ms
+ GET /_next/static/chunks/fallback/pages/_error.js 500 in 5ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 298ms (910 modules)
