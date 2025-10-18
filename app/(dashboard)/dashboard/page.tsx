@@ -17,10 +17,36 @@ export default function DashboardPage() {
           <RecentActivities />
         </Card>
         <Card title="快速入口">
-          <div className="space-y-3 text-sm text-slate-600">
-            <p>• 提交报销：/dashboard/reimbursements/new</p>
-            <p>• 审核队列：/dashboard/reimbursements/review</p>
-            <p>• 汇率快照：/dashboard/exchange</p>
+          <div className="space-y-3">
+            <a 
+              href="/reimbursements" 
+              className="block p-3 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <span className="text-indigo-600 text-sm">📝</span>
+                </div>
+                <div>
+                  <p className="font-medium text-indigo-900">提交报销申请</p>
+                  <p className="text-sm text-indigo-600">创建新的报销申请</p>
+                </div>
+              </div>
+            </a>
+            
+            <a 
+              href="/reimbursements/history" 
+              className="block p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 text-sm">📊</span>
+                </div>
+                <div>
+                  <p className="font-medium text-green-900">查看报销历史</p>
+                  <p className="text-sm text-green-600">查看所有报销记录</p>
+                </div>
+              </div>
+            </a>
           </div>
         </Card>
       </section>
