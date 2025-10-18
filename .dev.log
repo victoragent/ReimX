@@ -136,3 +136,178 @@ https://next-auth.js.org/warnings#nextauth_url
  GET /admin 200 in 4ms
  GET /api/admin/stats 200 in 30ms
  GET /api/admin/stats 200 in 11ms
+ GET /profile 200 in 4ms
+ GET /api/users/profile 200 in 6ms
+ GET /api/users/profile 200 in 4ms
+ GET /reimbursements/history 200 in 9ms
+ GET /api/reimbursements 200 in 12ms
+ GET /api/reimbursements 200 in 7ms
+ GET /reimbursements 200 in 12ms
+ GET /reimbursements/history 200 in 7ms
+ GET /api/reimbursements 200 in 8ms
+ GET /api/reimbursements 200 in 4ms
+ GET /reimbursements 200 in 14ms
+ GET /dashboard 200 in 12ms
+ GET /dashboard 200 in 17ms
+ GET /dashboard 200 in 16ms
+ GET /reimbursements 200 in 11ms
+ GET /reimbursements/history 200 in 19ms
+ GET /api/reimbursements 200 in 11ms
+ GET /api/reimbursements 200 in 5ms
+ GET /profile 200 in 19ms
+ GET /api/users/profile 200 in 19ms
+ GET /api/users/profile 200 in 7ms
+ GET /reimbursements/history 200 in 18ms
+ GET /api/reimbursements 200 in 9ms
+ GET /api/reimbursements 200 in 6ms
+ GET /profile 200 in 12ms
+ GET /api/users/profile 200 in 27ms
+ GET /api/users/profile 200 in 6ms
+ GET /api/auth/session 200 in 19ms
+ GET /reimbursements 200 in 5ms
+ ✓ Compiled in 364ms (948 modules)
+ GET /reimbursements 200 in 31ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ POST /api/reimbursements 400 in 51ms
+📧 邮件通知: {
+  to: 'wally@drama3.ai',
+  subject: '报销申请已提交',
+  body: '\n' +
+    '    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">\n' +
+    '      <h2 style="color: #333;">报销系统通知</h2>\n' +
+    '      <p>亲爱的 wallywxy，</p>\n' +
+    '      <p>您的报销申请已成功提交，正在等待审核。</p>\n' +
+    '      \n' +
+    '      <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">\n' +
+    '        <h3 style="margin-top: 0;">报销详情</h3>\n' +
+    '        <p><strong>标题：</strong>xxx</p>\n' +
+    '        <p><strong>金额：</strong>1111 USD</p>\n' +
+    '        <p><strong>链别：</strong>evm</p>\n' +
+    '        <p><strong>状态：</strong>已提交</p>\n' +
+    '        \n' +
+    '        \n' +
+    '      </div>\n' +
+    '      \n' +
+    '      <p>如有疑问，请联系管理员。</p>\n' +
+    '      <p>此邮件由系统自动发送，请勿回复。</p>\n' +
+    '    </div>\n' +
+    '  '
+}
+📱 Telegram通知: {
+  to: '@wally2025',
+  message: '📝 <b>报销通知</b>\n' +
+    '\n' +
+    '👤 用户：wallywxy\n' +
+    '📋 标题：xxx\n' +
+    '💵 金额：1111 USD\n' +
+    '⛓ 链别：evm\n' +
+    '📊 状态：已提交\n'
+}
+ POST /api/reimbursements 201 in 29ms
+ GET /reimbursements/history 200 in 8ms
+ GET /api/reimbursements 200 in 7ms
+ GET /api/reimbursements 200 in 11ms
+ GET /reimbursements/history 200 in 53ms
+ ✓ Compiled /_not-found in 269ms (947 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 308ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 38ms
+ GET /api/reimbursements 200 in 12ms
+ GET /api/auth/session 200 in 27ms
+ ✓ Compiled /admin in 212ms (592 modules)
+ GET /admin 200 in 256ms
+ ✓ Compiled /api/admin/stats in 72ms (604 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/stats 200 in 143ms
+ GET /api/admin/stats 200 in 4ms
+ GET /admin/reimbursements 200 in 27ms
+ ✓ Compiled /api/admin/reimbursements in 186ms (606 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 227ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 3ms
+ ✓ Compiled /api/admin/reimbursements/[id]/review in 137ms (609 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+📧 邮件通知: {
+  to: 'wally@drama3.ai',
+  subject: '报销申请已批准',
+  body: '\n' +
+    '    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">\n' +
+    '      <h2 style="color: #333;">报销系统通知</h2>\n' +
+    '      <p>亲爱的 wallywxy，</p>\n' +
+    '      <p>恭喜！您的报销申请已通过审核。</p>\n' +
+    '      \n' +
+    '      <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">\n' +
+    '        <h3 style="margin-top: 0;">报销详情</h3>\n' +
+    '        <p><strong>标题：</strong>xxx</p>\n' +
+    '        <p><strong>金额：</strong>1111 USD</p>\n' +
+    '        <p><strong>链别：</strong>evm</p>\n' +
+    '        <p><strong>状态：</strong>已批准</p>\n' +
+    '        \n' +
+    '        \n' +
+    '      </div>\n' +
+    '      \n' +
+    '      <p>如有疑问，请联系管理员。</p>\n' +
+    '      <p>此邮件由系统自动发送，请勿回复。</p>\n' +
+    '    </div>\n' +
+    '  '
+}
+📱 Telegram通知: {
+  to: '@wally2025',
+  message: '✅ <b>报销通知</b>\n\n👤 用户：wallywxy\n📋 标题：xxx\n💵 金额：1111 USD\n⛓ 链别：evm\n📊 状态：已批准\n'
+}
+ POST /api/admin/reimbursements/cmgvzw9hl0001dci7jhtss18o/review 200 in 418ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 4ms
+ GET /reimbursements/history 200 in 38ms
+ ✓ Compiled /api/reimbursements in 172ms (611 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements 200 in 219ms
+ GET /api/reimbursements 200 in 4ms
+ GET /reimbursements 200 in 28ms
+ GET /dashboard 200 in 25ms
+ ✓ Compiled / in 159ms (622 modules)
+ GET / 200 in 205ms
+ GET /dashboard 200 in 35ms
+ GET / 200 in 18ms
+ GET /dashboard 200 in 5ms
+ GET /reimbursements 200 in 17ms
+ GET /dashboard 200 in 18ms
+ GET / 200 in 16ms
+ GET /reimbursements/history 200 in 17ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements 200 in 39ms
+ GET /api/reimbursements 200 in 4ms
+ GET /reimbursements 200 in 14ms
+ GET /profile 200 in 14ms
+ ✓ Compiled /api/users/profile in 89ms (624 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/users/profile 200 in 113ms
+ GET /api/users/profile 200 in 3ms
+ GET /admin 200 in 24ms
+ GET /api/admin/stats 200 in 14ms
+ GET /api/admin/stats 200 in 8ms
+ GET /admin/reimbursements 200 in 7ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 8ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 20ms
+ ✓ Compiled /admin/users in 87ms (628 modules)
+ GET /admin/users 200 in 104ms
+ ✓ Compiled /api/admin/users in 125ms (630 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/users?page=1&limit=10 200 in 142ms
+ GET /api/admin/users?page=1&limit=10 200 in 4ms
+ ✓ Compiled in 749ms (688 modules)
+ GET /admin/users 200 in 406ms
+ GET /admin/users 200 in 4ms
+ ✓ Compiled in 395ms (674 modules)
+ GET /admin/users 200 in 208ms
+ GET /admin/users 200 in 10ms
+ ✓ Compiled in 374ms (688 modules)
+ GET /admin/users 200 in 19ms
