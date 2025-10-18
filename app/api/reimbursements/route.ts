@@ -7,7 +7,6 @@ import { authOptions } from "@/lib/auth";
 import { sendNotification } from "@/lib/notifications";
 
 const createSchema = z.object({
-  applicantId: z.string().min(1),
   title: z.string().min(1),
   description: z.string().optional(),
   amountOriginal: z.number().positive(),
@@ -89,14 +88,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  // 确保用户只能为自己提交报销申请
-  if (parsed.data.applicantId !== currentUser.id) {
-    return NextResponse.json({ error: "只能为自己提交报销申请" }, { status: 403 });
-  }
+  // 使用当前用户的ID，忽略前端传递的applicantId
+  const applicantId = currentUser.id;
 
   const reimbursement = await prisma.reimbursement.create({
     data: {
-      applicantId: parsed.data.applicantId,
+      applicantId: applicantId,
       title: parsed.data.title,
       description: parsed.data.description,
       amountOriginal: parsed.data.amountOriginal,
