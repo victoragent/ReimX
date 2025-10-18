@@ -29,6 +29,8 @@ export default function ReimbursementsPage() {
         receiptUrl: ""
     });
 
+    const [amountInput, setAmountInput] = useState("");
+
     const currencies = ["USD", "CNY", "HKD", "EUR", "GBP"];
     const chains = [
         { value: "evm", label: "EVM链 (Ethereum, Polygon, BSC等)" },
@@ -86,6 +88,7 @@ export default function ReimbursementsPage() {
                     chain: "evm",
                     receiptUrl: ""
                 });
+                setAmountInput("");
             } else {
                 // 处理API返回的错误对象
                 let errorMessage = "提交失败，请重试";
@@ -185,10 +188,25 @@ export default function ReimbursementsPage() {
                                         required
                                         min="0"
                                         step="0.01"
-                                        value={form.amountOriginal}
-                                        onChange={(e) => setForm({ ...form, amountOriginal: parseFloat(e.target.value) || 0 })}
+                                        value={amountInput}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setAmountInput(value);
+                                            setForm({ ...form, amountOriginal: parseFloat(value) || 0 });
+                                        }}
+                                        onKeyDown={(e) => {
+                                            // 如果输入框是空的或者只有0，用户按数字键时清除内容
+                                            if ((amountInput === "" || amountInput === "0") && /[0-9]/.test(e.key)) {
+                                                setAmountInput("");
+                                            }
+                                        }}
+                                        onFocus={(e) => {
+                                            if (e.target.value === "0") {
+                                                e.target.select();
+                                            }
+                                        }}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                        placeholder="0.00"
+                                        placeholder="请输入金额"
                                     />
                                 </div>
 
