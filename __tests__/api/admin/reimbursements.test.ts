@@ -36,6 +36,7 @@ describe('/api/admin/reimbursements', () => {
         const mockReimbursements = [
             {
                 id: 'reimb_1',
+                amountOriginal: 100.50,
                 amountUsdEquivalent: 100.50,
                 currency: 'USD',
                 status: 'submitted',
@@ -71,7 +72,17 @@ describe('/api/admin/reimbursements', () => {
 
         // Assert
         expect(response.status).toBe(200)
-        expect(data.reimbursements).toEqual(mockReimbursements)
+        expect(data.reimbursements).toEqual([
+            expect.objectContaining({
+                id: 'reimb_1',
+                amount: 100.50,
+                amountOriginal: 100.50,
+                currency: 'USD',
+                status: 'submitted',
+                submittedAt: expect.any(Date),
+                applicant: mockReimbursements[0].applicant
+            })
+        ])
         expect(data.pagination).toBeDefined()
         expect(mockPrisma.reimbursement.findMany).toHaveBeenCalledWith({
             where: {},

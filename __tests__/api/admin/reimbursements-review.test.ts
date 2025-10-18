@@ -2,6 +2,7 @@ import { POST } from '@/app/api/admin/reimbursements/[id]/review/route'
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
+import { sendNotification } from '@/lib/notifications'
 
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
@@ -23,8 +24,14 @@ jest.mock('next-auth', () => ({
     getServerSession: jest.fn(),
 }))
 
+// Mock notifications
+jest.mock('@/lib/notifications', () => ({
+    sendNotification: jest.fn(),
+}))
+
 const mockPrisma = prisma as any
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>
+const mockSendNotification = sendNotification as jest.MockedFunction<typeof sendNotification>
 
 describe('/api/admin/reimbursements/[id]/review', () => {
     beforeEach(() => {
@@ -42,16 +49,26 @@ describe('/api/admin/reimbursements/[id]/review', () => {
         const existingReimbursement = {
             id: reimbursementId,
             status: 'submitted',
+            title: 'Business lunch',
+            amountOriginal: 100.50,
             amountUsdEquivalent: 100.50,
             currency: 'USD',
-            applicantId: 'user_123'
+            chain: 'ETH',
+            applicantId: 'user_123',
+            applicant: {
+                username: 'testuser',
+                email: 'test@example.com',
+                tgAccount: '@testuser'
+            }
         }
 
         const updatedReimbursement = {
             ...existingReimbursement,
             status: 'approved',
             reviewerId: 'admin_123',
-            reviewedAt: new Date()
+            approverId: 'admin_123',
+            reviewedAt: new Date(),
+            reviewComment: 'Approved for payment'
         }
 
         mockGetServerSession.mockResolvedValue({
@@ -88,11 +105,12 @@ describe('/api/admin/reimbursements/[id]/review', () => {
             data: {
                 status: 'approved',
                 reviewerId: 'admin_123',
+                approverId: 'admin_123',
                 reviewedAt: expect.any(Date),
                 reviewComment: 'Approved for payment'
             },
             include: {
-                user: {
+                applicant: {
                     select: {
                         username: true,
                         email: true
@@ -118,16 +136,26 @@ describe('/api/admin/reimbursements/[id]/review', () => {
         const existingReimbursement = {
             id: reimbursementId,
             status: 'submitted',
+            title: 'Business lunch',
+            amountOriginal: 100.50,
             amountUsdEquivalent: 100.50,
             currency: 'USD',
-            applicantId: 'user_123'
+            chain: 'ETH',
+            applicantId: 'user_123',
+            applicant: {
+                username: 'testuser',
+                email: 'test@example.com',
+                tgAccount: '@testuser'
+            }
         }
 
         const updatedReimbursement = {
             ...existingReimbursement,
             status: 'rejected',
             reviewerId: 'admin_123',
-            reviewedAt: new Date()
+            approverId: null,
+            reviewedAt: new Date(),
+            reviewComment: 'Insufficient documentation'
         }
 
         mockGetServerSession.mockResolvedValue({
@@ -164,11 +192,12 @@ describe('/api/admin/reimbursements/[id]/review', () => {
             data: {
                 status: 'rejected',
                 reviewerId: 'admin_123',
+                approverId: null,
                 reviewedAt: expect.any(Date),
                 reviewComment: 'Insufficient documentation'
             },
             include: {
-                user: {
+                applicant: {
                     select: {
                         username: true,
                         email: true

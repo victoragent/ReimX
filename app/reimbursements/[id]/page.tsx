@@ -172,146 +172,202 @@ export default function ReimbursementDetailPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-6">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-white shadow rounded-lg">
-                    <div className="px-4 py-5 sm:p-6">
-                        <div className="flex justify-between items-start mb-6">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* 页面头部 */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <button
+                                onClick={() => router.back()}
+                                className="p-2 rounded-lg bg-white shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors"
+                            >
+                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">{reimbursement.title}</h1>
+                                <h1 className="text-3xl font-bold text-gray-900">{reimbursement.title}</h1>
                                 <p className="text-sm text-gray-500 mt-1">报销ID: {reimbursement.id}</p>
                             </div>
-                            <div className="flex items-center space-x-3">
-                                <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(reimbursement.status)}`}>
-                                    {getStatusText(reimbursement.status)}
-                                </span>
-                                <button
-                                    onClick={() => router.back()}
-                                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                >
-                                    返回
-                                </button>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <span className={`inline-flex px-4 py-2 text-sm font-semibold rounded-full ${getStatusColor(reimbursement.status)}`}>
+                                {getStatusText(reimbursement.status)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    {/* 左侧主要内容 */}
+                    <div className="xl:col-span-2 space-y-6">
+                        {/* 金额卡片 - 重点突出 */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
+                                <h3 className="text-lg font-semibold text-white">报销金额</h3>
+                            </div>
+                            <div className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <div className="text-3xl font-bold text-gray-900">
+                                            {reimbursement.amountOriginal} {reimbursement.currency}
+                                        </div>
+                                        <div className="text-lg text-gray-600 mt-1">
+                                            ≈ ${reimbursement.amountUsdEquivalent.toFixed(2)} USD
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-sm text-gray-500">链别</div>
+                                        <div className="text-lg font-semibold text-gray-900 capitalize">{reimbursement.chain}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* 基本信息 */}
-                            <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-4">基本信息</h3>
-                                    <dl className="space-y-3">
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">申请人</dt>
-                                            <dd className="text-sm text-gray-900">{reimbursement.applicant.username}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">邮箱</dt>
-                                            <dd className="text-sm text-gray-900">{reimbursement.applicant.email}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">金额</dt>
-                                            <dd className="text-sm text-gray-900">
-                                                {reimbursement.amountOriginal} {reimbursement.currency}
-                                                <span className="text-gray-500 ml-2">
-                                                    (≈ ${reimbursement.amountUsdEquivalent.toFixed(2)} USD)
-                                                </span>
-                                            </dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">链别</dt>
-                                            <dd className="text-sm text-gray-900 capitalize">{reimbursement.chain}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">提交时间</dt>
-                                            <dd className="text-sm text-gray-900">{formatDate(reimbursement.createdAt)}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">更新时间</dt>
-                                            <dd className="text-sm text-gray-900">{formatDate(reimbursement.updatedAt)}</dd>
-                                        </div>
-                                    </dl>
-                                </div>
-
-                                {/* 汇率信息 */}
-                                <div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-4">汇率信息</h3>
-                                    <dl className="space-y-3">
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">汇率</dt>
-                                            <dd className="text-sm text-gray-900">{reimbursement.exchangeRateToUsd}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">汇率来源</dt>
-                                            <dd className="text-sm text-gray-900">{reimbursement.exchangeRateSource}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">汇率时间</dt>
-                                            <dd className="text-sm text-gray-900">{formatDate(reimbursement.exchangeRateTime)}</dd>
-                                        </div>
-                                        <div>
-                                            <dt className="text-sm font-medium text-gray-500">手动汇率</dt>
-                                            <dd className="text-sm text-gray-900">{reimbursement.isManualRate ? "是" : "否"}</dd>
-                                        </div>
-                                        {reimbursement.convertedBy && (
-                                            <div>
-                                                <dt className="text-sm font-medium text-gray-500">转换人</dt>
-                                                <dd className="text-sm text-gray-900">{reimbursement.convertedBy}</dd>
-                                            </div>
-                                        )}
-                                    </dl>
-                                </div>
+                        {/* 基本信息卡片 */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900">基本信息</h3>
                             </div>
-
-                            {/* 审核信息 */}
-                            <div className="space-y-6">
-                                <div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-4">审核信息</h3>
-                                    <dl className="space-y-3">
-                                        {reimbursement.reviewer && (
-                                            <div>
-                                                <dt className="text-sm font-medium text-gray-500">审核人</dt>
-                                                <dd className="text-sm text-gray-900">
-                                                    {reimbursement.reviewer.username} ({reimbursement.reviewer.email})
-                                                </dd>
-                                            </div>
-                                        )}
-                                        {reimbursement.approver && (
-                                            <div>
-                                                <dt className="text-sm font-medium text-gray-500">批准人</dt>
-                                                <dd className="text-sm text-gray-900">
-                                                    {reimbursement.approver.username} ({reimbursement.approver.email})
-                                                </dd>
-                                            </div>
-                                        )}
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-500 mb-1">申请人</div>
+                                            <div className="text-base text-gray-900 font-medium">{reimbursement.applicant.username}</div>
+                                            <div className="text-sm text-gray-600">{reimbursement.applicant.email}</div>
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-500 mb-1">提交时间</div>
+                                            <div className="text-base text-gray-900">{formatDate(reimbursement.createdAt)}</div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="text-sm font-medium text-gray-500 mb-1">更新时间</div>
+                                            <div className="text-base text-gray-900">{formatDate(reimbursement.updatedAt)}</div>
+                                        </div>
                                         {reimbursement.txHash && (
                                             <div>
-                                                <dt className="text-sm font-medium text-gray-500">交易哈希</dt>
-                                                <dd className="text-sm text-gray-900 font-mono break-all">{reimbursement.txHash}</dd>
+                                                <div className="text-sm font-medium text-gray-500 mb-1">交易哈希</div>
+                                                <div className="text-sm text-gray-900 font-mono break-all bg-gray-50 px-3 py-2 rounded-lg">
+                                                    {reimbursement.txHash}
+                                                </div>
                                             </div>
                                         )}
-                                    </dl>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                {/* 描述信息 */}
-                                {reimbursement.description && (
-                                    <div>
-                                        <h3 className="text-lg font-medium text-gray-900 mb-4">详细描述</h3>
-                                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{reimbursement.description}</p>
+                        {/* 描述信息 */}
+                        {reimbursement.description && (
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                                <div className="px-6 py-4 border-b border-gray-200">
+                                    <h3 className="text-lg font-semibold text-gray-900">详细描述</h3>
+                                </div>
+                                <div className="p-6">
+                                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{reimbursement.description}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 发票链接 */}
+                        {reimbursement.receiptUrl && (
+                            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                                <div className="px-6 py-4 border-b border-gray-200">
+                                    <h3 className="text-lg font-semibold text-gray-900">发票/收据</h3>
+                                </div>
+                                <div className="p-6">
+                                    <a
+                                        href={reimbursement.receiptUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors"
+                                    >
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        查看发票
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 右侧信息栏 */}
+                    <div className="space-y-6">
+                        {/* 审核信息 */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900">审核信息</h3>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                {reimbursement.reviewer && (
+                                    <div className="flex items-start space-x-3">
+                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="text-sm font-medium text-gray-900">{reimbursement.reviewer.username}</div>
+                                            <div className="text-xs text-gray-500">审核人</div>
+                                            <div className="text-xs text-gray-600">{reimbursement.reviewer.email}</div>
+                                        </div>
                                     </div>
                                 )}
+                                {reimbursement.approver && (
+                                    <div className="flex items-start space-x-3">
+                                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="text-sm font-medium text-gray-900">{reimbursement.approver.username}</div>
+                                            <div className="text-xs text-gray-500">批准人</div>
+                                            <div className="text-xs text-gray-600">{reimbursement.approver.email}</div>
+                                        </div>
+                                    </div>
+                                )}
+                                {!reimbursement.reviewer && !reimbursement.approver && (
+                                    <div className="text-center py-4">
+                                        <div className="text-gray-400 text-sm">暂无审核信息</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
-                                {/* 发票链接 */}
-                                {reimbursement.receiptUrl && (
-                                    <div>
-                                        <h3 className="text-lg font-medium text-gray-900 mb-4">发票/收据</h3>
-                                        <a
-                                            href={reimbursement.receiptUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-indigo-600 hover:text-indigo-500 text-sm break-all"
-                                        >
-                                            {reimbursement.receiptUrl}
-                                        </a>
+                        {/* 汇率信息 */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-900">汇率信息</h3>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500">汇率</span>
+                                    <span className="text-sm font-medium text-gray-900">{reimbursement.exchangeRateToUsd}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500">来源</span>
+                                    <span className="text-sm font-medium text-gray-900">{reimbursement.exchangeRateSource}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500">时间</span>
+                                    <span className="text-sm font-medium text-gray-900">{formatDate(reimbursement.exchangeRateTime)}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-gray-500">手动汇率</span>
+                                    <span className={`text-sm font-medium ${reimbursement.isManualRate ? 'text-orange-600' : 'text-gray-900'}`}>
+                                        {reimbursement.isManualRate ? "是" : "否"}
+                                    </span>
+                                </div>
+                                {reimbursement.convertedBy && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-gray-500">转换人</span>
+                                        <span className="text-sm font-medium text-gray-900">{reimbursement.convertedBy}</span>
                                     </div>
                                 )}
                             </div>

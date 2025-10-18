@@ -27,13 +27,13 @@ describe('Register Page', () => {
         // Assert
         expect(screen.getByText('注册账户')).toBeInTheDocument()
         expect(screen.getByLabelText('用户名 *')).toBeInTheDocument()
-        expect(screen.getByLabelText('邮箱地址 *')).toBeInTheDocument()
+        expect(screen.getByLabelText('邮箱 *')).toBeInTheDocument()
         expect(screen.getByLabelText('密码 *')).toBeInTheDocument()
         expect(screen.getByLabelText('确认密码 *')).toBeInTheDocument()
-        expect(screen.getByLabelText('Telegram 账号')).toBeInTheDocument()
-        expect(screen.getByLabelText('WhatsApp 账号')).toBeInTheDocument()
-        expect(screen.getByLabelText('EVM 地址')).toBeInTheDocument()
-        expect(screen.getByLabelText('Solana 地址')).toBeInTheDocument()
+        expect(screen.getByLabelText('Telegram账号')).toBeInTheDocument()
+        expect(screen.getByLabelText('WhatsApp账号')).toBeInTheDocument()
+        expect(screen.getByLabelText('EVM地址')).toBeInTheDocument()
+        expect(screen.getByLabelText('Solana地址')).toBeInTheDocument()
         expect(screen.getByRole('button', { name: '注册' })).toBeInTheDocument()
     })
 
@@ -59,19 +59,19 @@ describe('Register Page', () => {
 
         // Act
         await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-        await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+        await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
         await user.type(screen.getByLabelText('密码 *'), 'password123')
         await user.type(screen.getByLabelText('确认密码 *'), 'password123')
-        await user.type(screen.getByLabelText('Telegram 账号'), '@testuser')
-        await user.type(screen.getByLabelText('WhatsApp 账号'), '+1234567890')
-        await user.type(screen.getByLabelText('EVM 地址'), '0x1234567890abcdef')
-        await user.type(screen.getByLabelText('Solana 地址'), 'So11111111111111111111111111111111111111112')
+        await user.type(screen.getByLabelText('Telegram账号'), '@testuser')
+        await user.type(screen.getByLabelText('WhatsApp账号'), '+1234567890')
+        await user.type(screen.getByLabelText('EVM地址'), '0x1234567890abcdef')
+        await user.type(screen.getByLabelText('Solana地址'), 'So11111111111111111111111111111111111111112')
 
         await user.click(screen.getByRole('button', { name: '注册' }))
 
         // Assert
         await waitFor(() => {
-            expect(global.fetch).toHaveBeenCalledWith('/api/users/register', {
+            expect(global.fetch).toHaveBeenCalledWith('/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ describe('Register Page', () => {
             })
         })
 
-        expect(mockPush).toHaveBeenCalledWith('/login?message=注册成功，请登录')
+        expect(screen.getByRole('heading', { name: '注册成功' })).toBeInTheDocument()
     })
 
     it('should show error when passwords do not match', async () => {
@@ -102,9 +102,7 @@ describe('Register Page', () => {
         await user.click(screen.getByRole('button', { name: '注册' }))
 
         // Assert
-        await waitFor(() => {
-            expect(screen.getByText('两次输入的密码不一致')).toBeInTheDocument()
-        })
+        expect(await screen.findByText('两次输入的密码不一致')).toBeInTheDocument()
         expect(global.fetch).not.toHaveBeenCalled()
     })
 
@@ -117,9 +115,7 @@ describe('Register Page', () => {
         await user.type(screen.getByLabelText('密码 *'), '123')
 
         // Assert
-        await waitFor(() => {
-            expect(screen.getByText('密码至少需要6位字符')).toBeInTheDocument()
-        })
+        expect(await screen.findByText('密码至少6位')).toBeInTheDocument()
     })
 
     it('should show real-time validation error for long password', async () => {
@@ -131,9 +127,7 @@ describe('Register Page', () => {
         await user.type(screen.getByLabelText('密码 *'), 'a'.repeat(51))
 
         // Assert
-        await waitFor(() => {
-            expect(screen.getByText('密码不能超过50位字符')).toBeInTheDocument()
-        })
+        expect(await screen.findByText('密码不能超过50位字符')).toBeInTheDocument()
     })
 
     it('should show real-time validation error when confirm password does not match', async () => {
@@ -146,9 +140,7 @@ describe('Register Page', () => {
         await user.type(screen.getByLabelText('确认密码 *'), 'differentpassword')
 
         // Assert
-        await waitFor(() => {
-            expect(screen.getByText('两次输入的密码不一致')).toBeInTheDocument()
-        })
+        expect(await screen.findByText('两次输入的密码不一致')).toBeInTheDocument()
     })
 
     it('should clear confirm password error when passwords match', async () => {
@@ -213,14 +205,14 @@ describe('Register Page', () => {
 
         // Act
         await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-        await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+        await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
         await user.type(screen.getByLabelText('密码 *'), '123')
         await user.type(screen.getByLabelText('确认密码 *'), '123')
         await user.click(screen.getByRole('button', { name: '注册' }))
 
         // Assert
         await waitFor(() => {
-            expect(screen.getByText('密码至少需要6位字符')).toBeInTheDocument()
+            expect(screen.getByText('密码至少6位')).toBeInTheDocument()
         })
         expect(global.fetch).not.toHaveBeenCalled()
     })
@@ -232,7 +224,7 @@ describe('Register Page', () => {
 
         // Act
         await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-        await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+        await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
         await user.type(screen.getByLabelText('密码 *'), 'password123')
         await user.type(screen.getByLabelText('确认密码 *'), 'password456')
         await user.click(screen.getByRole('button', { name: '注册' }))
@@ -257,7 +249,7 @@ describe('Register Page', () => {
 
         // Act
         await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-        await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+        await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
         await user.type(screen.getByLabelText('密码 *'), 'password123')
         await user.type(screen.getByLabelText('确认密码 *'), 'password123')
 
@@ -282,7 +274,7 @@ describe('Register Page', () => {
 
         // Act
         await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-        await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+        await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
         await user.type(screen.getByLabelText('密码 *'), 'password123')
         await user.type(screen.getByLabelText('确认密码 *'), 'password123')
 
@@ -308,7 +300,7 @@ describe('Register Page', () => {
 
         // Act
         await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-        await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+        await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
         await user.type(screen.getByLabelText('密码 *'), 'password123')
         await user.type(screen.getByLabelText('确认密码 *'), 'password123')
 

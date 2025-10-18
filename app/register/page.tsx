@@ -32,15 +32,46 @@ export default function RegisterPage() {
         solanaAddress: ""
     });
 
+    const [errors, setErrors] = useState<Partial<RegisterForm>>({});
+
+    const validateForm = () => {
+        const newErrors: Partial<RegisterForm> = {};
+
+        if (!form.username.trim()) {
+            newErrors.username = "用户名不能为空";
+        }
+
+        if (!form.email.trim()) {
+            newErrors.email = "邮箱不能为空";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+            newErrors.email = "邮箱格式不正确";
+        }
+
+        if (!form.password) {
+            newErrors.password = "密码不能为空";
+        } else if (form.password.length < 6) {
+            newErrors.password = "密码至少6位";
+        } else if (form.password.length > 50) {
+            newErrors.password = "密码不能超过50位字符";
+        }
+
+        if (!form.confirmPassword) {
+            newErrors.confirmPassword = "确认密码不能为空";
+        } else if (form.password !== form.confirmPassword) {
+            newErrors.confirmPassword = "两次输入的密码不一致";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
         setSuccess("");
 
-        // 验证密码确认
-        if (form.password !== form.confirmPassword) {
-            setError("两次输入的密码不一致");
+        if (!validateForm()) {
             setLoading(false);
             return;
         }
@@ -141,10 +172,19 @@ export default function RegisterPage() {
                                 type="text"
                                 required
                                 value={form.username}
-                                onChange={(e) => setForm({ ...form, username: e.target.value })}
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                onChange={(e) => {
+                                    setForm({ ...form, username: e.target.value });
+                                    if (errors.username) {
+                                        setErrors({ ...errors, username: undefined });
+                                    }
+                                }}
+                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.username ? 'border-red-300' : 'border-gray-300'
+                                    }`}
                                 placeholder="请输入用户名"
                             />
+                            {errors.username && (
+                                <p className="mt-1 text-sm text-red-600">{errors.username}</p>
+                            )}
                         </div>
 
                         <div>
@@ -157,10 +197,19 @@ export default function RegisterPage() {
                                 type="email"
                                 required
                                 value={form.email}
-                                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                onChange={(e) => {
+                                    setForm({ ...form, email: e.target.value });
+                                    if (errors.email) {
+                                        setErrors({ ...errors, email: undefined });
+                                    }
+                                }}
+                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.email ? 'border-red-300' : 'border-gray-300'
+                                    }`}
                                 placeholder="请输入邮箱"
                             />
+                            {errors.email && (
+                                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                            )}
                         </div>
 
                         <div>
@@ -174,10 +223,36 @@ export default function RegisterPage() {
                                 required
                                 minLength={6}
                                 value={form.password}
-                                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                onChange={(e) => {
+                                    const newPassword = e.target.value;
+                                    setForm({ ...form, password: newPassword });
+
+                                    // 实时验证密码
+                                    const newErrors = { ...errors };
+                                    if (newPassword && newPassword.length < 6) {
+                                        newErrors.password = "密码至少6位";
+                                    } else if (newPassword && newPassword.length > 50) {
+                                        newErrors.password = "密码不能超过50位字符";
+                                    } else {
+                                        delete newErrors.password;
+                                    }
+
+                                    // 如果密码改变，重新验证确认密码
+                                    if (form.confirmPassword && newPassword !== form.confirmPassword) {
+                                        newErrors.confirmPassword = "两次输入的密码不一致";
+                                    } else if (form.confirmPassword && newPassword === form.confirmPassword) {
+                                        delete newErrors.confirmPassword;
+                                    }
+
+                                    setErrors(newErrors);
+                                }}
+                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.password ? 'border-red-300' : 'border-gray-300'
+                                    }`}
                                 placeholder="请输入密码（至少6位）"
                             />
+                            {errors.password && (
+                                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                            )}
                         </div>
 
                         <div>
@@ -190,10 +265,27 @@ export default function RegisterPage() {
                                 type="password"
                                 required
                                 value={form.confirmPassword}
-                                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                onChange={(e) => {
+                                    const newConfirmPassword = e.target.value;
+                                    setForm({ ...form, confirmPassword: newConfirmPassword });
+
+                                    // 实时验证确认密码
+                                    const newErrors = { ...errors };
+                                    if (newConfirmPassword && form.password !== newConfirmPassword) {
+                                        newErrors.confirmPassword = "两次输入的密码不一致";
+                                    } else {
+                                        delete newErrors.confirmPassword;
+                                    }
+
+                                    setErrors(newErrors);
+                                }}
+                                className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                                    }`}
                                 placeholder="请再次输入密码"
                             />
+                            {errors.confirmPassword && (
+                                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                            )}
                         </div>
 
                         <div>

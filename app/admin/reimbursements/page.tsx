@@ -49,6 +49,9 @@ export default function AdminReimbursementsPage() {
     const [selectedReimbursement, setSelectedReimbursement] = useState<Reimbursement | null>(null);
     const [reviewComment, setReviewComment] = useState("");
     const [reviewing, setReviewing] = useState(false);
+    const submittedCount = Array.isArray(reimbursements)
+        ? reimbursements.filter(r => r.status === "submitted").length
+        : 0;
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -180,7 +183,7 @@ export default function AdminReimbursementsPage() {
                         </div>
                         <div className="text-center">
                             <div className="text-2xl font-bold text-yellow-600">
-                                {reimbursements.filter(r => r.status === 'submitted').length}
+                                {submittedCount}
                             </div>
                             <div className="text-sm text-gray-500">待审核</div>
                         </div>

@@ -491,9 +491,9 @@ export default function AdminUsersPage() {
                                     <label className="block text-sm font-medium text-gray-700">审核结果</label>
                                     <select
                                         value={approveForm.approved ? "approved" : "rejected"}
-                                        onChange={(e) => setApproveForm({ 
-                                            ...approveForm, 
-                                            approved: e.target.value === "approved" 
+                                        onChange={(e) => setApproveForm({
+                                            ...approveForm,
+                                            approved: e.target.value === "approved"
                                         })}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                     >

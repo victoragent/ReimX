@@ -83,13 +83,20 @@ export async function POST(
             data: {
                 status: action === "approve" ? "approved" : "rejected",
                 reviewerId: currentUser.id,
-                approverId: action === "approve" ? currentUser.id : null
+                approverId: action === "approve" ? currentUser.id : null,
+                reviewedAt: new Date(),
+                reviewComment: comment ?? null
             },
             include: {
                 applicant: {
                     select: {
                         username: true,
                         email: true
+                    }
+                },
+                reviewer: {
+                    select: {
+                        username: true
                     }
                 }
             }
