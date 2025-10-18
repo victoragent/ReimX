@@ -311,3 +311,233 @@ https://next-auth.js.org/warnings#nextauth_url
  GET /admin/users 200 in 10ms
  ✓ Compiled in 374ms (688 modules)
  GET /admin/users 200 in 19ms
+ ✓ Compiled in 425ms (688 modules)
+ GET /admin/users 200 in 19ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 526ms (595 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 643ms
+ ✓ Compiled in 289ms (936 modules)
+ GET /admin/users 200 in 22ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 34ms
+ GET /reimbursements/history 200 in 7ms
+ ✓ Compiled /api/reimbursements in 232ms (608 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements 200 in 317ms
+ GET /api/reimbursements 200 in 6ms
+ ✓ Compiled /reimbursements in 84ms (612 modules)
+ GET /reimbursements 200 in 105ms
+ GET /reimbursements/history 200 in 17ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements 200 in 22ms
+ GET /api/reimbursements 200 in 4ms
+ ✓ Compiled /reimbursements/[id] in 187ms (959 modules)
+ GET /reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 387ms
+ GET /reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 5ms
+ ✓ Compiled /api/reimbursements/[id] in 79ms (618 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+prisma:error 
+Invalid `prisma.reimbursement.findUnique()` invocation:
+
+{
+  where: {
+    id: "cmgvzw9hl0001dci7jhtss18o"
+  },
+  include: {
+    applicant: {
+      select: {
+        id: true,
+        username: true,
+        email: true
+      }
+    },
+    reviewer: {
+    ~~~~~~~~
+      select: {
+        id: true,
+        username: true
+      }
+    },
+    approver: {
+      select: {
+        id: true,
+        username: true
+      }
+    }
+  }
+}
+
+Unknown field `reviewer` for include statement on model `Reimbursement`. Available options are marked with ?.
+获取报销详情错误: PrismaClientValidationError: 
+Invalid `prisma.reimbursement.findUnique()` invocation:
+
+{
+  where: {
+    id: "cmgvzw9hl0001dci7jhtss18o"
+  },
+  include: {
+    applicant: {
+      select: {
+        id: true,
+        username: true,
+        email: true
+      }
+    },
+    reviewer: {
+    ~~~~~~~~
+      select: {
+        id: true,
+        username: true
+      }
+    },
+    approver: {
+      select: {
+        id: true,
+        username: true
+      }
+    }
+  }
+}
+
+Unknown field `reviewer` for include statement on model `Reimbursement`. Available options are marked with ?.
+    at wn (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at $n.handleRequestError (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:121:6958)
+    at $n.handleAndLogRequestError (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async GET (webpack-internal:///(rsc)/./app/api/reimbursements/[id]/route.ts:42:31)
+    at async /Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:117158
+    at async AppRouteRouteModule.execute (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:95721)
+    at async AppRouteRouteModule.handle (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:118770)
+    at async doRender (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:1452:42)
+    at async responseGenerator (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:1786:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:1796:28)
+    at async DevServer.renderPageComponent (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:2169:24)
+    at async DevServer.renderToResponseImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:2207:32)
+    at async DevServer.pipeImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:960:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/next-server.js:281:17)
+    at async DevServer.handleRequestImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:853:17)
+    at async /Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/dev/next-dev-server.js:377:20
+    at async Span.traceAsyncFn (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/dev/next-dev-server.js:374:24)
+    at async invokeRender (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/router-server.js:183:21)
+    at async handleRequest (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/router-server.js:360:24)
+    at async requestHandlerImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/router-server.js:384:13)
+    at async Server.requestListener (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/start-server.js:142:13) {
+  clientVersion: '5.22.0'
+}
+ GET /api/reimbursements/cmgvzw9hl0001dci7jhtss18o 500 in 320ms
+prisma:error 
+Invalid `prisma.reimbursement.findUnique()` invocation:
+
+{
+  where: {
+    id: "cmgvzw9hl0001dci7jhtss18o"
+  },
+  include: {
+    applicant: {
+      select: {
+        id: true,
+        username: true,
+        email: true
+      }
+    },
+    reviewer: {
+    ~~~~~~~~
+      select: {
+        id: true,
+        username: true
+      }
+    },
+    approver: {
+      select: {
+        id: true,
+        username: true
+      }
+    }
+  }
+}
+
+Unknown field `reviewer` for include statement on model `Reimbursement`. Available options are marked with ?.
+获取报销详情错误: PrismaClientValidationError: 
+Invalid `prisma.reimbursement.findUnique()` invocation:
+
+{
+  where: {
+    id: "cmgvzw9hl0001dci7jhtss18o"
+  },
+  include: {
+    applicant: {
+      select: {
+        id: true,
+        username: true,
+        email: true
+      }
+    },
+    reviewer: {
+    ~~~~~~~~
+      select: {
+        id: true,
+        username: true
+      }
+    },
+    approver: {
+      select: {
+        id: true,
+        username: true
+      }
+    }
+  }
+}
+
+Unknown field `reviewer` for include statement on model `Reimbursement`. Available options are marked with ?.
+    at wn (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:29:1363)
+    at $n.handleRequestError (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:121:6958)
+    at $n.handleAndLogRequestError (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:121:6623)
+    at $n.request (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:121:6307)
+    at async l (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/@prisma+client@5.22.0_prisma@5.22.0/node_modules/@prisma/client/runtime/library.js:130:9633)
+    at async GET (webpack-internal:///(rsc)/./app/api/reimbursements/[id]/route.ts:42:31)
+    at async /Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:117158
+    at async AppRouteRouteModule.execute (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:95721)
+    at async AppRouteRouteModule.handle (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:118770)
+    at async doRender (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:1452:42)
+    at async responseGenerator (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:1786:28)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:1796:28)
+    at async DevServer.renderPageComponent (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:2169:24)
+    at async DevServer.renderToResponseImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:2207:32)
+    at async DevServer.pipeImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:960:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/next-server.js:281:17)
+    at async DevServer.handleRequestImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/base-server.js:853:17)
+    at async /Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/dev/next-dev-server.js:377:20
+    at async Span.traceAsyncFn (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/dev/next-dev-server.js:374:24)
+    at async invokeRender (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/router-server.js:183:21)
+    at async handleRequest (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/router-server.js:360:24)
+    at async requestHandlerImpl (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/router-server.js:384:13)
+    at async Server.requestListener (/Users/xiaoyi/codespace/ai/ReimX/node_modules/.pnpm/next@15.0.0-canary.163_@babel+core@7.28.4_react-dom@19.0.0-rc.1_react@19.0.0-rc.1__react@19.0.0-rc.1/node_modules/next/dist/server/lib/start-server.js:142:13) {
+  clientVersion: '5.22.0'
+}
+ GET /api/reimbursements/cmgvzw9hl0001dci7jhtss18o 500 in 6ms
+ GET /api/auth/session 200 in 16ms
+ GET /profile 200 in 21ms
+ ✓ Compiled /api/users/profile in 126ms (610 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/users/profile 200 in 170ms
+ GET /api/users/profile 200 in 6ms
+ GET /reimbursements/history 200 in 9ms
+ GET /api/reimbursements 200 in 26ms
+ GET /api/reimbursements 200 in 6ms
+ GET /reimbursements/history 200 in 17ms
+ ✓ Compiled in 243ms (953 modules)
+ GET /reimbursements/history 200 in 13ms
+ ✓ Compiled in 197ms (953 modules)
+ GET /reimbursements/history 200 in 54ms
+ ✓ Compiled in 256ms (953 modules)
+ GET /reimbursements/history 200 in 36ms

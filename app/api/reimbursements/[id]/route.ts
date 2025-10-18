@@ -34,18 +34,6 @@ export async function GET(
             username: true,
             email: true
           }
-        },
-        reviewer: {
-          select: {
-            id: true,
-            username: true
-          }
-        },
-        approver: {
-          select: {
-            id: true,
-            username: true
-          }
         }
       }
     });
