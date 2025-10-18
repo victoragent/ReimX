@@ -345,100 +345,100 @@ export default function AdminReimbursementsPage() {
 
             {/* 报销详情模态框 */}
             {selectedReimbursement && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-                    <div className="mt-3">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">报销详情</h3>
-                            <button
-                                onClick={() => setSelectedReimbursement(null)}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 className="font-medium text-gray-900 mb-2">基本信息</h4>
-                                <div className="space-y-2 text-sm">
-                                    <div><span className="font-medium">申请人：</span>{selectedReimbursement.applicant?.username || 'N/A'}</div>
-                                    <div><span className="font-medium">邮箱：</span>{selectedReimbursement.applicant?.email || 'N/A'}</div>
-                                    <div><span className="font-medium">金额：</span>{selectedReimbursement.amount || selectedReimbursement.amountOriginal || 'N/A'} {selectedReimbursement.currency}</div>
-                                    <div><span className="font-medium">状态：</span>
-                                        <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedReimbursement.status)}`}>
-                                            {getStatusText(selectedReimbursement.status)}
-                                        </span>
-                                    </div>
-                                    <div><span className="font-medium">提交时间：</span>{selectedReimbursement.submittedAt ? new Date(selectedReimbursement.submittedAt).toLocaleString() : 'N/A'}</div>
-                                </div>
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+                        <div className="mt-3">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">报销详情</h3>
+                                <button
+                                    onClick={() => setSelectedReimbursement(null)}
+                                    className="text-gray-400 hover:text-gray-600"
+                                >
+                                    ✕
+                                </button>
                             </div>
 
-                            <div>
-                                <h4 className="font-medium text-gray-900 mb-2">描述</h4>
-                                <p className="text-sm text-gray-600">{selectedReimbursement.description}</p>
-                            </div>
-                        </div>
-
-                        {selectedReimbursement.attachments && selectedReimbursement.attachments.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="font-medium text-gray-900 mb-2">附件</h4>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    {selectedReimbursement.attachments.map((attachment) => (
-                                        <div key={attachment.id} className="border rounded-lg p-3">
-                                            <div className="text-sm font-medium truncate">{attachment.filename}</div>
-                                            <a
-                                                href={attachment.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-indigo-600 hover:text-indigo-900 text-xs"
-                                            >
-                                                查看文件
-                                            </a>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 className="font-medium text-gray-900 mb-2">基本信息</h4>
+                                    <div className="space-y-2 text-sm">
+                                        <div><span className="font-medium">申请人：</span>{selectedReimbursement.applicant?.username || 'N/A'}</div>
+                                        <div><span className="font-medium">邮箱：</span>{selectedReimbursement.applicant?.email || 'N/A'}</div>
+                                        <div><span className="font-medium">金额：</span>{selectedReimbursement.amount || selectedReimbursement.amountOriginal || 'N/A'} {selectedReimbursement.currency}</div>
+                                        <div><span className="font-medium">状态：</span>
+                                            <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedReimbursement.status)}`}>
+                                                {getStatusText(selectedReimbursement.status)}
+                                            </span>
                                         </div>
-                                    ))}
+                                        <div><span className="font-medium">提交时间：</span>{selectedReimbursement.submittedAt ? new Date(selectedReimbursement.submittedAt).toLocaleString() : 'N/A'}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
 
-                        {selectedReimbursement.status === "submitted" && (
-                            <div className="mt-6">
-                                <h4 className="font-medium text-gray-900 mb-2">审核操作</h4>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">审核意见</label>
-                                        <textarea
-                                            value={reviewComment}
-                                            onChange={(e) => setReviewComment(e.target.value)}
-                                            rows={3}
-                                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                            placeholder="请输入审核意见..."
-                                        />
-                                    </div>
-                                    <div className="flex space-x-3">
-                                        <button
-                                            onClick={() => handleReview(selectedReimbursement.id, "approve")}
-                                            disabled={reviewing}
-                                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-                                        >
-                                            {reviewing ? "处理中..." : "批准"}
-                                        </button>
-                                        <button
-                                            onClick={() => handleReview(selectedReimbursement.id, "reject")}
-                                            disabled={reviewing}
-                                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-                                        >
-                                            {reviewing ? "处理中..." : "拒绝"}
-                                        </button>
-                                    </div>
+                                <div>
+                                    <h4 className="font-medium text-gray-900 mb-2">描述</h4>
+                                    <p className="text-sm text-gray-600">{selectedReimbursement.description}</p>
                                 </div>
                             </div>
-                        )}
+
+                            {selectedReimbursement.attachments && selectedReimbursement.attachments.length > 0 && (
+                                <div className="mt-6">
+                                    <h4 className="font-medium text-gray-900 mb-2">附件</h4>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        {selectedReimbursement.attachments.map((attachment) => (
+                                            <div key={attachment.id} className="border rounded-lg p-3">
+                                                <div className="text-sm font-medium truncate">{attachment.filename}</div>
+                                                <a
+                                                    href={attachment.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-indigo-600 hover:text-indigo-900 text-xs"
+                                                >
+                                                    查看文件
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {selectedReimbursement.status === "submitted" && (
+                                <div className="mt-6">
+                                    <h4 className="font-medium text-gray-900 mb-2">审核操作</h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">审核意见</label>
+                                            <textarea
+                                                value={reviewComment}
+                                                onChange={(e) => setReviewComment(e.target.value)}
+                                                rows={3}
+                                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                                placeholder="请输入审核意见..."
+                                            />
+                                        </div>
+                                        <div className="flex space-x-3">
+                                            <button
+                                                onClick={() => handleReview(selectedReimbursement.id, "approve")}
+                                                disabled={reviewing}
+                                                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                                            >
+                                                {reviewing ? "处理中..." : "批准"}
+                                            </button>
+                                            <button
+                                                onClick={() => handleReview(selectedReimbursement.id, "reject")}
+                                                disabled={reviewing}
+                                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                                            >
+                                                {reviewing ? "处理中..." : "拒绝"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
-        )
-    }
+            )
+            }
         </div >
     );
 }
