@@ -1,83 +1,161 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, CheckCircle2, ShieldCheck, Wallet } from "lucide-react";
+import { ArrowRight, BarChart3, CheckCircle2, ShieldCheck, Wallet, Users, Zap, Globe, Lock } from "lucide-react";
 
 const features = [
   {
-    title: "多角色协作",
-    description: "成员、审核员、管理员多角色协同，确保流程透明高效。",
-    icon: ShieldCheck
+    title: "智能角色管理",
+    description: "多层级权限控制，确保财务流程安全透明",
+    icon: Users,
+    color: "text-blue-600"
   },
   {
-    title: "多链支付",
-    description: "支持 EVM 与 Solana，两条链路自由切换，满足 Web3 财务需求。",
-    icon: Wallet
+    title: "多链支付支持",
+    description: "EVM 与 Solana 双链支持，满足 Web3 企业需求",
+    icon: Globe,
+    color: "text-green-600"
   },
   {
-    title: "实时汇率",
-    description: "自动对接 Binance/Coinbase，报销时即时锁定 USD 汇率。",
-    icon: CheckCircle2
+    title: "实时汇率锁定",
+    description: "自动汇率转换，确保财务数据准确性",
+    icon: Zap,
+    color: "text-yellow-600"
   },
   {
-    title: "数据报表",
-    description: "USD 总支出、币种占比、月度趋势一目了然。",
-    icon: BarChart3
+    title: "安全审计",
+    description: "完整的操作日志，满足企业合规要求",
+    icon: Lock,
+    color: "text-red-600"
   }
+];
+
+const stats = [
+  { label: "支持币种", value: "3+" },
+  { label: "区块链网络", value: "2" },
+  { label: "处理速度", value: "< 5s" },
+  { label: "安全等级", value: "企业级" }
 ];
 
 export default function LandingPage() {
   return (
-    <main className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-5xl flex-col gap-16 px-6 py-16">
-      <section className="space-y-6 text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
-          Web3 Reimbursement System
-        </span>
-        <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
-          构建以 Web3 为先的报销与费用管理体验
-        </h1>
-        <p className="mx-auto max-w-2xl text-lg text-slate-600">
-          ReimX 结合 Next.js 15、Prisma、Telegram Bot 与链上支付，为分布式团队提供开箱即用的费用管理流程：提交、审核、支付、通知全自动。
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90"
-          >
-            进入控制台
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="https://github.com"
-            className="text-sm font-semibold text-slate-600 transition hover:text-primary"
-          >
-            查看部署指南
-          </Link>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="mb-8 flex justify-center">
+              <div className="relative rounded-full bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-600 ring-1 ring-indigo-600/20">
+                <span className="absolute inset-0 rounded-full bg-indigo-100/50"></span>
+                <span className="relative">Web3 企业级报销系统</span>
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+              现代化
+              <span className="text-indigo-600"> 财务流程</span>
+              <br />
+              管理平台
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              专为 Web3 企业设计的智能报销系统，集成多链支付、实时汇率、权限管理，
+              让财务流程更安全、高效、透明。
+            </p>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+              <Link
+                href="/login"
+                className="rounded-md bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all duration-200"
+              >
+                立即开始
+                <ArrowRight className="ml-2 inline h-4 w-4" />
+              </Link>
+              <Link
+                href="/register"
+                className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600 transition-colors duration-200"
+              >
+                免费注册 <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-2">
-        {features.map((feature) => (
-          <article key={feature.title} className="rounded-xl border border-slate-200 bg-white/80 p-6 shadow-sm">
-            <feature.icon className="h-10 w-10 text-primary" />
-            <h3 className="mt-4 text-xl font-semibold text-slate-900">{feature.title}</h3>
-            <p className="mt-2 text-sm text-slate-600">{feature.description}</p>
-          </article>
-        ))}
+      {/* Stats Section */}
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-base font-semibold leading-7 text-indigo-600">企业级性能</h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              值得信赖的数据
+            </p>
+          </div>
+          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
+              {stats.map((stat) => (
+                <div key={stat.label} className="flex flex-col">
+                  <dt className="text-base leading-7 text-gray-900">{stat.label}</dt>
+                  <dd className="mt-1 text-2xl font-bold tracking-tight text-gray-900">{stat.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
       </section>
 
-      <section className="grid gap-8 rounded-2xl border border-dashed border-primary/40 bg-primary/5 p-8 md:grid-cols-2">
-        <div className="space-y-3">
-          <h2 className="text-2xl font-semibold text-slate-900">架构一览</h2>
-          <p className="text-sm leading-6 text-slate-600">
-            前端采用 Next.js App Router，后端以 Server Actions 与 Prisma 协调 Neon PostgreSQL；借助 Vercel Blob 存储报销附件，支付环节通过 ethers.js 与 @solana/web3.js 触达多链。
-          </p>
+      {/* Features Section */}
+      <section className="bg-slate-50 py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-base font-semibold leading-7 text-indigo-600">核心功能</h2>
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              为企业量身定制
+            </p>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              集成最先进的技术栈，提供安全、高效、易用的财务管理系统
+            </p>
+          </div>
+          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
+              {features.map((feature) => (
+                <div key={feature.title} className="flex flex-col">
+                  <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
+                    <feature.icon className={`h-5 w-5 flex-none ${feature.color}`} aria-hidden="true" />
+                    {feature.title}
+                  </dt>
+                  <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                    <p className="flex-auto">{feature.description}</p>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
-        <ul className="space-y-3 text-sm text-slate-600">
-          <li>• Auth：NextAuth Email + JWT 双模</li>
-          <li>• Notifications：Telegram Bot + Resend</li>
-          <li>• Exchange：Binance 实时行情 + 管理员人工修正</li>
-          <li>• Analytics：Chart.js 与 Recharts 提供多维度报表</li>
-        </ul>
       </section>
-    </main>
+
+      {/* CTA Section */}
+      <section className="bg-indigo-600">
+        <div className="mx-auto max-w-7xl px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              准备开始您的财务数字化之旅？
+            </h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-indigo-200">
+              立即注册，体验现代化的企业财务管理系统，让您的团队工作更高效。
+            </p>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+              <Link
+                href="/register"
+                className="rounded-md bg-white px-6 py-3 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-all duration-200"
+              >
+                免费注册
+              </Link>
+              <Link
+                href="/login"
+                className="text-sm font-semibold leading-6 text-white hover:text-indigo-200 transition-colors duration-200"
+              >
+                已有账户？立即登录 <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
