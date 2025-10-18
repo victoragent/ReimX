@@ -166,11 +166,41 @@ export default function AdminUsersPage() {
     }
 
     return (
-        <div>
-            <div className="bg-white shadow rounded-lg">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6 px-4 py-5 sm:p-6">用户管理</h1>
+        <div className="space-y-6">
+            {/* 页面标题和操作栏 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
+                        <p className="mt-1 text-gray-600">管理系统用户账户和权限</p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <span className="text-sm text-gray-500">共 {pagination?.total || 0} 个用户</span>
+                        <button
+                            onClick={() => setEditingUser({
+                                id: '',
+                                username: '',
+                                email: '',
+                                role: 'user',
+                                status: 'active',
+                                tgAccount: '',
+                                whatsappAccount: '',
+                                evmAddress: '',
+                                solanaAddress: '',
+                                createdAt: '',
+                                updatedAt: '',
+                                _count: { reimbursements: 0 }
+                            })}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                            + 添加用户
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-                <div className="px-4 py-5 sm:p-6">
+            {/* 搜索和筛选 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     {/* 搜索和筛选 */}
                     <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                         <input

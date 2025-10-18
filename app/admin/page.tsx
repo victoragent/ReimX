@@ -100,10 +100,19 @@ export default function AdminDashboard() {
     }
 
     return (
-        <div>
-            <div className="mb-8 px-4 py-5 sm:p-6">
-                <h1 className="text-3xl font-bold text-gray-900">管理后台</h1>
-                <p className="mt-2 text-gray-600">欢迎回来，{session?.user?.name}</p>
+        <div className="space-y-6">
+            {/* 页面标题 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">管理概览</h1>
+                        <p className="mt-1 text-gray-600">欢迎回来，{session?.user?.name}，这是您的管理仪表板</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                        <span className="text-sm text-gray-500">系统运行正常</span>
+                    </div>
+                </div>
             </div>
 
             {/* 统计卡片 */}

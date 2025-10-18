@@ -760,3 +760,205 @@ https://next-auth.js.org/warnings#nextauth_url
  GET /admin 200 in 23ms
  ✓ Compiled in 212ms (954 modules)
  GET /admin 200 in 10ms
+ ✓ Compiled in 230ms (954 modules)
+ GET /admin 200 in 33ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 53ms
+ GET /api/admin/stats 200 in 13ms
+ GET /reimbursements 200 in 9ms
+ ✓ Compiled in 312ms (945 modules)
+ GET /reimbursements 200 in 18ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 49ms
+ GET /admin 200 in 7ms
+ GET /api/admin/stats 200 in 10ms
+ GET /api/admin/stats 200 in 5ms
+ GET /api/auth/session 200 in 10ms
+ GET /api/admin/stats 200 in 11ms
+ GET /dashboard 200 in 39ms
+ GET /reimbursements/history 200 in 58ms
+ GET /api/auth/session 200 in 6ms
+ ✓ Compiled /api/reimbursements in 73ms (603 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements 200 in 117ms
+ GET /dashboard 200 in 13ms
+ GET /reimbursements 200 in 17ms
+ GET /api/auth/session 200 in 12ms
+ GET /dashboard 200 in 20ms
+ GET /dashboard 200 in 15ms
+ GET /reimbursements 200 in 5ms
+ GET /reimbursements/history 200 in 12ms
+ GET /api/reimbursements 200 in 8ms
+ GET /api/reimbursements 200 in 6ms
+ ✓ Compiled /profile in 99ms (607 modules)
+ GET /profile 200 in 117ms
+ ✓ Compiled /api/users/profile in 65ms (609 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/users/profile 200 in 79ms
+ GET /api/users/profile 200 in 5ms
+ GET /reimbursements/history 200 in 17ms
+ GET /api/reimbursements 200 in 14ms
+ GET /api/reimbursements 200 in 7ms
+ GET /reimbursements 200 in 16ms
+ GET /dashboard 200 in 9ms
+ GET /reimbursements 200 in 12ms
+ GET /dashboard 200 in 11ms
+ GET /reimbursements 200 in 4ms
+ GET /reimbursements/history 200 in 15ms
+ GET /api/reimbursements 200 in 14ms
+ GET /api/reimbursements 200 in 7ms
+ ✓ Compiled /reimbursements/[id] in 197ms (613 modules)
+ GET /reimbursements/cmgvtwisi000d13dn0ip8irq7 200 in 228ms
+ ✓ Compiled /api/reimbursements/[id] in 140ms (615 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements/cmgvtwisi000d13dn0ip8irq7 200 in 186ms
+ GET /api/reimbursements/cmgvtwisi000d13dn0ip8irq7 200 in 4ms
+ GET /reimbursements 200 in 14ms
+ GET /reimbursements/history 200 in 16ms
+ GET /api/reimbursements 200 in 16ms
+ GET /api/reimbursements 200 in 9ms
+ GET /profile 200 in 16ms
+ GET /api/users/profile 200 in 13ms
+ GET /api/users/profile 200 in 6ms
+ GET /dashboard 200 in 29ms
+ ✓ Compiled / in 151ms (626 modules)
+ GET / 200 in 191ms
+ GET /dashboard 200 in 16ms
+ GET /dashboard 200 in 13ms
+ ✓ Compiled in 277ms (965 modules)
+ GET /dashboard 200 in 18ms
+ GET /reimbursements 200 in 7ms
+ GET /reimbursements/history 200 in 16ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/reimbursements 200 in 51ms
+ GET /api/reimbursements 200 in 4ms
+ GET /reimbursements/cmgvtwish000b13dnwnbz5i24 200 in 20ms
+ GET /api/reimbursements/cmgvtwish000b13dnwnbz5i24 200 in 11ms
+ GET /api/reimbursements/cmgvtwish000b13dnwnbz5i24 200 in 4ms
+ GET /api/reimbursements 200 in 14ms
+ GET /api/reimbursements 200 in 8ms
+ ✓ Compiled /admin in 77ms (622 modules)
+ GET /admin 200 in 97ms
+ ✓ Compiled /api/admin/stats in 82ms (624 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/stats 200 in 102ms
+ GET /api/admin/stats 200 in 4ms
+ ✓ Compiled /admin/reimbursements in 96ms (628 modules)
+ GET /admin/reimbursements 200 in 118ms
+ ✓ Compiled /api/admin/reimbursements in 78ms (630 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 100ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 9ms
+ ✓ Compiled /admin/users in 109ms (634 modules)
+ GET /admin/users 200 in 127ms
+ ✓ Compiled /api/admin/users in 93ms (636 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/users?page=1&limit=10 200 in 114ms
+ GET /api/admin/users?page=1&limit=10 200 in 3ms
+ GET /admin/reimbursements 200 in 6ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 7ms
+ GET /api/admin/reimbursements?page=1&limit=10 200 in 3ms
+ GET /admin/analytics 200 in 9ms
+ GET /api/admin/stats?timeRange=6months 200 in 9ms
+ GET /api/admin/stats?timeRange=6months 200 in 5ms
+ GET /admin 200 in 17ms
+ GET /api/admin/stats 200 in 10ms
+ GET /api/admin/stats 200 in 6ms
+ GET /admin/users 200 in 19ms
+ GET /api/admin/users?page=1&limit=10 200 in 9ms
+ GET /api/admin/users?page=1&limit=10 200 in 6ms
+ GET /reimbursements 200 in 8ms
+ ✓ Compiled in 245ms (975 modules)
+ ✓ Compiled in 0ms (630 modules)
+ ✓ Compiled in 0ms (630 modules)
+ ✓ Compiled in 0ms (630 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/users?page=1&limit=10 200 in 486ms
+ ✓ Compiled in 1ms (630 modules)
+ GET /reimbursements 200 in 470ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/users?page=1&limit=10 200 in 212ms
+ GET /dashboard 200 in 18ms
+ GET /reimbursements/history 200 in 6ms
+ GET /api/reimbursements 200 in 8ms
+ GET /api/reimbursements 200 in 4ms
+ ✓ Compiled in 181ms (975 modules)
+ GET /reimbursements/history 200 in 9ms
+ GET /admin 200 in 21ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/stats 200 in 20ms
+ GET /api/admin/stats 200 in 6ms
+ ⨯ ./app/admin/users/page.tsx
+Error:   [31mx[0m Expected ',', got '{'
+     ,-[[36;1;4m/Users/xiaoyi/codespace/ai/ReimX/app/admin/users/page.tsx[0m:354:1]
+ [2m351[0m |                 </div>
+ [2m352[0m |             </div>
+ [2m353[0m | 
+ [2m354[0m |             {/* 编辑用户模态框 */}
+     : [35;1m            ^[0m
+ [2m355[0m |             {editingUser && (
+ [2m356[0m |                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+ [2m357[0m |                     <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/admin/users/page.tsx
+ ⨯ ./app/admin/users/page.tsx
+Error:   [31mx[0m Expected ',', got '{'
+     ,-[[36;1;4m/Users/xiaoyi/codespace/ai/ReimX/app/admin/users/page.tsx[0m:354:1]
+ [2m351[0m |                 </div>
+ [2m352[0m |             </div>
+ [2m353[0m | 
+ [2m354[0m |             {/* 编辑用户模态框 */}
+     : [35;1m            ^[0m
+ [2m355[0m |             {editingUser && (
+ [2m356[0m |                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+ [2m357[0m |                     <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/admin/users/page.tsx
+ ○ Compiling /_error ...
+ GET /admin 500 in 1946ms
+ GET /admin 500 in 7ms
+ GET /admin 500 in 6ms
+ GET /admin 500 in 4ms
+ ⨯ ./app/admin/reimbursements/page.tsx
+Error:   [31mx[0m Expected ',', got '{'
+     ,-[[36;1;4m/Users/xiaoyi/codespace/ai/ReimX/app/admin/reimbursements/page.tsx[0m:347:1]
+ [2m344[0m |                 </div>
+ [2m345[0m |             </div>
+ [2m346[0m | 
+ [2m347[0m |             {/* 报销详情模态框 */}
+     : [35;1m            ^[0m
+ [2m348[0m |             {selectedReimbursement && (
+ [2m349[0m |                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+ [2m350[0m |                     <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/admin/reimbursements/page.tsx
+ GET /_next/static/webpack/fa8daa303bdc8173.webpack.hot-update.json 500 in 395ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /admin 500 in 5ms

@@ -165,10 +165,31 @@ export default function AdminReimbursementsPage() {
     }
 
     return (
-        <div>
-            <div className="bg-white shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-6">报销管理</h1>
+        <div className="space-y-6">
+            {/* 页面标题和统计 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">报销管理</h1>
+                        <p className="mt-1 text-gray-600">审核和管理所有报销申请</p>
+                    </div>
+                    <div className="flex items-center space-x-6">
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-indigo-600">{pagination?.total || 0}</div>
+                            <div className="text-sm text-gray-500">总申请</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-2xl font-bold text-yellow-600">
+                                {reimbursements.filter(r => r.status === 'submitted').length}
+                            </div>
+                            <div className="text-sm text-gray-500">待审核</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 搜索和筛选 */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
 
                     {/* 搜索和筛选 */}
                     <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
