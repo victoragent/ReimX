@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { useSession } from 'next-auth/react'
+import '@testing-library/jest-dom'
 import Navigation from '@/components/navigation'
 
 // Mock NextAuth
@@ -15,6 +16,7 @@ describe('Navigation Component', () => {
         mockUseSession.mockReturnValue({
             data: null,
             status: 'loading',
+            update: jest.fn(),
         })
 
         // Act
@@ -30,6 +32,7 @@ describe('Navigation Component', () => {
         mockUseSession.mockReturnValue({
             data: null,
             status: 'unauthenticated',
+            update: jest.fn(),
         })
 
         // Act
@@ -50,8 +53,10 @@ describe('Navigation Component', () => {
                     email: 'test@example.com',
                     role: 'user',
                 },
+                expires: '2024-12-31T23:59:59.999Z',
             },
             status: 'authenticated',
+            update: jest.fn(),
         })
 
         // Act
@@ -75,8 +80,10 @@ describe('Navigation Component', () => {
                     email: 'admin@example.com',
                     role: 'admin',
                 },
+                expires: '2024-12-31T23:59:59.999Z',
             },
             status: 'authenticated',
+            update: jest.fn(),
         })
 
         // Act
@@ -100,8 +107,10 @@ describe('Navigation Component', () => {
                     email: 'reviewer@example.com',
                     role: 'reviewer',
                 },
+                expires: '2024-12-31T23:59:59.999Z',
             },
             status: 'authenticated',
+            update: jest.fn(),
         })
 
         // Act

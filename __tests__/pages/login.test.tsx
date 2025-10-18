@@ -55,9 +55,10 @@ describe('Login Page', () => {
     it('should handle successful login for regular user', async () => {
         // Arrange
         const user = userEvent.setup()
-        mockSignIn.mockResolvedValue({ ok: true, error: null })
+        mockSignIn.mockResolvedValue({ ok: true, error: null, status: 200, url: null })
         mockGetSession.mockResolvedValue({
-            user: { name: 'Test User', email: 'test@example.com', role: 'user' }
+            user: { name: 'Test User', email: 'test@example.com', role: 'user' },
+            expires: '2024-12-31T23:59:59.999Z'
         })
 
         render(<LoginPage />)
@@ -82,9 +83,10 @@ describe('Login Page', () => {
     it('should handle successful login for admin user', async () => {
         // Arrange
         const user = userEvent.setup()
-        mockSignIn.mockResolvedValue({ ok: true, error: null })
+        mockSignIn.mockResolvedValue({ ok: true, error: null, status: 200, url: null })
         mockGetSession.mockResolvedValue({
-            user: { name: 'Admin User', email: 'admin@example.com', role: 'admin' }
+            user: { name: 'Admin User', email: 'admin@example.com', role: 'admin' },
+            expires: '2024-12-31T23:59:59.999Z'
         })
 
         render(<LoginPage />)
@@ -103,7 +105,7 @@ describe('Login Page', () => {
     it('should show error for invalid credentials', async () => {
         // Arrange
         const user = userEvent.setup()
-        mockSignIn.mockResolvedValue({ ok: false, error: 'CredentialsSignin' })
+        mockSignIn.mockResolvedValue({ ok: false, error: 'CredentialsSignin', status: 401, url: null })
 
         render(<LoginPage />)
 
@@ -139,7 +141,7 @@ describe('Login Page', () => {
         expect(screen.getByRole('button', { name: '登录中...' })).toBeDisabled()
 
         // Cleanup
-        resolvePromise!({ ok: true, error: null })
+        resolvePromise!({ ok: true, error: null, status: 200, url: null })
     })
 
     it('should handle login errors', async () => {

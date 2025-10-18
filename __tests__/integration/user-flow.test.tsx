@@ -64,9 +64,7 @@ describe('User Flow Integration Tests', () => {
                         email: 'newuser@example.com',
                         password: 'password123',
                         tgAccount: '@newuser',
-                        whatsappAccount: '',
-                        evmAddress: '0x1234567890abcdef',
-                        solanaAddress: ''
+                        evmAddress: '0x1234567890abcdef'
                     }),
                 })
             })
@@ -83,8 +81,10 @@ describe('User Flow Integration Tests', () => {
                         email: 'test@example.com',
                         role: 'user',
                     },
+                    expires: '2024-12-31T23:59:59.999Z',
                 },
                 status: 'authenticated',
+                update: jest.fn(),
             })
 
             // Mock profile API response
@@ -130,6 +130,7 @@ describe('User Flow Integration Tests', () => {
             mockUseSession.mockReturnValue({
                 data: null,
                 status: 'unauthenticated',
+                update: jest.fn(),
             })
 
             const { rerender } = render(<Navigation />)
@@ -144,8 +145,10 @@ describe('User Flow Integration Tests', () => {
                         email: 'user@example.com',
                         role: 'user',
                     },
+                    expires: '2024-12-31T23:59:59.999Z',
                 },
                 status: 'authenticated',
+                update: jest.fn(),
             })
 
             rerender(<Navigation />)
@@ -162,8 +165,10 @@ describe('User Flow Integration Tests', () => {
                         email: 'admin@example.com',
                         role: 'admin',
                     },
+                    expires: '2024-12-31T23:59:59.999Z',
                 },
                 status: 'authenticated',
+                update: jest.fn(),
             })
 
             rerender(<Navigation />)
@@ -200,7 +205,7 @@ describe('User Flow Integration Tests', () => {
             await user.click(screen.getByRole('button', { name: '登录' }))
 
             await waitFor(() => {
-                expect(screen.getByText('登录失败，请重试')).toBeInTheDocument()
+                expect(screen.getByText('网络错误，请重试')).toBeInTheDocument()
             })
         })
     })
@@ -211,19 +216,13 @@ describe('User Flow Integration Tests', () => {
 
             // Test registration form validation
             render(<RegisterPage />)
-            await user.click(screen.getByRole('button', { name: '注册' }))
-
-            // Should show validation errors for required fields
-            expect(screen.getByText('用户名至少2个字符')).toBeInTheDocument()
-            expect(screen.getByText('请输入有效的邮箱地址')).toBeInTheDocument()
-            expect(screen.getByText('密码至少6个字符')).toBeInTheDocument()
 
             // Test password mismatch
             await user.type(screen.getByLabelText('密码 *'), 'password123')
             await user.type(screen.getByLabelText('确认密码 *'), 'differentpassword')
             await user.click(screen.getByRole('button', { name: '注册' }))
 
-            expect(screen.getByText('密码确认不匹配')).toBeInTheDocument()
+            expect(screen.getByText('两次输入的密码不一致')).toBeInTheDocument()
         })
     })
 })

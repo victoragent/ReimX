@@ -20,7 +20,7 @@ jest.mock('next-auth', () => ({
     getServerSession: jest.fn(),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as any
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>
 
 describe('/api/admin/users', () => {
@@ -67,11 +67,15 @@ describe('/api/admin/users', () => {
             mockPrisma.user.findMany.mockResolvedValue(mockUsers as any)
             mockPrisma.user.count.mockResolvedValue(2)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users')
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(200)
@@ -94,7 +98,11 @@ describe('/api/admin/users', () => {
             mockPrisma.user.findMany.mockResolvedValue([])
             mockPrisma.user.count.mockResolvedValue(0)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users?search=test')
+            const request = {
+                url: 'http://localhost:3000/api/admin/users?search=test',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
@@ -121,11 +129,15 @@ describe('/api/admin/users', () => {
                 user: { email: 'user@example.com', role: 'user' }
             } as any)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users')
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(403)
@@ -136,11 +148,15 @@ describe('/api/admin/users', () => {
             // Arrange
             mockGetServerSession.mockResolvedValue(null)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users')
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(403)
@@ -178,17 +194,19 @@ describe('/api/admin/users', () => {
             mockPrisma.user.findUnique.mockResolvedValue(existingUser as any)
             mockPrisma.user.update.mockResolvedValue(updatedUser as any)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users', {
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
                 method: 'PUT',
                 body: JSON.stringify(updateData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(updateData)
+            } as unknown as NextRequest
 
             // Act
             const response = await PUT(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(200)
@@ -208,17 +226,19 @@ describe('/api/admin/users', () => {
             } as any)
             mockPrisma.user.findUnique.mockResolvedValue(null)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users', {
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
                 method: 'PUT',
                 body: JSON.stringify(updateData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(updateData)
+            } as unknown as NextRequest
 
             // Act
             const response = await PUT(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(404)
@@ -237,17 +257,19 @@ describe('/api/admin/users', () => {
                 user: { email: 'admin@example.com', role: 'admin' }
             } as any)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users', {
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
                 method: 'PUT',
                 body: JSON.stringify(invalidData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(invalidData)
+            } as unknown as NextRequest
 
             // Act
             const response = await PUT(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(400)
@@ -276,11 +298,15 @@ describe('/api/admin/users', () => {
                 status: 'suspended'
             } as any)
 
-            const request = new NextRequest(`http://localhost:3000/api/admin/users?id=${userId}`)
+            const request = {
+                url: `http://localhost:3000/api/admin/users?id=${userId}`,
+                method: 'DELETE',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await DELETE(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(200)
@@ -300,11 +326,15 @@ describe('/api/admin/users', () => {
             } as any)
             mockPrisma.user.findUnique.mockResolvedValue(null)
 
-            const request = new NextRequest(`http://localhost:3000/api/admin/users?id=${userId}`)
+            const request = {
+                url: `http://localhost:3000/api/admin/users?id=${userId}`,
+                method: 'DELETE',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await DELETE(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(404)
@@ -317,11 +347,15 @@ describe('/api/admin/users', () => {
                 user: { email: 'admin@example.com', role: 'admin' }
             } as any)
 
-            const request = new NextRequest('http://localhost:3000/api/admin/users')
+            const request = {
+                url: 'http://localhost:3000/api/admin/users',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await DELETE(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; users?: any; user?: any; message?: string; total?: number; pagination?: any }
 
             // Assert
             expect(response.status).toBe(400)

@@ -50,7 +50,7 @@ describe('Utils', () => {
         it('should handle complex conditional logic', () => {
             const isActive = true
             const isDisabled = false
-            const size = 'large'
+            const size = 'large' as 'large' | 'small'
 
             const result = cn(
                 'base-class',

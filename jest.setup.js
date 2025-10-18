@@ -1,5 +1,24 @@
 import '@testing-library/jest-dom'
 
+// Polyfill for Web APIs
+global.Request = global.Request || class Request {}
+global.Response = global.Response || class Response {}
+global.Headers = global.Headers || class Headers {}
+global.TextDecoder = global.TextDecoder || class TextDecoder {}
+global.TextEncoder = global.TextEncoder || class TextEncoder {}
+
+// Mock NextResponse
+jest.mock('next/server', () => ({
+  NextRequest: class NextRequest {},
+  NextResponse: {
+    json: jest.fn((data, init) => ({
+      json: () => Promise.resolve(data),
+      status: init?.status || 200,
+      headers: new Headers(init?.headers || {}),
+    })),
+  },
+}))
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter() {

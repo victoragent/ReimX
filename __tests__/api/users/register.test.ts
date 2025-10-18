@@ -18,7 +18,7 @@ jest.mock('bcryptjs', () => ({
     hash: jest.fn(),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as any
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>
 
 describe('/api/users/register', () => {
@@ -54,17 +54,19 @@ describe('/api/users/register', () => {
             mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
             mockPrisma.user.create.mockResolvedValue(createdUser)
 
-            const request = new NextRequest('http://localhost:3000/api/users/register', {
+            const request = {
+                url: 'http://localhost:3000/api/users/register',
                 method: 'POST',
                 body: JSON.stringify(userData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(userData)
+            } as unknown as NextRequest
 
             // Act
             const response = await POST(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string; details?: any }
 
             // Assert
             expect(response.status).toBe(201)
@@ -108,17 +110,19 @@ describe('/api/users/register', () => {
 
             mockPrisma.user.findUnique.mockResolvedValue(existingUser as any)
 
-            const request = new NextRequest('http://localhost:3000/api/users/register', {
+            const request = {
+                url: 'http://localhost:3000/api/users/register',
                 method: 'POST',
                 body: JSON.stringify(userData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(userData)
+            } as unknown as NextRequest
 
             // Act
             const response = await POST(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string; details?: any }
 
             // Assert
             expect(response.status).toBe(400)
@@ -134,17 +138,19 @@ describe('/api/users/register', () => {
                 password: '123' // Too short
             }
 
-            const request = new NextRequest('http://localhost:3000/api/users/register', {
+            const request = {
+                url: 'http://localhost:3000/api/users/register',
                 method: 'POST',
                 body: JSON.stringify(invalidData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(invalidData)
+            } as unknown as NextRequest
 
             // Act
             const response = await POST(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string; details?: any }
 
             // Assert
             expect(response.status).toBe(400)
@@ -163,17 +169,19 @@ describe('/api/users/register', () => {
 
             mockPrisma.user.findUnique.mockRejectedValue(new Error('Database error'))
 
-            const request = new NextRequest('http://localhost:3000/api/users/register', {
+            const request = {
+                url: 'http://localhost:3000/api/users/register',
                 method: 'POST',
                 body: JSON.stringify(userData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(userData)
+            } as unknown as NextRequest
 
             // Act
             const response = await POST(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string; details?: any }
 
             // Assert
             expect(response.status).toBe(500)

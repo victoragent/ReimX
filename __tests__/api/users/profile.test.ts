@@ -18,7 +18,7 @@ jest.mock('next-auth', () => ({
     getServerSession: jest.fn(),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as any
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>
 
 describe('/api/users/profile', () => {
@@ -48,11 +48,15 @@ describe('/api/users/profile', () => {
             } as any)
             mockPrisma.user.findUnique.mockResolvedValue(mockUser as any)
 
-            const request = new NextRequest('http://localhost:3000/api/users/profile')
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string }
 
             // Assert
             expect(response.status).toBe(200)
@@ -79,11 +83,15 @@ describe('/api/users/profile', () => {
             // Arrange
             mockGetServerSession.mockResolvedValue(null)
 
-            const request = new NextRequest('http://localhost:3000/api/users/profile')
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string }
 
             // Assert
             expect(response.status).toBe(401)
@@ -97,11 +105,15 @@ describe('/api/users/profile', () => {
             } as any)
             mockPrisma.user.findUnique.mockResolvedValue(null)
 
-            const request = new NextRequest('http://localhost:3000/api/users/profile')
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
+                method: 'GET',
+                headers: new Headers()
+            } as unknown as NextRequest
 
             // Act
             const response = await GET(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string }
 
             // Assert
             expect(response.status).toBe(404)
@@ -140,17 +152,19 @@ describe('/api/users/profile', () => {
             mockPrisma.user.findUnique.mockResolvedValue(currentUser as any)
             mockPrisma.user.update.mockResolvedValue(updatedUser as any)
 
-            const request = new NextRequest('http://localhost:3000/api/users/profile', {
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
                 method: 'PUT',
                 body: JSON.stringify(updateData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(updateData)
+            } as unknown as NextRequest
 
             // Act
             const response = await PUT(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string }
 
             // Assert
             expect(response.status).toBe(200)
@@ -187,17 +201,19 @@ describe('/api/users/profile', () => {
             mockPrisma.user.findUnique.mockResolvedValue(currentUser as any)
             mockPrisma.user.update.mockResolvedValue(updatedUser as any)
 
-            const request = new NextRequest('http://localhost:3000/api/users/profile', {
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
                 method: 'PUT',
                 body: JSON.stringify(updateData),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve(updateData)
+            } as unknown as NextRequest
 
             // Act
             const response = await PUT(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string }
 
             // Assert
             expect(response.status).toBe(200)
@@ -223,17 +239,19 @@ describe('/api/users/profile', () => {
             // Arrange
             mockGetServerSession.mockResolvedValue(null)
 
-            const request = new NextRequest('http://localhost:3000/api/users/profile', {
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
                 method: 'PUT',
                 body: JSON.stringify({ username: 'test' }),
-                headers: {
+                headers: new Headers({
                     'Content-Type': 'application/json',
-                },
-            })
+                }),
+                json: () => Promise.resolve({ username: 'test' })
+            } as unknown as NextRequest
 
             // Act
             const response = await PUT(request)
-            const data = await response.json()
+            const data = await response.json() as { error?: string; user?: any; message?: string }
 
             // Assert
             expect(response.status).toBe(401)
