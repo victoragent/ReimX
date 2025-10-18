@@ -19,16 +19,26 @@ interface ReimbursementDetail {
     chain: string;
     receiptUrl?: string;
     status: string;
-    reviewerId?: string;
-    approverId?: string;
-    txHash?: string;
-    createdAt: string;
-    updatedAt: string;
-    applicant: {
-        id: string;
-        username: string;
-        email: string;
-    };
+  reviewerId?: string;
+  approverId?: string;
+  txHash?: string;
+  createdAt: string;
+  updatedAt: string;
+  applicant: {
+    id: string;
+    username: string;
+    email: string;
+  };
+  reviewer?: {
+    id: string;
+    username: string;
+    email: string;
+  };
+  approver?: {
+    id: string;
+    username: string;
+    email: string;
+  };
 }
 
 export default function ReimbursementDetailPage() {
@@ -257,16 +267,20 @@ export default function ReimbursementDetailPage() {
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">审核信息</h3>
                   <dl className="space-y-3">
-                    {reimbursement.reviewerId && (
+                    {reimbursement.reviewer && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">审核人ID</dt>
-                        <dd className="text-sm text-gray-900">{reimbursement.reviewerId}</dd>
+                        <dt className="text-sm font-medium text-gray-500">审核人</dt>
+                        <dd className="text-sm text-gray-900">
+                          {reimbursement.reviewer.username} ({reimbursement.reviewer.email})
+                        </dd>
                       </div>
                     )}
-                    {reimbursement.approverId && (
+                    {reimbursement.approver && (
                       <div>
-                        <dt className="text-sm font-medium text-gray-500">批准人ID</dt>
-                        <dd className="text-sm text-gray-900">{reimbursement.approverId}</dd>
+                        <dt className="text-sm font-medium text-gray-500">批准人</dt>
+                        <dd className="text-sm text-gray-900">
+                          {reimbursement.approver.username} ({reimbursement.approver.email})
+                        </dd>
                       </div>
                     )}
                     {reimbursement.txHash && (

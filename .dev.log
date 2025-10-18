@@ -541,3 +541,132 @@ https://next-auth.js.org/warnings#nextauth_url
  GET /reimbursements/history 200 in 54ms
  ✓ Compiled in 256ms (953 modules)
  GET /reimbursements/history 200 in 36ms
+ ✓ Compiled in 230ms (953 modules)
+ GET /reimbursements/history 200 in 16ms
+ ✓ Compiled in 222ms (953 modules)
+ GET /reimbursements/history 200 in 10ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 48ms
+ GET /api/auth/session 200 in 16ms
+ GET /reimbursements/history 200 in 45ms
+ ✓ Compiled /_not-found in 217ms (938 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 249ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 41ms
+ GET /api/reimbursements 200 in 12ms
+ GET /reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 23ms
+ GET /api/reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 15ms
+ GET /api/reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 6ms
+ GET /profile 200 in 20ms
+ GET /api/users/profile 200 in 11ms
+ GET /api/users/profile 200 in 20ms
+ GET /reimbursements/history 200 in 18ms
+ GET /api/reimbursements 200 in 11ms
+ GET /api/reimbursements 200 in 8ms
+ ✓ Compiled /reimbursements in 90ms (611 modules)
+ GET /reimbursements 200 in 112ms
+ ✓ Compiled /dashboard in 145ms (621 modules)
+ GET /dashboard 200 in 170ms
+ GET /profile 200 in 22ms
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/users/profile 200 in 13ms
+ GET /api/users/profile 200 in 5ms
+ GET /reimbursements/history 200 in 18ms
+ GET /api/reimbursements 200 in 11ms
+ GET /api/reimbursements 200 in 6ms
+ GET /reimbursements/cmgvtwisi000d13dn0ip8irq7 200 in 9ms
+ GET /api/reimbursements/cmgvtwisi000d13dn0ip8irq7 200 in 7ms
+ GET /api/reimbursements/cmgvtwisi000d13dn0ip8irq7 200 in 6ms
+ GET /reimbursements/history 200 in 18ms
+ GET /api/reimbursements 200 in 11ms
+ GET /api/reimbursements 200 in 8ms
+ GET /reimbursements/cmgvtwish000b13dnwnbz5i24 200 in 14ms
+ GET /api/reimbursements/cmgvtwish000b13dnwnbz5i24 200 in 9ms
+ GET /api/reimbursements/cmgvtwish000b13dnwnbz5i24 200 in 6ms
+ GET /profile 200 in 17ms
+ GET /api/users/profile 200 in 12ms
+ GET /api/users/profile 200 in 8ms
+ GET /reimbursements/history 200 in 20ms
+ GET /api/reimbursements 200 in 13ms
+ GET /api/reimbursements 200 in 7ms
+ GET /reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 18ms
+ GET /api/reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 10ms
+ GET /api/reimbursements/cmgvzw9hl0001dci7jhtss18o 200 in 5ms
+ GET /api/auth/session 200 in 13ms
+ GET /profile 200 in 15ms
+ GET /api/users/profile 200 in 12ms
+ GET /api/users/profile 200 in 8ms
+ GET /reimbursements/history 200 in 16ms
+ GET /api/reimbursements 200 in 11ms
+ GET /api/reimbursements 200 in 5ms
+ GET /reimbursements 200 in 22ms
+ GET /dashboard 200 in 6ms
+ GET / 200 in 18ms
+ GET /dashboard 200 in 19ms
+ GET /reimbursements 200 in 7ms
+ GET /reimbursements/history 200 in 15ms
+ GET /api/reimbursements 200 in 10ms
+ GET /api/reimbursements 200 in 5ms
+ GET /dashboard 200 in 19ms
+ GET / 200 in 16ms
+ GET /dashboard 200 in 15ms
+ GET /reimbursements 200 in 14ms
+ GET /profile 200 in 15ms
+ GET /api/users/profile 200 in 11ms
+ GET /api/users/profile 200 in 7ms
+ GET /reimbursements/history 200 in 10ms
+ GET /api/reimbursements 200 in 12ms
+ GET /api/reimbursements 200 in 11ms
+ GET /reimbursements 200 in 17ms
+ GET /dashboard 200 in 18ms
+ GET / 200 in 14ms
+ GET /dashboard 200 in 8ms
+ GET /dashboard 200 in 33ms
+ GET /dashboard 200 in 53ms
+ GET /reimbursements 200 in 16ms
+ GET /profile 200 in 17ms
+ GET /api/users/profile 200 in 10ms
+ GET /api/users/profile 200 in 7ms
+ ✓ Compiled /admin in 228ms (620 modules)
+ GET /admin 200 in 258ms
+ ✓ Compiled /api/admin/stats in 157ms (622 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/stats 200 in 205ms
+ GET /api/admin/stats 200 in 4ms
+ GET /admin/users 200 in 10ms
+ ✓ Compiled /api/admin/users in 112ms (624 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/admin/users?page=1&limit=10 200 in 157ms
+ GET /api/admin/users?page=1&limit=10 200 in 6ms
+ GET /profile 200 in 18ms
+ GET /api/users/profile 200 in 10ms
+ GET /api/users/profile 200 in 7ms
+ GET /reimbursements/history 200 in 22ms
+ GET /api/reimbursements 200 in 17ms
+ GET /api/reimbursements 200 in 6ms
+ GET /reimbursements 200 in 19ms
+ GET /dashboard 200 in 30ms
+ GET /admin 200 in 18ms
+ GET /api/admin/stats 200 in 17ms
+ GET /api/admin/stats 200 in 7ms
+ ✓ Compiled /api/auth/[...nextauth] in 93ms (626 modules)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+ GET /api/auth/session 200 in 113ms
+ GET /api/admin/stats 200 in 9ms
+ GET /reimbursements 200 in 15ms
+ GET /api/admin/stats 200 in 19ms
+ GET /api/admin/stats 200 in 10ms
+ GET /reimbursements 200 in 17ms
+ GET /dashboard 200 in 35ms
+ ✓ Compiled in 231ms (343 modules)
+ GET /dashboard 200 in 14ms
+ ✓ Compiled in 323ms (943 modules)
+ GET /dashboard 200 in 100ms
+ ✓ Compiled in 276ms (941 modules)
+ GET /dashboard 200 in 33ms

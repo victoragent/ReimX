@@ -47,7 +47,32 @@ export async function GET(
       return NextResponse.json({ error: "无权访问此报销记录" }, { status: 403 });
     }
 
-    return NextResponse.json({ reimbursement });
+    // 获取审核人和批准人的用户信息
+    let reviewer = null;
+    let approver = null;
+
+    if (reimbursement.reviewerId) {
+      reviewer = await prisma.user.findUnique({
+        where: { id: reimbursement.reviewerId },
+        select: { id: true, username: true, email: true }
+      });
+    }
+
+    if (reimbursement.approverId) {
+      approver = await prisma.user.findUnique({
+        where: { id: reimbursement.approverId },
+        select: { id: true, username: true, email: true }
+      });
+    }
+
+    // 构建响应数据
+    const responseData = {
+      ...reimbursement,
+      reviewer,
+      approver
+    };
+
+    return NextResponse.json({ reimbursement: responseData });
 
   } catch (error) {
     console.error("获取报销详情错误:", error);
