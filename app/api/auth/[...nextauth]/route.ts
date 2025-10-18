@@ -9,9 +9,10 @@ const credentialsSchema = z.object({
   password: z.string().min(6)
 });
 
-const handler = NextAuth({
+export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "development-secret-key-change-in-production",
   session: {
-    strategy: "jwt"
+    strategy: "jwt" as const
   },
   providers: [
     Credentials({
@@ -51,6 +52,8 @@ const handler = NextAuth({
       return session;
     }
   }
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

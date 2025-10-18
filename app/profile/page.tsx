@@ -47,8 +47,11 @@ export default function ProfilePage() {
 
     const fetchUserProfile = async () => {
         try {
+            console.log("Fetching user profile...", { session });
             const response = await fetch("/api/users/profile");
             const data = await response.json();
+
+            console.log("Profile API response:", { status: response.status, data });
 
             if (response.ok) {
                 setUser(data.user);
@@ -60,9 +63,11 @@ export default function ProfilePage() {
                     solanaAddress: data.user.solanaAddress || ""
                 });
             } else {
+                console.error("Profile API error:", data);
                 setError(data.error || "获取用户信息失败");
             }
         } catch (error) {
+            console.error("Network error:", error);
             setError("网络错误，请重试");
         } finally {
             setLoading(false);
