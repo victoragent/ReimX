@@ -10,6 +10,7 @@ const baseReimbursement = {
   isManualRate: false,
   convertedBy: null,
   chain: "evm",
+  expenseType: "tech",
   receiptUrl: null,
   status: "approved",
   reviewerId: null,

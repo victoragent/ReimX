@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import type { ChangeEvent } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -65,6 +66,9 @@ export default function AdminUsersPage() {
         user: User;
         targetStatus: "active" | "suspended";
     } | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [importing, setImporting] = useState(false);
+    const [importSummary, setImportSummary] = useState<string | null>(null);
     const isCreatingUser = editingUser?.id === "";
 
     useEffect(() => {
@@ -109,6 +113,51 @@ export default function AdminUsersPage() {
             setLoading(false);
         }
     };
+
+    const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        if (!/\.(xlsx|xls)$/i.test(file.name)) {
+            setImportSummary("仅支持 .xlsx 或 .xls 格式文件");
+            event.target.value = "";
+            return;
+        }
+
+        setImporting(true);
+        setImportSummary(null);
+        setError("");
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/admin/users/import", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json() as { created?: number; skipped?: number; errors?: Array<{ row: number; message: string }>; error?: string };
+
+            if (!response.ok) {
+                setError(result.error || "导入失败，请检查文件内容");
+            } else {
+                const baseSummary = `成功导入 ${result.created ?? 0} 个用户，跳过 ${result.skipped ?? 0} 个。`;
+                const issues = (result.errors ?? []).slice(0, 3).map((item) => `第 ${item.row} 行：${item.message}`);
+                const issueText = issues.length ? ` ${issues.join('；')}${(result.errors ?? []).length > 3 ? ' ...' : ''}` : '';
+                setImportSummary(baseSummary + issueText);
+                await fetchUsers();
+            }
+        } catch (error) {
+            setError("导入失败，请重试");
+        } finally {
+            setImporting(false);
+            event.target.value = "";
+        }
+    };
+
 
     const handleEdit = (user: User) => {
         setError("");
@@ -274,26 +323,35 @@ export default function AdminUsersPage() {
 
     if (status === "loading" || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-                    <p className="mt-4 text-gray-600">加载中...</p>
+            <div className="flex min-h-[50vh] items-center justify-center">
+                <div className="flex flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white/80 px-10 py-12 shadow-lg shadow-slate-200/70 backdrop-blur">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" />
+                    <p className="text-sm font-medium text-slate-600">正在加载用户数据...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* 页面标题和操作栏 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
-                        <p className="mt-1 text-gray-600">管理系统用户账户和权限</p>
+                        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">用户管理</h1>
+                        <p className="mt-1 text-sm text-slate-600">管理系统用户账户和权限</p>
                     </div>
-                    <div className="flex items-center space-x-3">
-                        <span className="text-sm text-gray-500">共 {pagination?.total || 0} 个用户</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">
+                            共 {pagination?.total || 0} 个用户
+                        </span>
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={importing}
+                            className="inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {importing ? "导入中..." : "导入 Excel"}
+                        </button>
                         <button
                             onClick={() => {
                                 setEditingUser({
@@ -326,16 +384,28 @@ export default function AdminUsersPage() {
                                 });
                                 setError("");
                             }}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="inline-flex items-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
                         >
                             + 添加用户
                         </button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".xlsx,.xls"
+                            className="hidden"
+                            onChange={handleImportChange}
+                        />
                     </div>
+                    {importSummary && (
+                        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-700">
+                            {importSummary}
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* 搜索和筛选 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
                 {/* 搜索和筛选 */}
                 <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input
@@ -343,12 +413,12 @@ export default function AdminUsersPage() {
                         placeholder="搜索用户名或邮箱"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                     />
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                     >
                         <option value="">所有角色</option>
                         <option value="user">用户</option>
@@ -358,7 +428,7 @@ export default function AdminUsersPage() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                     >
                         <option value="">所有状态</option>
                         <option value="active">正常</option>
@@ -367,62 +437,64 @@ export default function AdminUsersPage() {
                     </select>
                     <button
                         onClick={fetchUsers}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                        className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
                     >
                         搜索
                     </button>
                 </div>
 
                 {error && (
-                    <div className="mb-4 text-red-600 text-sm">{error}</div>
+                    <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                        {error}
+                    </div>
                 )}
 
                 {/* 用户列表 */}
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                <div className="overflow-x-auto rounded-3xl border border-slate-200">
+                    <table className="min-w-full divide-y divide-slate-200 bg-white/70">
+                        <thead className="bg-slate-50/80">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     用户信息
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     联系方式
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     区块链地址
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     工资 (USDT)
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     角色/状态
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     报销数量
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     操作
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="divide-y divide-slate-200">
                             {users.map((user) => (
-                                <tr key={user.id}>
+                                <tr key={user.id} className="transition hover:bg-slate-50/70">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div>
-                                            <div className="text-sm font-medium text-gray-900">{user.username}</div>
-                                            <div className="text-sm text-gray-500">{user.email}</div>
+                                            <div className="text-sm font-medium text-slate-900">{user.username}</div>
+                                            <div className="text-sm text-slate-500">{user.email}</div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         <div>{user.tgAccount && `TG: ${user.tgAccount}`}</div>
                                         <div>{user.whatsappAccount && `WA: ${user.whatsappAccount}`}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         <div>{user.evmAddress && `EVM: ${user.evmAddress.slice(0, 10)}...`}</div>
                                         <div>{user.solanaAddress && `SOL: ${user.solanaAddress.slice(0, 10)}...`}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                         {typeof user.salaryUsdt === "number" ? user.salaryUsdt.toFixed(2) : "—"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -442,7 +514,7 @@ export default function AdminUsersPage() {
                                                 user.status === "pending" ? "待审核" : "已禁用"}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         {user._count.reimbursements}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -492,17 +564,17 @@ export default function AdminUsersPage() {
                             <button
                                 onClick={() => setCurrentPage(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                                className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50 disabled:hover:border-slate-200"
                             >
                                 上一页
                             </button>
-                            <span className="px-3 py-2 text-sm text-gray-700">
+                            <span className="px-3 py-2 text-sm text-slate-700">
                                 第 {currentPage} 页，共 {pagination.pages} 页
                             </span>
                             <button
                                 onClick={() => setCurrentPage(currentPage + 1)}
                                 disabled={currentPage === pagination.pages}
-                                className="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                                className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50 disabled:hover:border-slate-200"
                             >
                                 下一页
                             </button>

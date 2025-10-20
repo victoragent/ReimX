@@ -39,6 +39,7 @@ describe('/api/admin/reimbursements', () => {
                 amountOriginal: 100.50,
                 amountUsdEquivalent: 100.50,
                 currency: 'USD',
+                expenseType: 'tech',
                 status: 'submitted',
                 createdAt: new Date(),
                 applicant: {

@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { cn, expenseTypeLabels, type ExpenseType } from "@/lib/utils";
 
 interface Reimbursement {
     id: string;
     amount: number;
     amountOriginal?: number;
     currency: string;
+    expenseType?: ExpenseType;
     description: string;
     status: string;
     submittedAt: string;
@@ -149,7 +151,7 @@ export default function AdminReimbursementsPage() {
             case "paid":
                 return "bg-blue-100 text-blue-800";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-slate-100 text-slate-800";
         }
     };
 
@@ -173,32 +175,31 @@ export default function AdminReimbursementsPage() {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-                    <p className="mt-4 text-gray-600">加载中...</p>
+                    <p className="mt-4 text-slate-600">加载中...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* 页面标题和统计 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
                 <div className="flex flex-wrap items-center justify-between gap-6">
                     <div className="space-y-3">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">报销管理</h1>
-                            <p className="mt-1 text-gray-600">审核企业报销、生成 Safe Wallet 批次并跟踪执行状态</p>
+                            <h1 className="text-2xl font-bold text-slate-900">报销管理</h1>
+                            <p className="mt-1 text-slate-600">审核企业报销、生成 Safe Wallet 批次并跟踪执行状态</p>
                         </div>
-                        <div className="inline-flex overflow-hidden rounded-full border border-gray-200 bg-gray-100 p-1 text-sm">
+                        <div className="inline-flex overflow-hidden rounded-full border border-slate-200 bg-slate-100 p-1 text-sm">
                             {subNavigation.map((item) => (
                                 <Link
                                     key={item.href}
                                     href={item.href}
-                                    className={`rounded-full px-4 py-1.5 font-medium transition ${
-                                        isSubnavActive(item.href)
-                                            ? "bg-white text-indigo-600 shadow-sm"
-                                            : "text-gray-600 hover:text-gray-900"
-                                    }`}
+                                    className={`rounded-full px-4 py-1.5 font-medium transition ${isSubnavActive(item.href)
+                                        ? "bg-white/80 text-indigo-600 shadow-sm"
+                                        : "text-slate-600 hover:text-slate-900"
+                                        }`}
                                 >
                                     {item.name}
                                 </Link>
@@ -208,20 +209,20 @@ export default function AdminReimbursementsPage() {
                     <div className="flex items-center space-x-6">
                         <div className="text-center">
                             <div className="text-2xl font-bold text-indigo-600">{pagination?.total || 0}</div>
-                            <div className="text-sm text-gray-500">总申请</div>
+                            <div className="text-sm text-slate-500">总申请</div>
                         </div>
                         <div className="text-center">
                             <div className="text-2xl font-bold text-yellow-600">
                                 {submittedCount}
                             </div>
-                            <div className="text-sm text-gray-500">待审核</div>
+                            <div className="text-sm text-slate-500">待审核</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* 搜索和筛选 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
 
                 {/* 搜索和筛选 */}
                 <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -230,12 +231,12 @@ export default function AdminReimbursementsPage() {
                         placeholder="搜索用户或描述"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
                     />
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
                     >
                         <option value="">所有状态</option>
                         <option value="submitted">待审核</option>
@@ -246,7 +247,7 @@ export default function AdminReimbursementsPage() {
                     <select
                         value={currencyFilter}
                         onChange={(e) => setCurrencyFilter(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
                     >
                         <option value="">所有币种</option>
                         <option value="USD">美元</option>
@@ -270,45 +271,45 @@ export default function AdminReimbursementsPage() {
                 {/* 报销列表 */}
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                        <thead className="bg-slate-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     申请人
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     金额
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     描述
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     状态
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     提交时间
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     操作
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-white/80 divide-y divide-gray-200">
                             {reimbursements?.map((reimbursement) => (
                                 <tr key={reimbursement.id}>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div>
-                                            <div className="text-sm font-medium text-gray-900">
+                                            <div className="text-sm font-medium text-slate-900">
                                                 {reimbursement.applicant?.username || 'N/A'}
                                             </div>
-                                            <div className="text-sm text-gray-500">
+                                            <div className="text-sm text-slate-500">
                                                 {reimbursement.applicant?.email || 'N/A'}
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                         {reimbursement.amount || reimbursement.amountOriginal || 'N/A'} {reimbursement.currency}
                                     </td>
-                                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                                    <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">
                                         {reimbursement.description}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -316,7 +317,7 @@ export default function AdminReimbursementsPage() {
                                             {getStatusText(reimbursement.status)}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         {reimbursement.submittedAt ? new Date(reimbursement.submittedAt).toLocaleDateString() : 'N/A'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -356,17 +357,17 @@ export default function AdminReimbursementsPage() {
                             <button
                                 onClick={() => setCurrentPage(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                                className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50 disabled:hover:border-slate-200"
                             >
                                 上一页
                             </button>
-                            <span className="px-3 py-2 text-sm text-gray-700">
+                            <span className="px-3 py-2 text-sm text-slate-700">
                                 第 {currentPage} 页，共 {pagination.pages} 页
                             </span>
                             <button
                                 onClick={() => setCurrentPage(currentPage + 1)}
                                 disabled={currentPage === pagination.pages}
-                                className="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                                className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50 disabled:hover:border-slate-200"
                             >
                                 下一页
                             </button>
@@ -377,55 +378,66 @@ export default function AdminReimbursementsPage() {
 
             {/* 报销详情模态框 */}
             {selectedReimbursement && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">报销详情</h3>
-                                <button
-                                    onClick={() => setSelectedReimbursement(null)}
-                                    className="text-gray-400 hover:text-gray-600"
-                                >
-                                    ✕
-                                </button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-10">
+                    <div className="relative w-full max-w-4xl rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-2xl shadow-slate-300/70">
+                        <button
+                            onClick={() => setSelectedReimbursement(null)}
+                            className="absolute right-6 top-6 inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:text-slate-900"
+                            aria-label="关闭"
+                        >
+                            ✕
+                        </button>
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <p className="text-xs font-medium uppercase tracking-[0.3em] text-indigo-500">Reimbursement</p>
+                                <h3 className="text-2xl font-semibold text-slate-900">
+                                    {selectedReimbursement.description || selectedReimbursement.applicant?.username || "报销详情"}
+                                </h3>
+                                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                                    <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700">
+                                        {expenseTypeLabels[selectedReimbursement.expenseType ?? "other"]}
+                                    </span>
+                                    <span>提交时间：{selectedReimbursement.submittedAt ? new Date(selectedReimbursement.submittedAt).toLocaleString() : "N/A"}</span>
+                                    <span>金额：{selectedReimbursement.amount || selectedReimbursement.amountOriginal || "N/A"} {selectedReimbursement.currency}</span>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <h4 className="font-medium text-gray-900 mb-2">基本信息</h4>
-                                    <div className="space-y-2 text-sm">
-                                        <div><span className="font-medium">申请人：</span>{selectedReimbursement.applicant?.username || 'N/A'}</div>
-                                        <div><span className="font-medium">邮箱：</span>{selectedReimbursement.applicant?.email || 'N/A'}</div>
-                                        <div><span className="font-medium">金额：</span>{selectedReimbursement.amount || selectedReimbursement.amountOriginal || 'N/A'} {selectedReimbursement.currency}</div>
-                                        <div><span className="font-medium">状态：</span>
-                                            <span className={`ml-2 px-2 py-1 rounded-full text-xs ${getStatusColor(selectedReimbursement.status)}`}>
-                                                {getStatusText(selectedReimbursement.status)}
-                                            </span>
+                            <div className="grid gap-6 md:grid-cols-2">
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">申请人信息</h4>
+                                    <div className="mt-3 space-y-2 text-sm text-slate-600">
+                                        <div>
+                                            <span className="font-medium text-slate-700">姓名：</span>{selectedReimbursement.applicant?.username || "N/A"}
                                         </div>
-                                        <div><span className="font-medium">提交时间：</span>{selectedReimbursement.submittedAt ? new Date(selectedReimbursement.submittedAt).toLocaleString() : 'N/A'}</div>
+                                        <div>
+                                            <span className="font-medium text-slate-700">邮箱：</span>{selectedReimbursement.applicant?.email || "N/A"}
+                                        </div>
+                                        <div>
+                                            <span className="font-medium text-slate-700">状态：</span>
+                                            <span className={cn("ml-2 rounded-full px-2 py-1 text-xs", getStatusColor(selectedReimbursement.status))}>{getStatusText(selectedReimbursement.status)}</span>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div>
-                                    <h4 className="font-medium text-gray-900 mb-2">描述</h4>
-                                    <p className="text-sm text-gray-600">{selectedReimbursement.description}</p>
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">费用说明</h4>
+                                    <p className="mt-3 text-sm leading-relaxed text-slate-600">{selectedReimbursement.description || "暂无描述"}</p>
                                 </div>
                             </div>
 
                             {selectedReimbursement.attachments && selectedReimbursement.attachments.length > 0 && (
-                                <div className="mt-6">
-                                    <h4 className="font-medium text-gray-900 mb-2">附件</h4>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">附件</h4>
+                                    <div className="mt-3 grid gap-4 sm:grid-cols-2">
                                         {selectedReimbursement.attachments.map((attachment) => (
-                                            <div key={attachment.id} className="border rounded-lg p-3">
-                                                <div className="text-sm font-medium truncate">{attachment.filename}</div>
+                                            <div key={attachment.id} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm shadow-slate-200/40">
+                                                <div className="truncate text-sm font-medium text-slate-800">{attachment.filename}</div>
                                                 <a
                                                     href={attachment.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-indigo-600 hover:text-indigo-900 text-xs"
+                                                    className="mt-1 inline-flex items-center text-xs font-medium text-indigo-600 hover:text-indigo-800"
                                                 >
-                                                    查看文件
+                                                    查看文件 →
                                                 </a>
                                             </div>
                                         ))}
@@ -434,31 +446,31 @@ export default function AdminReimbursementsPage() {
                             )}
 
                             {selectedReimbursement.status === "submitted" && (
-                                <div className="mt-6">
-                                    <h4 className="font-medium text-gray-900 mb-2">审核操作</h4>
-                                    <div className="space-y-4">
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">审核操作</h4>
+                                    <div className="mt-3 space-y-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">审核意见</label>
+                                            <label className="block text-sm font-medium text-slate-700">审核意见</label>
                                             <textarea
                                                 value={reviewComment}
                                                 onChange={(e) => setReviewComment(e.target.value)}
                                                 rows={3}
-                                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                                 placeholder="请输入审核意见..."
                                             />
                                         </div>
-                                        <div className="flex space-x-3">
+                                        <div className="flex gap-3">
                                             <button
                                                 onClick={() => handleReview(selectedReimbursement.id, "approve")}
                                                 disabled={reviewing}
-                                                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                                                className="inline-flex flex-1 items-center justify-center rounded-full bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-600 disabled:opacity-60"
                                             >
                                                 {reviewing ? "处理中..." : "批准"}
                                             </button>
                                             <button
                                                 onClick={() => handleReview(selectedReimbursement.id, "reject")}
                                                 disabled={reviewing}
-                                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                                                className="inline-flex flex-1 items-center justify-center rounded-full bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600 disabled:opacity-60"
                                             >
                                                 {reviewing ? "处理中..." : "拒绝"}
                                             </button>
@@ -469,8 +481,7 @@ export default function AdminReimbursementsPage() {
                         </div>
                     </div>
                 </div>
-            )
-            }
-        </div >
+            )}
+        </div>
     );
 }

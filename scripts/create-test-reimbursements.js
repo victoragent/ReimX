@@ -59,6 +59,7 @@ async function createTestReimbursements() {
         exchangeRateTime: new Date(),
         isManualRate: true,
         convertedBy: 'user',
+        expenseType: 'travel',
         chain: 'evm',
         receiptUrl: 'https://example.com/receipt1.pdf',
         status: 'submitted'
@@ -75,6 +76,7 @@ async function createTestReimbursements() {
         exchangeRateTime: new Date(),
         isManualRate: true,
         convertedBy: 'user',
+        expenseType: 'operations',
         chain: 'solana',
         receiptUrl: 'https://example.com/receipt2.pdf',
         status: 'approved',
@@ -93,6 +95,7 @@ async function createTestReimbursements() {
         exchangeRateTime: new Date(),
         isManualRate: true,
         convertedBy: 'user',
+        expenseType: 'tech',
         chain: 'evm',
         receiptUrl: 'https://example.com/receipt3.pdf',
         status: 'rejected',

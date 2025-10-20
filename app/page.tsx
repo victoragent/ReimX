@@ -84,9 +84,9 @@ const numbers = [
 
 export default function LandingPage() {
   const transactionsPreview = [
-    { title: "跨链报销", body: "费用合规审查 → 汇率锁定 → Safe Wallet 付款 → 自动对账" },
+    { title: "多币种报销", body: "费用合规审查 → 汇率锁定 → Safe Wallet 付款 → 自动对账" },
     { title: "工资发放", body: "月度工资单生成 → 批次筛选 → Safe Wallet 批付 → 员工确认" },
-    { title: "收入入账", body: "链上收入抓取 → 分类记账 → 税务预提 → 仪表盘更新" }
+    { title: "收支管理", body: "链上收入抓取 → 分类记账 → 税务预提 → 仪表盘更新" }
   ];
 
   return (
@@ -117,14 +117,14 @@ export default function LandingPage() {
               href="/register"
               className="inline-flex items-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
             >
-              立即启用企业财务
+              新用户注册
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
               href="/login"
               className="inline-flex items-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
             >
-              使用演示账号体验
+              已有账号登录
             </Link>
           </div>
 

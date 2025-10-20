@@ -383,25 +383,25 @@ export default function AdminSafeWalletPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="space-y-8">
+      <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">报销管理 · Safe Wallet 批付</h1>
-              <p className="mt-1 text-gray-600">
+              <h1 className="text-2xl font-bold text-slate-900">报销管理 · Safe Wallet 批付</h1>
+              <p className="mt-1 text-slate-600">
                 按照审批结果整合已批准报销，生成 USDT 计价的 Safe Wallet 批量交易。可在导出前手动剔除部分报销单或收款人。
               </p>
             </div>
-            <div className="inline-flex overflow-hidden rounded-full border border-gray-200 bg-gray-100 p-1 text-sm">
+            <div className="inline-flex overflow-hidden rounded-full border border-slate-200 bg-slate-100 p-1 text-sm">
               {subNavigation.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={`rounded-full px-4 py-1.5 font-medium transition ${
                     isSubnavActive(item.href)
-                      ? "bg-white text-indigo-600 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      ? "bg-white/80 text-indigo-600 shadow-sm"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   {item.name}
@@ -411,35 +411,35 @@ export default function AdminSafeWalletPage() {
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div>
-              <span className="font-semibold text-gray-900">{totalReimbursements}</span>
-              <span className="ml-1 text-gray-500">条报销记录</span>
+              <span className="font-semibold text-slate-900">{totalReimbursements}</span>
+              <span className="ml-1 text-slate-500">条报销记录</span>
             </div>
             <div>
-              <span className="font-semibold text-gray-900">{totalBatches}</span>
-              <span className="ml-1 text-gray-500">个收款人批次</span>
+              <span className="font-semibold text-slate-900">{totalBatches}</span>
+              <span className="ml-1 text-slate-500">个收款人批次</span>
             </div>
             <div>
               <span className="font-semibold text-indigo-600">{totalUsdt.toFixed(2)}</span>
-              <span className="ml-1 text-gray-500">USDT</span>
+              <span className="ml-1 text-slate-500">USDT</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-gray-900">筛选条件</h2>
+      <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur space-y-6">
+        <h2 className="text-lg font-semibold text-slate-900">筛选条件</h2>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <input
             type="text"
             placeholder="搜索报销标题 / 描述 / 用户"
             value={filters.search}
             onChange={(event) => handleInputChange("search", event.target.value)}
-            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
           />
           <select
             value={filters.currency}
             onChange={(event) => handleInputChange("currency", event.target.value)}
-            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
           >
             {currencyOptions.map((option) => (
               <option key={option.value || "all"} value={option.value}>
@@ -451,13 +451,13 @@ export default function AdminSafeWalletPage() {
             type="date"
             value={filters.fromDate}
             onChange={(event) => handleInputChange("fromDate", event.target.value)}
-            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
           />
           <input
             type="date"
             value={filters.toDate}
             onChange={(event) => handleInputChange("toDate", event.target.value)}
-            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
           />
           <input
             type="number"
@@ -466,7 +466,7 @@ export default function AdminSafeWalletPage() {
             placeholder="最小 USDT 金额"
             value={filters.minAmountUsdt}
             onChange={(event) => handleInputChange("minAmountUsdt", event.target.value)}
-            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
           />
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -479,11 +479,11 @@ export default function AdminSafeWalletPage() {
           </button>
           <button
             onClick={handleReset}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 border border-slate-200 text-slate-700 rounded-md hover:bg-slate-50/80"
           >
             重置条件
           </button>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-slate-500">
             仅包含当前状态为 <span className="font-semibold text-green-600">已批准</span> 的报销单。
           </span>
         </div>
@@ -496,11 +496,11 @@ export default function AdminSafeWalletPage() {
       </div>
 
       {hasBatches ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-8">
+        <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur space-y-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">批次明细</h2>
-              <p className="text-sm text-gray-500">
+              <h2 className="text-lg font-semibold text-slate-900">批次明细</h2>
+              <p className="text-sm text-slate-500">
                 取消选中即可临时从本次导出中剔除某位收款人或具体报销单，不会影响原始审批记录。
               </p>
             </div>
@@ -533,16 +533,16 @@ export default function AdminSafeWalletPage() {
               return (
                 <div
                   key={batch.applicantId}
-                  className={`border border-gray-200 rounded-xl p-5 transition ${
-                    batchIncluded ? "" : "bg-gray-50 opacity-70"
+                  className={`border border-slate-200 rounded-xl p-5 transition ${
+                    batchIncluded ? "" : "bg-slate-50 opacity-70"
                   }`}
                 >
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div className="space-y-1">
-                      <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
                         <input
                           type="checkbox"
-                          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-200"
                           checked={batchIncluded}
                           onChange={(event) =>
                             handleToggleBatch(batch.applicantId, event.target.checked)
@@ -550,25 +550,25 @@ export default function AdminSafeWalletPage() {
                         />
                         包含在导出中
                         {!batchIncluded && (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-600">
+                          <span className="ml-2 inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs text-slate-600">
                             已排除
                           </span>
                         )}
                       </label>
                       <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-slate-900">
                           {batch.applicantName}
                         </h3>
-                        <span className="text-sm text-gray-500">{batch.applicantEmail}</span>
+                        <span className="text-sm text-slate-500">{batch.applicantEmail}</span>
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-slate-500">
                         原始批次数量：{batch.items.length} 笔 · 审批合计{" "}
                         <span className="font-semibold text-indigo-600">
                           {batch.totalAmountUsdt.toFixed(2)} USDT
                         </span>
                       </div>
                       {batch.evmAddress ? (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-slate-500">
                           EVM 地址：<span className="font-mono">{batch.evmAddress}</span>
                         </div>
                       ) : (
@@ -582,7 +582,7 @@ export default function AdminSafeWalletPage() {
                         </div>
                       )}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-slate-500">
                       审批号：
                       <span className="font-mono break-all">
                         {batch.reimbursementIds.join(", ")}
@@ -592,15 +592,15 @@ export default function AdminSafeWalletPage() {
 
                   <div className="mt-4 overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-slate-50">
                         <tr>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">包含</th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">报销单</th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">包含</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">报销单</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">
                             原币种金额
                           </th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">USDT</th>
-                          <th className="px-4 py-2 text-left font-medium text-gray-500">说明</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">USDT</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">说明</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -612,7 +612,7 @@ export default function AdminSafeWalletPage() {
                               <td className="px-4 py-2 align-top">
                                 <input
                                   type="checkbox"
-                                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                  className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-200"
                                   checked={itemIncluded}
                                   disabled={!batchIncluded}
                                   onChange={(event) =>
@@ -625,18 +625,18 @@ export default function AdminSafeWalletPage() {
                                 />
                               </td>
                               <td className="px-4 py-2 align-top">
-                                <div className="font-medium text-gray-900">{item.title}</div>
-                                <div className="text-xs text-gray-500">
+                                <div className="font-medium text-slate-900">{item.title}</div>
+                                <div className="text-xs text-slate-500">
                                   ID: {item.reimbursementId}
                                 </div>
                               </td>
-                              <td className="px-4 py-2 align-top text-gray-700">
+                              <td className="px-4 py-2 align-top text-slate-700">
                                 {item.amountOriginal.toFixed(2)} {item.currency}
                               </td>
                               <td className="px-4 py-2 align-top text-indigo-600 font-semibold">
                                 {item.amountUsdt.toFixed(2)} USDT
                               </td>
-                              <td className="px-4 py-2 align-top text-gray-600">
+                              <td className="px-4 py-2 align-top text-slate-600">
                                 {item.description || "—"}
                               </td>
                             </tr>
@@ -651,13 +651,13 @@ export default function AdminSafeWalletPage() {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Safe Wallet JSON</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-3">Safe Wallet JSON</h3>
             {transactionsPreview ? (
               <pre className="max-h-96 overflow-auto rounded-lg bg-slate-900 text-slate-100 text-xs p-4">
                 {transactionsPreview}
               </pre>
             ) : (
-              <div className="rounded-lg border border-dashed border-gray-300 p-6 text-sm text-gray-500 text-center">
+              <div className="rounded-lg border border-dashed border-slate-200 p-6 text-sm text-slate-500 text-center">
                 当前筛选或手动剔除后没有可导出的 Safe Wallet 交易。
               </div>
             )}
@@ -665,7 +665,7 @@ export default function AdminSafeWalletPage() {
         </div>
       ) : (
         !loading && (
-          <div className="bg-white rounded-lg border border-dashed border-gray-300 p-10 text-center text-gray-500">
+          <div className="bg-white/80 rounded-lg border border-dashed border-slate-200 p-10 text-center text-slate-500">
             暂无符合筛选条件的已批准报销，请调整筛选项或稍后再试。
           </div>
         )
@@ -677,7 +677,7 @@ export default function AdminSafeWalletPage() {
           <ul className="space-y-2 text-sm">
             {filteredIssues.map((issue) => (
               <li key={`${issue.applicantId}-${issue.type}`} className="leading-relaxed">
-                <span className="font-medium text-gray-900">{issue.applicantName}</span>：{issue.message}
+                <span className="font-medium text-slate-900">{issue.applicantName}</span>：{issue.message}
               </li>
             ))}
           </ul>

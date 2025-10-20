@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { currencies } from "@/lib/utils";
+import { currencies, expenseTypes } from "@/lib/utils";
+import { getExchangeRateToUsd, ExchangeRateError } from "@/lib/exchange";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { sendNotification } from "@/lib/notifications";
@@ -11,14 +12,8 @@ const createSchema = z.object({
   description: z.string().optional(),
   amountOriginal: z.number().positive(),
   currency: z.enum(currencies),
-  exchangeRateToUsd: z.number().positive(),
-  amountUsdEquivalent: z.number().positive(),
-  exchangeRateSource: z.string().min(1),
-  exchangeRateTime: z.coerce.date(),
-  isManualRate: z.boolean().optional(),
-  convertedBy: z.string().optional(),
-  chain: z.enum(["evm", "solana"] as const),
-  receiptUrl: z.string().url().optional()
+  receiptUrl: z.string().url().optional(),
+  expenseType: z.enum(expenseTypes)
 });
 
 export async function GET() {
@@ -38,16 +33,8 @@ export async function GET() {
     return NextResponse.json({ error: "用户不存在" }, { status: 404 });
   }
 
-  // 根据用户角色决定返回的数据
-  let whereClause = {};
-  if (currentUser.role === "user") {
-    // 普通用户只能看到自己的报销记录
-    whereClause = { applicantId: currentUser.id };
-  }
-  // 管理员和审核员可以看到所有记录
-
   const reimbursements = await prisma.reimbursement.findMany({
-    where: whereClause,
+    where: { applicantId: currentUser.id },
     orderBy: { createdAt: "desc" },
     take: 25,
     include: {
@@ -91,6 +78,24 @@ export async function POST(request: Request) {
   // 使用当前用户的ID，忽略前端传递的applicantId
   const applicantId = currentUser.id;
 
+  let quote;
+  try {
+    quote = await getExchangeRateToUsd(parsed.data.currency);
+  } catch (error) {
+    console.error("获取汇率失败:", error);
+    const message =
+      error instanceof ExchangeRateError
+        ? error.message
+        : "汇率获取失败，请稍后重试";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
+
+  const exchangeRateToUsd = quote.rate;
+  const amountUsdEquivalent = Number(
+    (parsed.data.amountOriginal * exchangeRateToUsd).toFixed(2)
+  );
+  const exchangeRateTime = new Date(quote.fetchedAt);
+
   const reimbursement = await prisma.reimbursement.create({
     data: {
       applicantId: applicantId,
@@ -98,14 +103,15 @@ export async function POST(request: Request) {
       description: parsed.data.description,
       amountOriginal: parsed.data.amountOriginal,
       currency: parsed.data.currency,
-      exchangeRateToUsd: parsed.data.exchangeRateToUsd,
-      amountUsdEquivalent: parsed.data.amountUsdEquivalent,
-      exchangeRateSource: parsed.data.exchangeRateSource,
-      exchangeRateTime: parsed.data.exchangeRateTime,
-      isManualRate: parsed.data.isManualRate ?? false,
-      convertedBy: parsed.data.convertedBy,
-      chain: parsed.data.chain,
+      exchangeRateToUsd,
+      amountUsdEquivalent,
+      exchangeRateSource: quote.source,
+      exchangeRateTime,
+      isManualRate: false,
+      convertedBy: quote.source,
+      chain: "evm",
       receiptUrl: parsed.data.receiptUrl,
+      expenseType: parsed.data.expenseType,
       status: "submitted"
     },
     include: {
