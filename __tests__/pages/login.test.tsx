@@ -41,7 +41,7 @@ describe('Login Page', () => {
 
         // Assert
         expect(screen.getByText('没有账户？')).toBeInTheDocument()
-        expect(screen.getByText('立即注册')).toBeInTheDocument()
+        expect(screen.getAllByText('立即注册').length).toBeGreaterThanOrEqual(1)
     })
 
     it('should display message from URL params', () => {

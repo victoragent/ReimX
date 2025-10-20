@@ -127,6 +127,15 @@ function LoginForm() {
                             {loading ? "登录中..." : "登录"}
                         </button>
                     </div>
+
+                    <div className="text-center">
+                        <p className="text-sm text-gray-600">
+                            还没有账户？{" "}
+                            <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                立即注册
+                            </a>
+                        </p>
+                    </div>
                 </form>
             </div>
         </div>

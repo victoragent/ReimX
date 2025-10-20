@@ -17,8 +17,15 @@ model User {
   evmAddress      String?
   solanaAddress   String?
   role            String          @default("user")
-  status          String          @default("active")
-  reimbursements  Reimbursement[]
+  status          String          @default("pending") // pending, active, suspended
+  isApproved      Boolean         @default(false) // 管理员审核状态
+  salaryUsdt      Float           @default(0)
+  approvedBy      String?         // 审核管理员ID
+  approvedAt      DateTime?       // 审核时间
+  reimbursements          Reimbursement[] @relation("ReimbursementApplicant")
+  reviewedReimbursements  Reimbursement[] @relation("ReimbursementReviewer")
+  approvedReimbursements  Reimbursement[] @relation("ReimbursementApprover")
+  salaryPayments          SalaryPayment[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
@@ -42,7 +49,29 @@ model Reimbursement {
   reviewerId           String?
   approverId           String?
   txHash               String?
+  reviewComment        String?
+  reviewedAt           DateTime?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
-  applicant            User     @relation(fields: [applicantId], references: [id])
+  applicant            User     @relation("ReimbursementApplicant", fields: [applicantId], references: [id])
+  reviewer             User?    @relation("ReimbursementReviewer", fields: [reviewerId], references: [id])
+  approver             User?    @relation("ReimbursementApprover", fields: [approverId], references: [id])
+}
+
+model SalaryPayment {
+  id             String   @id @default(cuid())
+  userId         String
+  month          String
+  amountUsdt     Float
+  status         String   @default("pending") // pending, scheduled, paid
+  scheduledAt    DateTime?
+  paidAt         DateTime?
+  transactionHash String?
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, month])
 }

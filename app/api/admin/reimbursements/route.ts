@@ -78,8 +78,8 @@ export async function GET(request: NextRequest) {
         // 转换数据格式以匹配前端期望
         const formattedReimbursements = reimbursements.map(reimbursement => ({
             ...reimbursement,
-            amount: reimbursement.amountOriginal,
-            submittedAt: reimbursement.createdAt
+            amount: reimbursement.amount ?? reimbursement.amountOriginal,
+            submittedAt: reimbursement.submittedAt ?? reimbursement.createdAt
         }));
 
         const pages = Math.ceil(total / limit);

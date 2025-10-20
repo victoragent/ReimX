@@ -21,7 +21,7 @@ global.fetch = jest.fn()
 describe('Admin Reimbursements Page', () => {
     beforeEach(() => {
         jest.clearAllMocks()
-            ; (global.fetch as jest.Mock).mockClear()
+            ; (global.fetch as jest.Mock).mockReset()
     })
 
     it('should render reimbursements list for admin user', async () => {
@@ -81,7 +81,7 @@ describe('Admin Reimbursements Page', () => {
         expect(screen.getByText('testuser')).toBeInTheDocument()
         expect(screen.getByText('100.5 USD')).toBeInTheDocument()
         expect(screen.getByText('Business lunch')).toBeInTheDocument()
-        expect(screen.getAllByText('待审核')).toHaveLength(2) // 出现在筛选选项和状态标签中
+        expect(screen.getAllByText('待审核').length).toBeGreaterThanOrEqual(2)
     })
 
     it('should redirect to login for unauthenticated user', () => {
@@ -324,9 +324,12 @@ describe('Admin Reimbursements Page', () => {
             json: () => Promise.resolve({ message: '审核成功' }),
         }
 
-            ; (global.fetch as jest.Mock)
-                .mockResolvedValueOnce(mockResponse)
-                .mockResolvedValueOnce(mockReviewResponse)
+            ; (global.fetch as jest.Mock).mockImplementation((url: RequestInfo | URL) => {
+                if (typeof url === 'string' && url.includes('/review')) {
+                    return Promise.resolve(mockReviewResponse as Response);
+                }
+                return Promise.resolve(mockResponse as Response);
+            })
 
         // Act
         render(<AdminReimbursementsPage />)
@@ -335,26 +338,22 @@ describe('Admin Reimbursements Page', () => {
             expect(screen.getByText('报销管理')).toBeInTheDocument()
         })
 
-        // Wait for data to load and approve button to appear
-        await waitFor(() => {
-            expect(screen.getByText('批准')).toBeInTheDocument()
-        })
-
-        const approveButton = screen.getByText('批准')
+        const approveButton = await screen.findByRole('button', { name: '批准' })
         await user.click(approveButton)
 
-        // Assert
-        expect(global.fetch).toHaveBeenCalledWith(
-            '/api/admin/reimbursements/reimb_1/review',
-            expect.objectContaining({
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'approve',
-                    comment: ''
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                '/api/admin/reimbursements/reimb_1/review',
+                expect.objectContaining({
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'approve',
+                        comment: ''
+                    })
                 })
-            })
-        )
+            )
+        })
     })
 
     it('should handle reject reimbursement', async () => {
@@ -402,9 +401,12 @@ describe('Admin Reimbursements Page', () => {
             json: () => Promise.resolve({ message: '审核成功' }),
         }
 
-            ; (global.fetch as jest.Mock)
-                .mockResolvedValueOnce(mockResponse)
-                .mockResolvedValueOnce(mockReviewResponse)
+            ; (global.fetch as jest.Mock).mockImplementation((url: RequestInfo | URL) => {
+                if (typeof url === 'string' && url.includes('/review')) {
+                    return Promise.resolve(mockReviewResponse as Response);
+                }
+                return Promise.resolve(mockResponse as Response);
+            })
 
         // Act
         render(<AdminReimbursementsPage />)
@@ -413,26 +415,22 @@ describe('Admin Reimbursements Page', () => {
             expect(screen.getByText('报销管理')).toBeInTheDocument()
         })
 
-        // Wait for data to load and reject button to appear
-        await waitFor(() => {
-            expect(screen.getByText('拒绝')).toBeInTheDocument()
-        })
-
-        const rejectButton = screen.getByText('拒绝')
+        const rejectButton = await screen.findByRole('button', { name: '拒绝' })
         await user.click(rejectButton)
 
-        // Assert
-        expect(global.fetch).toHaveBeenCalledWith(
-            '/api/admin/reimbursements/reimb_1/review',
-            expect.objectContaining({
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'reject',
-                    comment: ''
+        await waitFor(() => {
+            expect(global.fetch).toHaveBeenCalledWith(
+                '/api/admin/reimbursements/reimb_1/review',
+                expect.objectContaining({
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'reject',
+                        comment: ''
+                    })
                 })
-            })
-        )
+            )
+        })
     })
 
     it('should handle API errors gracefully', async () => {

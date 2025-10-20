@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { sendNotification } from "@/lib/notifications";
 
 const reviewSchema = z.object({
     action: z.enum(["approve", "reject"]),
@@ -55,7 +56,8 @@ export async function POST(
                 applicant: {
                     select: {
                         username: true,
-                        email: true
+                        email: true,
+                        tgAccount: true
                     }
                 }
             }
@@ -81,7 +83,8 @@ export async function POST(
             data: {
                 status: action === "approve" ? "approved" : "rejected",
                 reviewerId: currentUser.id,
-                approverId: action === "approve" ? currentUser.id : null
+                approverId: action === "approve" ? currentUser.id : null,
+                reviewComment: comment ?? null
             },
             include: {
                 applicant: {
@@ -89,13 +92,37 @@ export async function POST(
                         username: true,
                         email: true
                     }
+                },
+                reviewer: {
+                    select: {
+                        username: true
+                    }
                 }
             }
         });
 
-        // 这里可以添加通知逻辑
-        // 例如：发送邮件通知用户审核结果
-        // await sendNotificationEmail(reimbursement.applicant.email, action, comment);
+        // 发送通知
+        try {
+            await sendNotification({
+                type: action === "approve" ? 'reimbursement_approved' : 'reimbursement_rejected',
+                user: {
+                    name: reimbursement.applicant.username,
+                    email: reimbursement.applicant.email,
+                    tgAccount: reimbursement.applicant.tgAccount || undefined
+                },
+                reimbursement: {
+                    id: reimbursement.id,
+                    title: reimbursement.title,
+                    amount: reimbursement.amountOriginal,
+                    currency: reimbursement.currency,
+                    chain: reimbursement.chain
+                },
+                comment: comment
+            });
+        } catch (error) {
+            console.error('发送通知失败:', error);
+            // 通知失败不影响主流程
+        }
 
         return NextResponse.json({
             message: action === "approve" ? "报销已批准" : "报销已拒绝",

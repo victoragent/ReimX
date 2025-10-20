@@ -27,7 +27,7 @@ global.fetch = jest.fn()
 describe('User Flow Integration Tests', () => {
     beforeEach(() => {
         jest.clearAllMocks()
-            ; (global.fetch as jest.Mock).mockClear()
+            ; (global.fetch as jest.Mock).mockReset()
     })
 
     describe('Complete User Registration and Login Flow', () => {
@@ -40,11 +40,11 @@ describe('User Flow Integration Tests', () => {
 
             // Step 2: User fills registration form
             await user.type(screen.getByLabelText('用户名 *'), 'newuser')
-            await user.type(screen.getByLabelText('邮箱地址 *'), 'newuser@example.com')
+            await user.type(screen.getByLabelText('邮箱 *'), 'newuser@example.com')
             await user.type(screen.getByLabelText('密码 *'), 'password123')
             await user.type(screen.getByLabelText('确认密码 *'), 'password123')
-            await user.type(screen.getByLabelText('Telegram 账号'), '@newuser')
-            await user.type(screen.getByLabelText('EVM 地址'), '0x1234567890abcdef')
+            await user.type(screen.getByLabelText('Telegram账号'), '@newuser')
+            await user.type(screen.getByLabelText('EVM地址'), '0x1234567890abcdef')
 
             // Step 3: User submits registration
             const mockRegisterResponse = {
@@ -56,7 +56,7 @@ describe('User Flow Integration Tests', () => {
             await user.click(screen.getByRole('button', { name: '注册' }))
 
             await waitFor(() => {
-                expect(global.fetch).toHaveBeenCalledWith('/api/users/register', {
+                expect(global.fetch).toHaveBeenCalledWith('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -69,7 +69,8 @@ describe('User Flow Integration Tests', () => {
                 })
             })
 
-            expect(mockPush).toHaveBeenCalledWith('/login?message=注册成功，请登录')
+            const successMessages = await screen.findAllByText('注册成功')
+            expect(successMessages.length).toBeGreaterThanOrEqual(1)
         })
 
         it('should handle user login and profile access', async () => {
@@ -186,7 +187,7 @@ describe('User Flow Integration Tests', () => {
             render(<RegisterPage />)
 
             await user.type(screen.getByLabelText('用户名 *'), 'testuser')
-            await user.type(screen.getByLabelText('邮箱地址 *'), 'test@example.com')
+            await user.type(screen.getByLabelText('邮箱 *'), 'test@example.com')
             await user.type(screen.getByLabelText('密码 *'), 'password123')
             await user.type(screen.getByLabelText('确认密码 *'), 'password123')
 
