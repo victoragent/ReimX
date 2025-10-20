@@ -84,7 +84,8 @@ export async function POST(
                 status: action === "approve" ? "approved" : "rejected",
                 reviewerId: currentUser.id,
                 approverId: action === "approve" ? currentUser.id : null,
-                reviewComment: comment ?? null
+                reviewComment: comment ?? null,
+                reviewedAt: new Date()
             },
             include: {
                 applicant: {

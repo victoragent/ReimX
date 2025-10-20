@@ -20,14 +20,13 @@ export async function POST(request: NextRequest) {
 
         if (!parsed.success) {
             return NextResponse.json(
-                { error: "输入数据无效", details: parsed.error.errors },
+                { error: "输入数据无效", details: parsed.error.flatten() },
                 { status: 400 }
             );
         }
 
         const { username, email, password, tgAccount, whatsappAccount, evmAddress, solanaAddress } = parsed.data;
 
-        // 检查邮箱是否已存在
         const existingUser = await prisma.user.findUnique({
             where: { email }
         });
@@ -39,10 +38,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 加密密码
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // 创建用户
         const user = await prisma.user.create({
             data: {
                 username,
@@ -53,16 +50,22 @@ export async function POST(request: NextRequest) {
                 evmAddress,
                 solanaAddress,
                 role: "user",
-                status: "active"
+                status: "pending",
+                isApproved: false
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                status: true,
+                isApproved: true,
+                createdAt: true
             }
         });
 
-        // 返回用户信息（不包含密码）
-        const { password: _, ...userWithoutPassword } = user;
-
         return NextResponse.json({
-            message: "注册成功",
-            user: userWithoutPassword
+            message: "注册成功，请等待管理员审核后再登录",
+            user
         }, { status: 201 });
 
     } catch (error) {

@@ -43,7 +43,9 @@ describe('/api/users/profile', () => {
                 evmAddress: '0x1234567890abcdef',
                 solanaAddress: 'So11111111111111111111111111111111111111112',
                 role: 'user',
+                isApproved: true,
                 status: 'active',
+                salaryUsdt: 5000,
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
@@ -77,6 +79,8 @@ describe('/api/users/profile', () => {
                     evmAddress: true,
                     solanaAddress: true,
                     role: true,
+                    isApproved: true,
+                    salaryUsdt: true,
                     status: true,
                     createdAt: true,
                     updatedAt: true
@@ -142,12 +146,15 @@ describe('/api/users/profile', () => {
                 evmAddress: '0x1234567890abcdef',
                 solanaAddress: 'So11111111111111111111111111111111111111112',
                 role: 'user',
-                status: 'active'
+                status: 'active',
+                salaryUsdt: 5000
             }
 
             const updatedUser = {
                 ...currentUser,
                 ...updateData,
+                isApproved: true,
+                salaryUsdt: 5000,
                 updatedAt: new Date()
             }
 
@@ -197,6 +204,8 @@ describe('/api/users/profile', () => {
                 ...currentUser,
                 ...updateData,
                 status: 'pending',
+                isApproved: false,
+                salaryUsdt: 5000,
                 updatedAt: new Date()
             }
 
@@ -222,12 +231,13 @@ describe('/api/users/profile', () => {
 
             // Assert
             expect(response.status).toBe(200)
-            expect(data.message).toBe('资料已更新，地址变更需要管理员审核')
+            expect(data.message).toBe('资料已更新，变更信息需管理员审核后生效')
             expect(mockPrisma.user.update).toHaveBeenCalledWith({
                 where: { email: 'test@example.com' },
                 data: {
-                    ...updateData,
-                    status: 'pending'
+                    evmAddress: updateData.evmAddress,
+                    status: 'pending',
+                    isApproved: false
                 },
                 select: expect.any(Object)
             })
@@ -238,6 +248,97 @@ describe('/api/users/profile', () => {
             const invalidData = {
                 username: 'a' // Too short
             }
+
+            mockGetServerSession.mockResolvedValue({
+                user: { email: 'test@example.com' }
+            } as any)
+
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
+                method: 'PUT',
+                body: JSON.stringify(invalidData),
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                }),
+                json: () => Promise.resolve(invalidData)
+            } as unknown as NextRequest
+
+            // Act
+            const response = await PUT(request)
+            const data = await response.json() as { error?: string; details?: unknown }
+
+            // Assert
+            expect(response.status).toBe(400)
+            expect(data.error).toBe('输入数据无效')
+            expect(data.details).toBeDefined()
+        })
+
+        it('should not allow setting duplicate email', async () => {
+            const updateData = { email: 'taken@example.com' }
+            const currentUser = {
+                id: 'user_123',
+                username: 'testuser',
+                email: 'test@example.com',
+                evmAddress: null,
+                solanaAddress: null,
+                role: 'user'
+            }
+
+            mockGetServerSession.mockResolvedValue({
+                user: { email: currentUser.email }
+            } as any)
+            mockPrisma.user.findUnique
+                .mockResolvedValueOnce(currentUser as any)
+                .mockResolvedValueOnce({ id: 'another_user' } as any)
+
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
+                method: 'PUT',
+                body: JSON.stringify(updateData),
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                }),
+                json: () => Promise.resolve(updateData)
+            } as unknown as NextRequest
+
+            const response = await PUT(request)
+            const data = await response.json() as { error?: string }
+
+            expect(response.status).toBe(400)
+            expect(data.error).toBe('该邮箱已被其他用户使用')
+        })
+
+        it('should block self promoting to admin', async () => {
+            const updateData = { role: 'admin' }
+            const currentUser = {
+                id: 'user_123',
+                username: 'testuser',
+                email: 'test@example.com',
+                evmAddress: null,
+                solanaAddress: null,
+                role: 'user'
+            }
+
+            mockGetServerSession.mockResolvedValue({
+                user: { email: currentUser.email }
+            } as any)
+            mockPrisma.user.findUnique.mockResolvedValue(currentUser as any)
+
+            const request = {
+                url: 'http://localhost:3000/api/users/profile',
+                method: 'PUT',
+                body: JSON.stringify(updateData),
+                headers: new Headers({
+                    'Content-Type': 'application/json',
+                }),
+                json: () => Promise.resolve(updateData)
+            } as unknown as NextRequest
+
+            const response = await PUT(request)
+            const data = await response.json() as { error?: string }
+
+            expect(response.status).toBe(400)
+            expect(data.error).toBe('无法设置为该角色')
         })
 
         it('should return 401 for unauthenticated user', async () => {
