@@ -161,7 +161,7 @@ export default function AdminSalariesPage() {
             reimbursementIds: batch.items.map((item) => item.reimbursementId)
           }
         }))
-    };
+    } as SafeWalletPayload;
   }, [filteredBatches, data?.safewallet]);
 
   const transactionsPreview = useMemo(
@@ -190,7 +190,7 @@ export default function AdminSalariesPage() {
         })
       });
 
-      const result = await response.json() as SafeWalletResponse & { error?: string };
+      const result = (await response.json()) as SafeWalletResponse & { error?: string };
 
       if (!response.ok) {
         setData(null);
@@ -230,7 +230,7 @@ export default function AdminSalariesPage() {
         body: JSON.stringify({ month })
       });
 
-      const result = await response.json() as { error?: string; message?: string };
+      const result = (await response.json()) as { error?: string; message?: string };
 
       if (!response.ok) {
         setError(result.error || "生成工资发放记录失败");
@@ -310,7 +310,7 @@ export default function AdminSalariesPage() {
         })
       });
 
-      const result = await response.json() as { error?: string; message?: string };
+      const result = (await response.json()) as { error?: string; message?: string };
 
       if (!response.ok) {
         setError(result.error || "更新工资状态失败");
@@ -349,43 +349,58 @@ export default function AdminSalariesPage() {
     window.URL.revokeObjectURL(url);
   };
 
+  if (loading && !data) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="flex flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white/80 px-10 py-12 shadow-lg shadow-slate-200/70 backdrop-blur">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" />
+          <p className="text-sm font-medium text-slate-600">正在获取工资数据...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      <div className="bg-white/80 rounded-3xl shadow-sm border border-slate-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">工资管理</h1>
-            <p className="mt-1 text-slate-600">
-              管理员工固定工资，按月生成 Safe Wallet 批付，并追踪发放状态。
+    <div className="space-y-10">
+      <section className="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-lg shadow-slate-200/60 backdrop-blur">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-3">
+            <p className="text-xs font-medium uppercase tracking-[0.35em] text-indigo-500">Payroll</p>
+            <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">Safe Wallet 工资中心</h1>
+            <p className="max-w-xl text-sm text-slate-600 sm:text-base">
+              生成 Safe Wallet 批次、导出 JSON 并追踪发放状态，让链上工资发放透明可控。
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <div>
-              <span className="font-semibold text-slate-900">{totalPayments}</span>
-              <span className="ml-1 text-slate-500">条工资记录</span>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm shadow-slate-200/50">
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">批次</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{totalBatches}</p>
+              <p className="text-xs text-slate-500">待发放收款人</p>
             </div>
-            <div>
-              <span className="font-semibold text-slate-900">{totalBatches}</span>
-              <span className="ml-1 text-slate-500">个收款人批次</span>
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm shadow-slate-200/50">
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">工资条</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{totalPayments}</p>
+              <p className="text-xs text-slate-500">当前筛选范围</p>
             </div>
-            <div>
-              <span className="font-semibold text-indigo-600">{totalUsdt.toFixed(2)}</span>
-              <span className="ml-1 text-slate-500">USDT</span>
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm shadow-slate-200/50">
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">USDT</p>
+              <p className="mt-2 text-2xl font-semibold text-indigo-600">{totalUsdt.toFixed(2)}</p>
+              <p className="text-xs text-slate-500">待发放总额</p>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="bg-white/80 rounded-3xl shadow-sm border border-slate-200 p-6 space-y-6">
+      <section className="space-y-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
         <h2 className="text-lg font-semibold text-slate-900">筛选与操作</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid gap-4 lg:grid-cols-4">
           <div>
             <label className="block text-sm font-medium text-slate-700">结算月份</label>
             <input
               type="month"
               value={month}
               onChange={(event) => setMonth(event.target.value)}
-              className="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
+              className="mt-1 block w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-slate-200/50 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </div>
           <div>
@@ -393,7 +408,7 @@ export default function AdminSalariesPage() {
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="mt-1 block w-full border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
+              className="mt-1 block w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-slate-200/50 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option value="pending">待发放</option>
               <option value="scheduled">已计划</option>
@@ -401,78 +416,87 @@ export default function AdminSalariesPage() {
               <option value="all">全部</option>
             </select>
           </div>
-          <div className="md:col-span-2 flex items-end gap-3">
-            <button
-              onClick={handleSchedule}
-              disabled={scheduleLoading}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-60"
-            >
-              {scheduleLoading ? "生成中..." : `生成 ${month} 工资记录`}
-            </button>
-            <button
-              onClick={fetchData}
-              disabled={loading}
-              className="px-4 py-2 border border-slate-200 text-slate-700 rounded-md hover:bg-slate-50/80"
-            >
-              刷新数据
-            </button>
+          <div className="lg:col-span-2">
+            <label className="block text-sm font-medium text-slate-700">Safe Wallet 交易哈希（可选）</label>
+            <input
+              type="text"
+              placeholder="若已在 Safe Wallet 发放，请填写链上交易哈希"
+              value={transactionHash}
+              onChange={(event) => setTransactionHash(event.target.value)}
+              className="mt-1 block w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-slate-200/50 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            />
+            <p className="mt-2 text-xs text-slate-500">用于导出后回填记录，便于审计追踪。</p>
           </div>
         </div>
-
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleSchedule}
+            disabled={scheduleLoading}
+            className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-indigo-700 disabled:opacity-60"
+          >
+            {scheduleLoading ? "生成中..." : `生成 ${month} 工资记录`}
+          </button>
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm shadow-slate-200/50 transition hover:bg-slate-50/80"
+          >
+            刷新数据
+          </button>
+          <button
+            onClick={handleMarkPaid}
+            disabled={markingPaid || selectedSalaryIds.length === 0}
+            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-emerald-700 disabled:opacity-60"
+          >
+            {markingPaid ? "更新中..." : selectedSalaryIds.length ? `标记 ${selectedSalaryIds.length} 条为已发放` : "标记为已发放"}
+          </button>
+        </div>
+        <div className="text-xs text-slate-500">已选 {selectedSalaryIds.length} 条工资记录。</div>
         {error && (
-          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">{error}</div>
         )}
-
         {message && (
-          <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-            {message}
-          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{message}</div>
         )}
-      </div>
+      </section>
 
       {hasBatches ? (
-        <div className="bg-white/80 rounded-3xl shadow-sm border border-slate-200 p-6 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <section className="space-y-8 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Safe Wallet 批次</h2>
-              <p className="text-sm text-slate-500">
-                可按需剔除部分员工或工资记录，导出 Safe Wallet JSON 并在发放后标记为已支付。
-              </p>
+              <p className="text-sm text-slate-500">可按需剔除员工或工资记录，导出 JSON 并在发放完成后同步状态。</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleCopyPayload}
                 disabled={!transactionsPreview}
-                className="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 disabled:opacity-50"
+                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-black disabled:opacity-60"
               >
                 复制 JSON
               </button>
               <button
                 onClick={handleDownload}
                 disabled={!transactionsPreview}
-                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 disabled:opacity-50"
+                className="inline-flex items-center justify-center rounded-full border border-indigo-600 bg-white/80 px-4 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm shadow-slate-200/50 transition hover:bg-indigo-50 disabled:opacity-50"
               >
                 下载 JSON
               </button>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {data?.batches.map((batch) => {
               const config = selection[batch.applicantId];
               const include = config ? config.include : true;
-              const excludedItems = batch.items.filter(
-                (item) => !(config?.items?.[item.reimbursementId] ?? true)
-              ).length;
+              const excludedItems = batch.items.filter((item) => !(config?.items?.[item.reimbursementId] ?? true)).length;
 
               return (
                 <div
                   key={batch.applicantId}
-                  className={`border border-slate-200 rounded-xl p-5 transition ${include ? "" : "bg-slate-50 opacity-70"}`}
+                  className={`rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50 transition ${include ? "" : "bg-slate-50 opacity-70"}`}
                 >
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-1">
                       <label className="inline-flex items-center gap-2 text-sm font-medium text-slate-700">
                         <input
@@ -483,7 +507,7 @@ export default function AdminSalariesPage() {
                         />
                         包含在导出中
                         {!include && (
-                          <span className="ml-2 inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs text-slate-600">
+                          <span className="ml-2 inline-flex items-center rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-600">
                             已排除
                           </span>
                         )}
@@ -501,26 +525,20 @@ export default function AdminSalariesPage() {
                           EVM 地址：<span className="font-mono">{batch.evmAddress}</span>
                         </div>
                       ) : (
-                        <div className="text-xs text-red-600">
-                          缺少 EVM 地址，导出前需补充该用户的收款地址。
-                        </div>
+                        <div className="text-xs text-rose-600">缺少 EVM 地址，导出前需补充该用户的收款地址。</div>
                       )}
                       {excludedItems > 0 && (
-                        <div className="text-xs text-amber-600">
-                          已剔除 {excludedItems} 条工资记录。
-                        </div>
+                        <div className="text-xs text-amber-600">已剔除 {excludedItems} 条工资记录。</div>
                       )}
                     </div>
                     <div className="text-sm text-slate-500">
                       关联记录：
-                      <span className="font-mono break-all">
-                        {batch.reimbursementIds.join(", ")}
-                      </span>
+                      <span className="font-mono break-all">{batch.reimbursementIds.join(", ")}</span>
                     </div>
                   </div>
 
                   <div className="mt-4 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                    <table className="min-w-full divide-y divide-slate-200 text-sm">
                       <thead className="bg-slate-50">
                         <tr>
                           <th className="px-4 py-2 text-left font-medium text-slate-500">包含</th>
@@ -529,7 +547,7 @@ export default function AdminSalariesPage() {
                           <th className="px-4 py-2 text-left font-medium text-slate-500">说明</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-slate-200">
                         {batch.items.map((item) => {
                           const includeItem = config?.items?.[item.reimbursementId] ?? true;
                           return (
@@ -549,7 +567,7 @@ export default function AdminSalariesPage() {
                                 <div className="font-medium text-slate-900">{item.title}</div>
                                 <div className="text-xs text-slate-500">ID: {item.reimbursementId}</div>
                               </td>
-                              <td className="px-4 py-2 align-top text-indigo-600 font-semibold">
+                              <td className="px-4 py-2 align-top font-semibold text-indigo-600">
                                 {item.amountUsdt.toFixed(2)} USDT
                               </td>
                               <td className="px-4 py-2 align-top text-slate-600">
@@ -566,51 +584,29 @@ export default function AdminSalariesPage() {
             })}
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                placeholder="可选：记录 Safe Wallet 交易哈希"
-                value={transactionHash}
-                onChange={(event) => setTransactionHash(event.target.value)}
-                className="w-full md:w-80 border border-slate-200 rounded-md px-3 py-2 text-sm focus:ring-indigo-200 focus:border-indigo-400"
-              />
-              <button
-                onClick={handleMarkPaid}
-                disabled={markingPaid || selectedSalaryIds.length === 0}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {markingPaid ? "更新中..." : "标记为已发放"}
-              </button>
-            </div>
-            <div className="text-sm text-slate-500">
-              选中 {selectedSalaryIds.length} 条工资记录。
-            </div>
-          </div>
-
           <div>
-            <h3 className="text-lg font-semibold text-slate-900 mb-3">Safe Wallet JSON</h3>
+            <h3 className="mb-3 text-lg font-semibold text-slate-900">Safe Wallet JSON</h3>
             {transactionsPreview ? (
-              <pre className="max-h-96 overflow-auto rounded-3xl bg-slate-900 text-slate-100 text-xs p-4">
+              <pre className="max-h-96 overflow-auto rounded-3xl bg-slate-900 p-4 text-xs text-slate-100">
                 {transactionsPreview}
               </pre>
             ) : (
-              <div className="rounded-3xl border border-dashed border-slate-200 p-6 text-sm text-slate-500 text-center">
+              <div className="rounded-3xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
                 当前筛选或手动剔除后没有可导出的交易。
               </div>
             )}
           </div>
-        </div>
+        </section>
       ) : (
         !loading && (
-          <div className="bg-white/80 rounded-3xl border border-dashed border-slate-200 p-10 text-center text-slate-500">
+          <section className="rounded-3xl border border-dashed border-slate-200 bg-white/70 p-10 text-center text-slate-500 backdrop-blur">
             暂无符合筛选条件的工资记录，请生成或调整筛选条件。
-          </div>
+          </section>
         )
       )}
 
       {filteredIssues.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-3xl p-5 space-y-3">
+        <section className="space-y-3 rounded-3xl border border-amber-200 bg-amber-50/80 p-5 text-amber-800 backdrop-blur">
           <h3 className="font-semibold">待处理事项（{filteredIssues.length}）</h3>
           <ul className="space-y-2 text-sm">
             {filteredIssues.map((issue) => (
@@ -619,7 +615,7 @@ export default function AdminSalariesPage() {
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
     </div>
   );

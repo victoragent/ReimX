@@ -10,6 +10,7 @@ jest.mock('next/navigation', () => ({
     useRouter: () => ({
         push: mockPush,
     }),
+    usePathname: () => '/admin/reimbursements',
 }))
 
 // Mock NextAuth
@@ -274,7 +275,8 @@ describe('Admin Reimbursements Page', () => {
         await user.click(viewDetailsButton)
 
         // Assert
-        expect(screen.getByText('报销详情')).toBeInTheDocument()
+        // New UI modal uses heading and labels, assert by known fields instead of title text
+        expect(screen.getByText('申请人信息')).toBeInTheDocument()
         expect(screen.getAllByText('testuser')).toHaveLength(2) // appears in table and modal
         expect(screen.getAllByText('test@example.com')).toHaveLength(2) // appears in table and modal
     })

@@ -71,10 +71,10 @@ describe('Admin Dashboard', () => {
 
         expect(screen.getByText((text) => text.includes('欢迎回来'))).toBeInTheDocument()
         expect(screen.getByText((text) => text.includes('Admin User'))).toBeInTheDocument()
-        expect(screen.getByText('总用户数')).toBeInTheDocument()
+        expect(screen.getByText('总用户')).toBeInTheDocument()
         expect(screen.getByText((text) => text.includes('活跃用户'))).toBeInTheDocument()
         expect(screen.getAllByText('待审核用户').length).toBeGreaterThanOrEqual(1)
-        expect(screen.getByText('总报销数')).toBeInTheDocument()
+        expect(screen.getByText('报销记录')).toBeInTheDocument()
     })
 
     it('should redirect to login for unauthenticated user', () => {
@@ -126,7 +126,7 @@ describe('Admin Dashboard', () => {
         render(<AdminDashboard />)
 
         // Assert
-        expect(screen.getByText('加载中...')).toBeInTheDocument()
+        expect(screen.getByText('正在加载管理数据...')).toBeInTheDocument()
     })
 
     it('should handle API errors gracefully', async () => {
@@ -155,7 +155,7 @@ describe('Admin Dashboard', () => {
         // Assert
         await waitFor(() => {
             expect(screen.getByText('管理概览')).toBeInTheDocument()
-            expect(screen.getByText('总用户数')).toBeInTheDocument()
+            expect(screen.getByText('总用户')).toBeInTheDocument()
             expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(4)
         }, { timeout: 3000 })
     })
@@ -183,7 +183,7 @@ describe('Admin Dashboard', () => {
         // Assert
         await waitFor(() => {
             expect(screen.getByText('管理概览')).toBeInTheDocument()
-            expect(screen.getByText('总用户数')).toBeInTheDocument()
+            expect(screen.getByText('总用户')).toBeInTheDocument()
             expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(4)
         }, { timeout: 3000 })
     })
@@ -231,7 +231,7 @@ describe('Admin Dashboard', () => {
 
         // Assert
         await screen.findByText('25')
-        expect(screen.getByText((content) => content.includes('+22'))).toBeInTheDocument()
+        expect(screen.getByText((content) => content.includes('活跃用户 22'))).toBeInTheDocument()
         expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1)
         expect(screen.getAllByText('156').length).toBeGreaterThanOrEqual(1)
     })
