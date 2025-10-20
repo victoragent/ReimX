@@ -1,382 +1,286 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  BadgeCheck,
-  CircuitBoard,
-  Globe,
-  Layers,
-  LineChart,
-  Lock,
+  BarChart3,
+  Calculator,
+  CreditCard,
+  FileText,
+  FolderGit2,
+  Receipt,
+  ShieldCheck,
   Sparkles,
-  Users,
-  Wallet,
-  Workflow
+  Wallet
 } from "lucide-react";
 
-const metrics = [
-  { value: "3+", label: "支持币种" },
-  { value: "EVM · Solana", label: "链上网络" },
-  { value: "< 5s", label: "链上确认" },
-  { value: "100%", label: "全程审计追踪" }
-];
-
-const primaryFeatures = [
+const featureCards = [
   {
-    title: "多币种报销引擎",
-    description: "原生支持 EVM 与 Solana，自动处理链上地址、Gas 与到账校验。",
+    title: "报销自动化",
+    description: "多币种、跨网络的报销流程，内置智能审批矩阵与 Safe Wallet 支付链路。",
+    icon: Receipt,
+    href: "/admin/reimbursements",
+    cta: "查看报销工作台"
+  },
+  {
+    title: "工资中心",
+    description: "管理员定义 USDT 薪资，按月生成工资单并通过 Safe Wallet 批量发放。",
     icon: Wallet,
-    iconBg: "bg-indigo-100",
-    iconColor: "text-indigo-600"
+    href: "/admin/salaries",
+    cta: "管理工资发放"
   },
   {
-    title: "实时汇率与风控",
-    description: "锁定实时汇率，自动生成 USD 等值，内置风控阈值与异常预警。",
-    icon: LineChart,
-    iconBg: "bg-sky-100",
-    iconColor: "text-sky-600"
+    title: "收入与财务总览",
+    description: "聚合链上与离线收入，智能分类并实时更新总账与资金流。",
+    icon: BarChart3,
+    href: "/dashboard",
+    cta: "进入财务总览"
   },
   {
-    title: "智能审批矩阵",
-    description: "角色驱动的审批流程，灵活配置审批节点与预算控制策略。",
-    icon: Layers,
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600"
+    title: "支出管控",
+    description: "支出预算、白名单与多层级审批，确保每笔支出可追踪、可稽核。",
+    icon: CreditCard,
+    href: "/admin",
+    cta: "配置支出策略"
   },
   {
-    title: "合规审计中心",
-    description: "链上链下操作全量记录，满足企业级合规与安全审计要求。",
-    icon: Lock,
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-600"
+    title: "税务合规",
+    description: "生成税务报表、保留审计链路，满足 Web3 企业多地域合规要求。",
+    icon: Calculator,
+    href: "/admin/analytics",
+    cta: "查看税务视图"
+  },
+  {
+    title: "全链路合规",
+    description: "角色权限、操作日志与风险告警，确保团队协作安全透明。",
+    icon: ShieldCheck,
+    href: "/admin/users",
+    cta: "管理团队权限"
   }
 ];
 
-const platformPillars = [
+const operatingLayers = [
   {
-    title: "员工提交端",
-    description: "极简录入体验，支持票据上传、链路选择与自动换算。",
-    bullets: [
-      "多币种费用一键选择",
-      "票据云端存储与校验",
-      "移动端友好"
-    ],
-    icon: Users
+    title: "资金层",
+    description: "支持 USDT / USD / 法币并行记账，实时同步 Safe Wallet 交易与银行流水。",
+    bullets: ["多币种统一估值", "资金归集与拆分", "流动性监控"]
   },
   {
-    title: "财务运营台",
-    description: "集中处理审批、发起批量支付与对账，实时掌握预算状态。",
-    bullets: [
-      "多维度统计面板",
-      "链上交易状态回显",
-      "一键导出审计报表"
-    ],
-    icon: LineChart
+    title: "业务层",
+    description: "连接报销、工资、收入、支出、税务的全流程业务引擎。",
+    bullets: ["智能审批流", "自动归档凭证", "跨团队协作白板"]
   },
   {
-    title: "管理员中心",
-    description: "统一配置权限矩阵、多币种策略与风控规则，保障团队协作安全。",
-    bullets: [
-      "细粒度角色管理",
-      "自定义审批路径",
-      "操作日志与警报"
-    ],
-    icon: CircuitBoard
+    title: "合规层",
+    description: "审计数据仓库、税务模板与 KYC/KYB 集成，沉淀合规资产。",
+    bullets: ["多地域税务模板", "审计追踪 ID", "风险与预警中心"]
   }
 ];
 
-const workflow = [
-  {
-    step: "01",
-    title: "发起报销",
-    description: "员工提交费用明细，系统自动识别币种与链上需求。"
-  },
-  {
-    step: "02",
-    title: "智能审核",
-    description: "根据角色矩阵自动流转，多维风控保障合规。"
-  },
-  {
-    step: "03",
-    title: "链上结算",
-    description: "财务批量签名或调用托管钱包，秒级完成支付并回写状态。"
-  }
-];
-
-const integrations = [
-  { name: "EVM 生态", detail: "Ethereum · Polygon · BNB Chain", icon: Sparkles },
-  { name: "Solana", detail: "高吞吐链上结算与地址管理", icon: Workflow },
-  { name: "Fiat & Stablecoins", detail: "USD · USDC · CNY，自动汇率换算", icon: BadgeCheck },
-  { name: "安全与合规", detail: "SOC2 启发式流程 · 全链路审计", icon: Lock }
+const numbers = [
+  { label: "多链 + 法币支持", value: "8", hint: "USDT / USD / RMB / EUR 等" },
+  { label: "审批节点", value: "12+", hint: "自定义审批矩阵" },
+  { label: "Safe Wallet 集成", value: "秒级", hint: "批量签名与回写" },
+  { label: "合规资产", value: "全量", hint: "税务 & 审计文档归档" }
 ];
 
 export default function LandingPage() {
-  return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-50">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(79,70,229,0.12),_transparent_55%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-1/3 -z-10 h-[480px] bg-[radial-gradient(120%_120%_at_50%_0%,_rgba(56,189,248,0.18),_rgba(199,210,254,0.1),_transparent)]" />
+  const transactionsPreview = [
+    { title: "跨链报销", body: "费用合规审查 → 汇率锁定 → Safe Wallet 付款 → 自动对账" },
+    { title: "工资发放", body: "月度工资单生成 → 批次筛选 → Safe Wallet 批付 → 员工确认" },
+    { title: "收入入账", body: "链上收入抓取 → 分类记账 → 税务预提 → 仪表盘更新" }
+  ];
 
-      <main className="relative">
-        <section className="relative px-6 pb-24 pt-20 sm:pb-32 sm:pt-28">
-          <div className="mx-auto grid max-w-6xl items-center gap-16 lg:grid-cols-[1.15fr_1fr]">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50/70 px-4 py-2 text-sm font-medium text-indigo-600 shadow-sm">
-                <Sparkles className="h-4 w-4" />
-                Web3 企业级报销系统
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(59,130,246,0.12),rgba(14,165,233,0.08),transparent)]" />
+      <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 pb-24 pt-28 sm:px-10 lg:px-12">
+        <section className="relative flex flex-col gap-10 text-center">
+          <div className="mx-auto max-w-3xl space-y-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-[0.3em] text-slate-600">
+              <Sparkles className="h-4 w-4 text-indigo-500" />
+              Web3 财务操作系统
+            </span>
+            <h1 className="text-4xl font-semibold leading-tight sm:text-6xl">
+              让
+              <span className="mx-2 bg-gradient-to-r from-indigo-300 via-sky-200 to-teal-200 bg-clip-text text-transparent">
+                企业财务
+              </span>
+              在 Web3 世界依然透明、高效、合规
+            </h1>
+            <p className="text-lg leading-relaxed text-slate-600 sm:text-xl">
+              ReimX 将报销、工资、收入、支出与税务管理统一到一个安全的财务操作系统中。像构建工程一样构建财务流程，
+              让每一笔资金、每一份凭证都可以被追踪与审计。
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/register"
+              className="inline-flex items-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
+            >
+              立即启用企业财务
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+            >
+              使用演示账号体验
+            </Link>
+          </div>
+
+          <div className="mx-auto grid w-full max-w-5xl gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-3">
+            {transactionsPreview.map((item) => (
+              <div key={item.title} className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left">
+                <div className="text-sm font-medium text-indigo-600">{item.title}</div>
+                <div className="text-sm leading-relaxed text-slate-600">{item.body}</div>
               </div>
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-slate-900 sm:text-6xl">
-                让多币种报销
-                <span className="bg-gradient-to-r from-indigo-600 via-sky-500 to-emerald-500 bg-clip-text text-transparent">
-                  {" "}像执行脚本一样顺滑
-                </span>
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-slate-600">
-                ReimX 将多币种支付、实时汇率与智能审批整合为一体，为 Web3 团队带来像工程化流水线一样的财务体验。
-                告别手工核对与跨团队沟通成本，让每一次报销都透明、高效、可追溯。
-              </p>
-              <div className="mt-10 flex flex-wrap items-center gap-4">
-                <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-100 transition hover:bg-slate-700"
-                >
-                  立即体验
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
-                >
-                  已有账户？登录
-                </Link>
-              </div>
-              <div className="mt-12 grid max-w-xl grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
-                      <Globe className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">链上网络</p>
-                      <p className="text-base font-semibold text-slate-900">EVM · Solana</p>
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm text-slate-600">
-                    针对不同链路自动切换模板与风控策略，保持支付体验一致。
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-sm backdrop-blur">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-600">
-                      <Workflow className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-slate-500">审批自动化</p>
-                      <p className="text-base font-semibold text-slate-900">矩阵驱动流程</p>
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm text-slate-600">
-                    角色驱动的审批引擎确保每一步都符合您的权限模型与预算限制。
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="absolute -left-6 -top-6 h-28 w-28 rounded-full bg-indigo-100/40 blur-2xl" />
-              <div className="absolute -bottom-8 -right-6 h-32 w-32 rounded-full bg-emerald-100/50 blur-2xl" />
-              <div className="relative rounded-[28px] border border-white/70 bg-white/80 p-6 shadow-xl shadow-indigo-100/60 backdrop-blur">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-500">实时监控</p>
-                    <p className="mt-1 text-lg font-semibold text-slate-900">报销总览</p>
-                  </div>
-                  <div className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-600">
-                    Live
-                  </div>
-                </div>
-                <div className="mt-6 space-y-4">
-                  {metrics.map((metric) => (
-                    <div key={metric.label} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-white/60 px-4 py-3">
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{metric.label}</p>
-                        <p className="text-base font-semibold text-slate-900">{metric.value}</p>
-                      </div>
-                      <BadgeCheck className="h-4 w-4 text-slate-300" />
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8 rounded-2xl border border-slate-100 bg-slate-900 px-6 py-5 text-white">
-                  <p className="text-sm font-medium text-slate-300">今日亮点</p>
-                  <p className="mt-2 text-base font-semibold">
-                    已自动匹配 <span className="text-emerald-300">12 笔</span> 多币种汇率，节省对账时间 63%。
-                  </p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        <section className="relative border-y border-white/70 bg-white/80 py-20 backdrop-blur">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-500">Capability</p>
-              <h2 className="mt-4 text-3xl font-semibold text-slate-900 sm:text-4xl">Web3 财务的核心引擎</h2>
-              <p className="mt-4 text-base text-slate-600">
-                以多币种支付、审批与审计为核心模块，构建面向未来的财务基础设施。
+        <section className="grid gap-8 border border-slate-200 bg-white p-8 shadow-sm sm:grid-cols-2 lg:grid-cols-3">
+          {featureCards.map((card) => (
+            <Link
+              key={card.title}
+              href={card.href}
+              className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 transition duration-300 hover:border-slate-300 hover:shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-slate-100 p-2 text-slate-700 transition group-hover:bg-slate-200">
+                  <card.icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900">{card.title}</h3>
+              </div>
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-600">{card.description}</p>
+              <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-700 group-hover:text-slate-900">
+                {card.cta}
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </Link>
+          ))}
+        </section>
+
+        <section className="grid gap-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-[0.35em] text-indigo-500">Operations Blueprint</span>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">三层架构驱动 Web3 财务增长</h2>
+            </div>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+            >
+              查看实时面板
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {operatingLayers.map((layer) => (
+              <div key={layer.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                <div className="text-sm font-semibold text-indigo-600">{layer.title}</div>
+                <p className="mt-3 text-sm text-slate-600">{layer.description}</p>
+                <ul className="mt-4 space-y-2">
+                  {layer.bullets.map((bullet) => (
+                    <li key={bullet} className="flex items-center gap-2 text-sm text-slate-600">
+                      <span className="flex h-1.5 w-1.5 rounded-full bg-slate-500" />
+                      {bullet}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-900 shadow-sm">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl space-y-4">
+              <span className="inline-flex items-center gap-2 rounded-full bg-black/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.3em] text-black/80">
+                <FolderGit2 className="h-3.5 w-3.5" />
+                metrics
+              </span>
+              <h2 className="text-3xl font-semibold text-black sm:text-4xl">工程化视角衡量 Web3 财务</h2>
+              <p className="text-sm leading-relaxed text-black/70">
+                ReimX 参考 Next.js 的工程能力，将财务流程组件化，帮助财务团队像部署代码一样部署财务策略。
+                每个指标都可以追溯到链上或离线数据源，为决策提供确定性。
               </p>
             </div>
-            <div className="mt-16 grid gap-8 md:grid-cols-2">
-              {primaryFeatures.map((feature) => (
-                <div
-                  key={feature.title}
-                  className="group relative overflow-hidden rounded-3xl border border-white/80 bg-white/70 p-8 shadow-sm transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"
-                >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${feature.iconBg}`}>
-                    <feature.icon className={`h-6 w-6 ${feature.iconColor}`} />
-                  </div>
-                  <h3 className="mt-6 text-xl font-semibold text-slate-900">{feature.title}</h3>
-                  <p className="mt-4 text-base text-slate-600">{feature.description}</p>
-                  <div className="mt-6 flex items-center text-sm font-medium text-indigo-600">
-                    了解如何部署
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
-                  <div className="pointer-events-none absolute inset-0 opacity-0 transition group-hover:opacity-100">
-                    <div className="absolute inset-x-8 top-0 h-1 rounded-full bg-gradient-to-r from-indigo-400/70 via-sky-300/70 to-emerald-300/70" />
-                  </div>
+            <div className="grid flex-1 gap-4 sm:grid-cols-2">
+              {numbers.map((metric) => (
+                <div key={metric.label} className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+                  <div className="text-2xl font-semibold text-black">{metric.value}</div>
+                  <div className="mt-1 text-sm font-medium text-black/70">{metric.label}</div>
+                  <div className="mt-2 text-xs text-black/50">{metric.hint}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="relative bg-slate-50/60 py-20">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="grid gap-10 lg:grid-cols-[0.7fr_1fr]">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Platform</p>
-                <h2 className="mt-4 text-3xl font-semibold text-slate-900 sm:text-4xl">
-                  面向不同角色的协同平台
-                </h2>
-                <p className="mt-4 text-base text-slate-600">
-                  ReimX 已经实现员工、财务与管理员的分层体验，确保每个角色拥有精准的工具与权限。
-                </p>
-                <div className="mt-8 flex items-center gap-3 rounded-full border border-indigo-100 bg-white px-5 py-3 text-sm font-medium text-indigo-600 shadow-sm">
-                  <Users className="h-4 w-4" />
-                  多角色工作台实时同步
-                </div>
+        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-[0.35em] text-indigo-500">Unified Ledger</span>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">在一个总账里看清所有资金流</h2>
+            </div>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-800"
+            >
+              打开企业总账
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600">
+                <FileText className="h-4 w-4" />
+                多维度报表
               </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                {platformPillars.map((pillar) => (
-                  <div
-                    key={pillar.title}
-                    className="rounded-3xl border border-white/80 bg-white/80 p-6 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg"
-                  >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900/90 text-white">
-                      <pillar.icon className="h-4 w-4" />
-                    </div>
-                    <h3 className="mt-4 text-lg font-semibold text-slate-900">{pillar.title}</h3>
-                    <p className="mt-3 text-sm text-slate-600">{pillar.description}</p>
-                    <ul className="mt-4 space-y-2 text-sm text-slate-500">
-                      {pillar.bullets.map((bullet) => (
-                        <li key={bullet} className="flex items-center gap-2">
-                          <span className="flex h-1.5 w-1.5 rounded-full bg-indigo-400" />
-                          {bullet}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+              <p className="text-sm text-slate-600">
+                收入、支出、利润、税务预提自动更新，支持导出 CSV / PDF 一键递交审计。
+              </p>
+            </div>
+            <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600">
+                <Calculator className="h-4 w-4" />
+                税务预提引擎
               </div>
+              <p className="text-sm text-slate-600">
+                针对不同司法辖区配置税率与抵扣规则，实时给出应交税额与风险提示。
+              </p>
+            </div>
+            <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <div className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600">
+                <ShieldCheck className="h-4 w-4" />
+                审计可追踪
+              </div>
+              <p className="text-sm text-slate-600">
+                每一次审批、签名与付款都保留链上与链下凭证，实现端到端的可追踪性。
+              </p>
             </div>
           </div>
         </section>
 
-        <section className="relative border-t border-white/70 bg-white/80 py-20 backdrop-blur">
-          <div className="mx-auto max-w-6xl px-6">
-            <div className="grid gap-12 lg:grid-cols-[0.65fr_1fr]">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-indigo-500">Workflow</p>
-                <h2 className="mt-4 text-3xl font-semibold text-slate-900 sm:text-4xl">
-                  已落地的标准化报销流程
-                </h2>
-                <p className="mt-4 text-base text-slate-600">
-                  从提交到链上结算，ReimX 提供全程可视化的节点追踪与通知体系，帮助团队快速响应。
-                </p>
-              </div>
-              <div className="grid gap-6 sm:grid-cols-3">
-                {workflow.map((item) => (
-                  <div
-                    key={item.step}
-                    className="flex flex-col rounded-3xl border border-white/80 bg-white/70 p-6 shadow-sm transition hover:border-indigo-200 hover:shadow-md"
-                  >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600/10 text-sm font-semibold text-indigo-600">
-                      {item.step}
-                    </div>
-                    <h3 className="mt-4 text-lg font-semibold text-slate-900">{item.title}</h3>
-                    <p className="mt-3 text-sm text-slate-600">{item.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative bg-slate-900 py-20 text-white">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.35),_transparent_60%)] opacity-60" />
-          <div className="relative mx-auto max-w-6xl px-6">
-            <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-xl">
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-indigo-200">Integration</p>
-                <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
-                  与您的链上生态无缝对接
-                </h2>
-                <p className="mt-4 text-base text-slate-200">
-                  基于现有实现的多币种与链上财务模块，ReimX 可以快速连接团队正在使用的钱包与稳定币体系。
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {integrations.map((item) => (
-                  <div
-                    key={item.name}
-                    className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur transition hover:border-indigo-200/40 hover:bg-white/10"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10">
-                        <item.icon className="h-5 w-5 text-indigo-200" />
-                      </div>
-                      <p className="text-base font-semibold text-white">{item.name}</p>
-                    </div>
-                    <p className="mt-3 text-sm text-slate-300">{item.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative bg-white/90 py-24 backdrop-blur">
-          <div className="mx-auto max-w-5xl px-6 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <h2 className="mt-6 text-3xl font-semibold text-slate-900 sm:text-4xl">
-              把多币种报销交给 ReimX，让团队专注于构建未来
-            </h2>
-            <p className="mt-4 text-base text-slate-600">
-              凭借已实现的权限体系、多币种流程与审计模块，我们帮助 Web3 团队在扩张阶段稳住财务治理。
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="/register"
-                className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-indigo-500"
-              >
-                立即注册
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex items-center justify-center rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
-              >
-                查看演示账号
-              </Link>
-            </div>
+        <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-white p-10 text-center shadow-sm">
+          <h2 className="text-3xl font-semibold text-slate-900 sm:text-4xl">现在，让 ReimX 重塑你的财务基建</h2>
+          <p className="mt-4 text-base text-slate-600">
+            无论你是区块链创业公司还是去中心化团队，我们都能帮助你将财务流程工程化、规模化。
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/register"
+              className="inline-flex items-center rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
+            >
+              创建企业账户
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex items-center rounded-full border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+            >
+              已有账号？立即登录
+            </Link>
           </div>
         </section>
       </main>

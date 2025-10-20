@@ -14,6 +14,7 @@ interface User {
     solanaAddress?: string;
     role: string;
     status: string;
+    salaryUsdt: number;
     isApproved: boolean;
     approvedBy?: string;
     approvedAt?: string;
@@ -51,7 +52,8 @@ export default function AdminUsersPage() {
         tgAccount: "",
         whatsappAccount: "",
         evmAddress: "",
-        solanaAddress: ""
+        solanaAddress: "",
+        salaryUsdt: ""
     });
     const [approvingUser, setApprovingUser] = useState<User | null>(null);
     const [approveForm, setApproveForm] = useState({
@@ -112,21 +114,31 @@ export default function AdminUsersPage() {
             tgAccount: user.tgAccount || "",
             whatsappAccount: user.whatsappAccount || "",
             evmAddress: user.evmAddress || "",
-            solanaAddress: user.solanaAddress || ""
+            solanaAddress: user.solanaAddress || "",
+            salaryUsdt: user.salaryUsdt ? user.salaryUsdt.toString() : ""
         });
     };
 
     const handleSave = async () => {
         try {
+            const payload: Record<string, unknown> = {
+                id: editingUser?.id,
+                ...editForm
+            };
+
+            if (payload.salaryUsdt === "") {
+                delete payload.salaryUsdt;
+            } else if (typeof payload.salaryUsdt === "string") {
+                const parsed = Number(payload.salaryUsdt);
+                payload.salaryUsdt = Number.isFinite(parsed) ? parsed : 0;
+            }
+
             const response = await fetch("/api/admin/users", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    id: editingUser?.id,
-                    ...editForm
-                }),
+                body: JSON.stringify(payload),
             });
 
             const data = await response.json() as { error?: string };
@@ -223,20 +235,35 @@ export default function AdminUsersPage() {
                     <div className="flex items-center space-x-3">
                         <span className="text-sm text-gray-500">共 {pagination?.total || 0} 个用户</span>
                         <button
-                            onClick={() => setEditingUser({
-                                id: '',
-                                username: '',
-                                email: '',
-                                role: 'user',
-                                status: 'active',
-                                tgAccount: '',
-                                whatsappAccount: '',
-                                evmAddress: '',
-                                solanaAddress: '',
-                                createdAt: '',
-                                updatedAt: '',
-                                _count: { reimbursements: 0 }
-                            })}
+                            onClick={() => {
+                                setEditingUser({
+                                    id: '',
+                                    username: '',
+                                    email: '',
+                                    role: 'user',
+                                    status: 'active',
+                                    tgAccount: '',
+                                    whatsappAccount: '',
+                                    evmAddress: '',
+                                    solanaAddress: '',
+                                    salaryUsdt: 0,
+                                    createdAt: '',
+                                    updatedAt: '',
+                                    _count: { reimbursements: 0 },
+                                    isApproved: false
+                                });
+                                setEditForm({
+                                    username: '',
+                                    email: '',
+                                    role: 'user',
+                                    status: 'active',
+                                    tgAccount: '',
+                                    whatsappAccount: '',
+                                    evmAddress: '',
+                                    solanaAddress: '',
+                                    salaryUsdt: ''
+                                });
+                            }}
                             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                         >
                             + 添加用户
@@ -303,6 +330,9 @@ export default function AdminUsersPage() {
                                     区块链地址
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    工资 (USDT)
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     角色/状态
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -329,6 +359,9 @@ export default function AdminUsersPage() {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <div>{user.evmAddress && `EVM: ${user.evmAddress.slice(0, 10)}...`}</div>
                                         <div>{user.solanaAddress && `SOL: ${user.solanaAddress.slice(0, 10)}...`}</div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {typeof user.salaryUsdt === "number" ? user.salaryUsdt.toFixed(2) : "—"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <span className={`px-2 py-1 rounded-full text-xs ${user.role === "admin" ? "bg-red-100 text-red-800" :
@@ -454,6 +487,18 @@ export default function AdminUsersPage() {
                                         <option value="pending">待审核</option>
                                         <option value="suspended">已禁用</option>
                                     </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">工资 (USDT)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={editForm.salaryUsdt}
+                                        onChange={(e) => setEditForm({ ...editForm, salaryUsdt: e.target.value })}
+                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        placeholder="仅管理员可设置"
+                                    />
                                 </div>
                             </div>
                             <div className="mt-6 flex justify-end space-x-3">

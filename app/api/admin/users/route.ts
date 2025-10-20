@@ -13,7 +13,8 @@ const userUpdateSchema = z.object({
     tgAccount: z.string().optional(),
     whatsappAccount: z.string().optional(),
     evmAddress: z.string().optional(),
-    solanaAddress: z.string().optional()
+    solanaAddress: z.string().optional(),
+    salaryUsdt: z.number().nonnegative().optional()
 });
 
 export async function GET(request: NextRequest) {
@@ -64,6 +65,8 @@ export async function GET(request: NextRequest) {
                     solanaAddress: true,
                     role: true,
                     status: true,
+                    isApproved: true,
+                    salaryUsdt: true,
                     createdAt: true,
                     updatedAt: true,
                     _count: {
@@ -147,6 +150,8 @@ export async function PUT(request: NextRequest) {
                 solanaAddress: true,
                 role: true,
                 status: true,
+                isApproved: true,
+                salaryUsdt: true,
                 createdAt: true,
                 updatedAt: true
             }

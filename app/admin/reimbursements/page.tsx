@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 
 interface Reimbursement {
     id: string;
@@ -38,6 +39,7 @@ interface Pagination {
 export default function AdminReimbursementsPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const pathname = usePathname();
     const [reimbursements, setReimbursements] = useState<Reimbursement[]>([]);
     const [pagination, setPagination] = useState<Pagination | null>(null);
     const [loading, setLoading] = useState(true);
@@ -52,6 +54,16 @@ export default function AdminReimbursementsPage() {
     const submittedCount = Array.isArray(reimbursements)
         ? reimbursements.filter(r => r.status === "submitted").length
         : 0;
+
+    const subNavigation = [
+        { name: "报销列表", href: "/admin/reimbursements" },
+        { name: "Safe Wallet 批付", href: "/admin/reimbursements/safewallet" }
+    ];
+
+    const isSubnavActive = (href: string) => {
+        if (!pathname) return false;
+        return pathname === href;
+    };
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -171,10 +183,27 @@ export default function AdminReimbursementsPage() {
         <div className="space-y-6">
             {/* 页面标题和统计 */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">报销管理</h1>
-                        <p className="mt-1 text-gray-600">审核和管理所有报销申请</p>
+                <div className="flex flex-wrap items-center justify-between gap-6">
+                    <div className="space-y-3">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">报销管理</h1>
+                            <p className="mt-1 text-gray-600">审核企业报销、生成 Safe Wallet 批次并跟踪执行状态</p>
+                        </div>
+                        <div className="inline-flex overflow-hidden rounded-full border border-gray-200 bg-gray-100 p-1 text-sm">
+                            {subNavigation.map((item) => (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`rounded-full px-4 py-1.5 font-medium transition ${
+                                        isSubnavActive(item.href)
+                                            ? "bg-white text-indigo-600 shadow-sm"
+                                            : "text-gray-600 hover:text-gray-900"
+                                    }`}
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
                     <div className="flex items-center space-x-6">
                         <div className="text-center">

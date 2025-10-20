@@ -1,7 +1,11 @@
-import type { Reimbursement, User } from "@prisma/client";
+import type { Reimbursement, SalaryPayment, User } from "@prisma/client";
 
 interface ReimbursementWithApplicant extends Reimbursement {
   applicant: Pick<User, "id" | "username" | "email" | "evmAddress" | "solanaAddress">;
+}
+
+interface SalaryPaymentWithUser extends SalaryPayment {
+  user: Pick<User, "id" | "username" | "email" | "evmAddress" | "solanaAddress">;
 }
 
 export interface SafeWalletItem {
@@ -164,6 +168,109 @@ export function aggregateForSafeWallet(reimbursements: ReimbursementWithApplican
       value: formatForPayload(batch.totalAmountUsdt),
       data: "0x",
       description: `ReimX reimbursements for ${batch.applicantName} (${batch.reimbursementIds.length} items)`,
+      metadata: {
+        applicantId: batch.applicantId,
+        reimbursementIds: batch.reimbursementIds
+      }
+    }));
+
+  const safewalletPayload: SafeWalletPayload = {
+    version: "1.0",
+    createdAt: new Date().toISOString(),
+    token: "USDT",
+    transactions
+  };
+
+  return {
+    items,
+    batches,
+    issues,
+    safewalletPayload
+  };
+}
+
+export function aggregateSalariesForSafeWallet(payments: SalaryPaymentWithUser[]): SafeWalletAggregation {
+  const paymentsById = new Map<string, SalaryPaymentWithUser>();
+
+  for (const payment of payments) {
+    paymentsById.set(payment.id, payment);
+  }
+
+  const items: SafeWalletItem[] = payments.map((payment) => ({
+    reimbursementId: payment.id,
+    title: `工资发放 ${payment.month}`,
+    description: payment.notes ?? null,
+    amountOriginal: payment.amountUsdt,
+    currency: "USDT",
+    amountUsdt: formatAmount(payment.amountUsdt),
+    exchangeRateToUsd: 1,
+    applicantId: payment.userId,
+    applicantName: payment.user.username,
+    applicantEmail: payment.user.email
+  }));
+
+  const batchesMap = new Map<string, SafeWalletBatch>();
+  const issues: SafeWalletIssue[] = [];
+
+  for (const item of items) {
+    const applicantKey = item.applicantId;
+    const existing = batchesMap.get(applicantKey);
+    const payment = paymentsById.get(item.reimbursementId);
+
+    if (!payment) {
+      continue;
+    }
+
+    if (existing) {
+      existing.totalAmountUsdt = formatAmount(existing.totalAmountUsdt + item.amountUsdt);
+      existing.reimbursementIds.push(item.reimbursementId);
+      existing.items.push(item);
+    } else {
+      batchesMap.set(applicantKey, {
+        applicantId: payment.userId,
+        applicantName: payment.user.username,
+        applicantEmail: payment.user.email,
+        evmAddress: payment.user.evmAddress ?? null,
+        solanaAddress: payment.user.solanaAddress ?? null,
+        totalAmountUsdt: formatAmount(item.amountUsdt),
+        reimbursementIds: [item.reimbursementId],
+        items: [item]
+      });
+    }
+  }
+
+  const batches = Array.from(batchesMap.values()).map((batch) => {
+    batch.items.sort((a, b) => a.reimbursementId.localeCompare(b.reimbursementId));
+    return batch;
+  });
+
+  for (const batch of batches) {
+    if (!batch.evmAddress) {
+      issues.push({
+        applicantId: batch.applicantId,
+        applicantName: batch.applicantName,
+        type: "missing_evm_address",
+        message: `${batch.applicantName} 缺少 EVM 地址，无法生成 Safe Wallet 交易。`
+      });
+    }
+
+    if (batch.items.length === 0) {
+      issues.push({
+        applicantId: batch.applicantId,
+        applicantName: batch.applicantName,
+        type: "no_items",
+        message: `${batch.applicantName} 没有符合条件的工资发放记录。`
+      });
+    }
+  }
+
+  const transactions = batches
+    .filter((batch) => batch.evmAddress && batch.totalAmountUsdt > 0)
+    .map((batch) => ({
+      to: batch.evmAddress as string,
+      value: formatForPayload(batch.totalAmountUsdt),
+      data: "0x",
+      description: `ReimX salary for ${batch.applicantName} (${batch.reimbursementIds.length} items)`,
       metadata: {
         applicantId: batch.applicantId,
         reimbursementIds: batch.reimbursementIds

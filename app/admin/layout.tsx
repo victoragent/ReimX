@@ -46,7 +46,7 @@ export default function AdminLayout({
         { name: "概览", href: "/admin", icon: "📊" },
         { name: "用户管理", href: "/admin/users", icon: "👥" },
         { name: "报销管理", href: "/admin/reimbursements", icon: "💰" },
-        { name: "Safe Wallet 批付", href: "/admin/reimbursements/safewallet", icon: "🪙" },
+        { name: "工资管理", href: "/admin/salaries", icon: "💼" },
         { name: "数据分析", href: "/admin/analytics", icon: "📈" },
     ];
 
@@ -62,10 +62,6 @@ export default function AdminLayout({
 
         if (target === "/admin") {
             return currentPath === "/admin";
-        }
-
-        if (target === "/admin/reimbursements") {
-            return currentPath === "/admin/reimbursements";
         }
 
         return currentPath === target || currentPath.startsWith(`${target}/`);

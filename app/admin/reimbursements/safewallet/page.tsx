@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface SafeWalletItem {
   reimbursementId: string;
@@ -110,6 +112,7 @@ const createSelectionFromBatches = (batches: SafeWalletBatch[]): SelectionState 
   }, {});
 
 export default function AdminSafeWalletPage() {
+  const pathname = usePathname();
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -187,6 +190,19 @@ export default function AdminSafeWalletPage() {
     fetchBatches().catch((err) => console.error(err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const subNavigation = useMemo(
+    () => [
+      { name: "报销列表", href: "/admin/reimbursements" },
+      { name: "Safe Wallet 批付", href: "/admin/reimbursements/safewallet" }
+    ],
+    []
+  );
+
+  const isSubnavActive = (href: string) => {
+    if (!pathname) return false;
+    return pathname === href;
+  };
 
   const handleInputChange = (field: keyof Filters, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -369,12 +385,29 @@ export default function AdminSafeWalletPage() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Safe Wallet 批付</h1>
-            <p className="mt-1 text-gray-600">
-              按照审批结果整合已批准报销，生成 USDT 计价的 Safe Wallet 批量交易。可在导出前手动剔除部分报销单或收款人。
-            </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-3">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">报销管理 · Safe Wallet 批付</h1>
+              <p className="mt-1 text-gray-600">
+                按照审批结果整合已批准报销，生成 USDT 计价的 Safe Wallet 批量交易。可在导出前手动剔除部分报销单或收款人。
+              </p>
+            </div>
+            <div className="inline-flex overflow-hidden rounded-full border border-gray-200 bg-gray-100 p-1 text-sm">
+              {subNavigation.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`rounded-full px-4 py-1.5 font-medium transition ${
+                    isSubnavActive(item.href)
+                      ? "bg-white text-indigo-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div>
