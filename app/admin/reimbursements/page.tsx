@@ -12,6 +12,7 @@ interface Reimbursement {
     amountOriginal?: number;
     currency: string;
     expenseType?: ExpenseType;
+    amountUsdEquivalent?: number;
     description: string;
     status: string;
     submittedAt: string;
@@ -49,6 +50,8 @@ export default function AdminReimbursementsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [currencyFilter, setCurrencyFilter] = useState("");
+    const [expenseTypeFilter, setExpenseTypeFilter] = useState("");
+    const [minUsdFilter, setMinUsdFilter] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedReimbursement, setSelectedReimbursement] = useState<Reimbursement | null>(null);
     const [reviewComment, setReviewComment] = useState("");
@@ -81,7 +84,7 @@ export default function AdminReimbursementsPage() {
         if (status === "authenticated" && session?.user?.role === "admin") {
             fetchReimbursements();
         }
-    }, [status, session, router, currentPage, searchTerm, statusFilter, currencyFilter]);
+    }, [status, session, router, currentPage, searchTerm, statusFilter, currencyFilter, expenseTypeFilter, minUsdFilter]);
 
     const fetchReimbursements = async () => {
         try {
@@ -91,7 +94,9 @@ export default function AdminReimbursementsPage() {
                 limit: "10",
                 ...(searchTerm && { search: searchTerm }),
                 ...(statusFilter && { status: statusFilter }),
-                ...(currencyFilter && { currency: currencyFilter })
+                ...(currencyFilter && { currency: currencyFilter }),
+                ...(expenseTypeFilter && { expenseType: expenseTypeFilter }),
+                ...(minUsdFilter && { minUsd: minUsdFilter })
             });
 
             const response = await fetch(`/api/admin/reimbursements?${params}`);
@@ -225,7 +230,7 @@ export default function AdminReimbursementsPage() {
             <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
 
                 {/* 搜索和筛选 */}
-                <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="mb-6 grid grid-cols-1 md:grid-cols-6 gap-4">
                     <input
                         type="text"
                         placeholder="搜索用户或描述"
@@ -256,6 +261,25 @@ export default function AdminReimbursementsPage() {
                         <option value="ETH">以太坊</option>
                         <option value="SOL">Solana</option>
                     </select>
+                    <select
+                        value={expenseTypeFilter}
+                        onChange={(e) => setExpenseTypeFilter(e.target.value)}
+                        className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
+                    >
+                        <option value="">所有费用类型</option>
+                        {Object.entries(expenseTypeLabels).map(([key, label]) => (
+                            <option key={key} value={key}>{label}</option>
+                        ))}
+                    </select>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="折合美元 ≥"
+                        value={minUsdFilter}
+                        onChange={(e) => setMinUsdFilter(e.target.value)}
+                        className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
+                    />
                     <button
                         onClick={fetchReimbursements}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
@@ -276,9 +300,9 @@ export default function AdminReimbursementsPage() {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     申请人
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                                    金额
-                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">费用类型</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">金额</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">折合美元</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     描述
                                 </th>
@@ -307,7 +331,13 @@ export default function AdminReimbursementsPage() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                        {expenseTypeLabels[reimbursement.expenseType ?? "other"]}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                         {reimbursement.amount || reimbursement.amountOriginal || 'N/A'} {reimbursement.currency}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                                        {typeof reimbursement.amountUsdEquivalent === 'number' ? `${reimbursement.amountUsdEquivalent.toFixed(2)} USD` : '—'}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">
                                         {reimbursement.description}
@@ -398,7 +428,27 @@ export default function AdminReimbursementsPage() {
                                         {expenseTypeLabels[selectedReimbursement.expenseType ?? "other"]}
                                     </span>
                                     <span>提交时间：{selectedReimbursement.submittedAt ? new Date(selectedReimbursement.submittedAt).toLocaleString() : "N/A"}</span>
-                                    <span>金额：{selectedReimbursement.amount || selectedReimbursement.amountOriginal || "N/A"} {selectedReimbursement.currency}</span>
+                                </div>
+                            </div>
+
+                            {/* 金额卡片：突出显示本币金额与折合美元 */}
+                            <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                    <div>
+                                        <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">金额</p>
+                                        <div className="mt-1 text-3xl font-semibold text-slate-900">
+                                            {selectedReimbursement.amount || selectedReimbursement.amountOriginal || "N/A"}
+                                            <span className="ml-2 text-lg text-slate-500">{selectedReimbursement.currency}</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-sm text-slate-600">
+                                        <span className="mr-2 text-slate-500">折合美元</span>
+                                        <span className="font-semibold text-indigo-600">
+                                            {typeof selectedReimbursement.amountUsdEquivalent === "number"
+                                                ? `${selectedReimbursement.amountUsdEquivalent.toFixed(2)} USD`
+                                                : "—"}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 

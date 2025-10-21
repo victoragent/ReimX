@@ -33,6 +33,8 @@ export async function GET(request: NextRequest) {
         const search = searchParams.get("search");
         const status = searchParams.get("status");
         const currency = searchParams.get("currency");
+        const expenseType = searchParams.get("expenseType");
+        const minUsdRaw = searchParams.get("minUsd");
 
         const skip = (page - 1) * limit;
 
@@ -53,6 +55,17 @@ export async function GET(request: NextRequest) {
 
         if (currency) {
             where.currency = currency;
+        }
+
+        if (expenseType) {
+            where.expenseType = expenseType;
+        }
+
+        if (minUsdRaw) {
+            const minUsd = parseFloat(minUsdRaw);
+            if (!Number.isNaN(minUsd)) {
+                where.amountUsdEquivalent = { gte: minUsd };
+            }
         }
 
         // 获取报销列表
