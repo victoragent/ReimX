@@ -13,6 +13,7 @@ interface SafeWalletItem {
   applicantId: string;
   applicantName: string;
   applicantEmail: string;
+  chain: string;
 }
 
 interface SafeWalletBatch {
@@ -21,6 +22,8 @@ interface SafeWalletBatch {
   applicantEmail: string;
   evmAddress: string | null;
   solanaAddress: string | null;
+  chainAddresses: Record<string, string>;
+  chains: string[];
   totalAmountUsdt: number;
   reimbursementIds: string[];
   items: SafeWalletItem[];
@@ -30,6 +33,7 @@ interface SafeWalletIssue {
   applicantId: string;
   applicantName: string;
   type: string;
+  chain?: string;
   message: string;
 }
 

@@ -255,9 +255,6 @@ export async function PUT(request: NextRequest) {
         const existingUser = await prisma.user.findUnique({
             where: { id }
         });
-        if (process.env.NODE_ENV === "test") {
-            console.error("existingUser lookup", id);
-        }
 
         if (!existingUser) {
             return NextResponse.json(
@@ -283,11 +280,6 @@ export async function PUT(request: NextRequest) {
             where: { email: session.user.email },
             select: { id: true }
         });
-        if (updateData.isApproved) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const debugCalls = (prisma.user.findUnique as any)?.mock?.calls ?? [];
-            console.error("debug-user-approval", JSON.stringify({ adminUser, existingId: existingUser.id, session: session.user, calls: debugCalls, env: process.env.NODE_ENV }));
-        }
 
         const payload: Record<string, unknown> = {
             ...(updateData.username !== undefined && { username: updateData.username }),
@@ -305,11 +297,7 @@ export async function PUT(request: NextRequest) {
             payload.isApproved = updateData.isApproved;
             if (updateData.isApproved) {
                 payload.status = updateData.status ?? "active";
-                const approvalSource = adminUser?.id ?? existingUser.approvedBy ?? null;
-                if (process.env.NODE_ENV === "test") {
-                    console.error("approvalSource", approvalSource, "adminUser", adminUser, "existingUser", existingUser.id);
-                }
-                payload.approvedBy = approvalSource;
+                payload.approvedBy = adminUser?.id ?? null;
                 payload.approvedAt = new Date();
             } else {
                 payload.approvedBy = null;

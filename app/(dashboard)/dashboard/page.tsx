@@ -440,7 +440,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-        </section>
+      </section>
       </div>
     </div>
   );

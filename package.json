@@ -10,7 +10,7 @@
     "dev:status": "./scripts/dev.sh status",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",

@@ -42,6 +42,9 @@ describe('/api/users/profile', () => {
                 whatsappAccount: '+1234567890',
                 evmAddress: '0x1234567890abcdef',
                 solanaAddress: 'So11111111111111111111111111111111111111112',
+                chainAddresses: {
+                    eth: '0x1234567890abcdef',
+                },
                 role: 'user',
                 isApproved: true,
                 status: 'active',
@@ -78,6 +81,7 @@ describe('/api/users/profile', () => {
                     whatsappAccount: true,
                     evmAddress: true,
                     solanaAddress: true,
+                    chainAddresses: true,
                     role: true,
                     isApproved: true,
                     salaryUsdt: true,
@@ -145,6 +149,9 @@ describe('/api/users/profile', () => {
                 email: 'test@example.com',
                 evmAddress: '0x1234567890abcdef',
                 solanaAddress: 'So11111111111111111111111111111111111111112',
+                chainAddresses: {
+                    eth: '0x1234567890abcdef'
+                },
                 role: 'user',
                 status: 'active',
                 salaryUsdt: 5000
@@ -153,6 +160,7 @@ describe('/api/users/profile', () => {
             const updatedUser = {
                 ...currentUser,
                 ...updateData,
+                chainAddresses: currentUser.chainAddresses,
                 isApproved: true,
                 salaryUsdt: 5000,
                 updatedAt: new Date()
@@ -196,6 +204,7 @@ describe('/api/users/profile', () => {
                 email: 'test@example.com',
                 evmAddress: '0x1234567890abcdef',
                 solanaAddress: 'So11111111111111111111111111111111111111112',
+                chainAddresses: null,
                 role: 'user',
                 status: 'active'
             }
@@ -281,6 +290,7 @@ describe('/api/users/profile', () => {
                 email: 'test@example.com',
                 evmAddress: null,
                 solanaAddress: null,
+                chainAddresses: null,
                 role: 'user'
             }
 
@@ -316,6 +326,7 @@ describe('/api/users/profile', () => {
                 email: 'test@example.com',
                 evmAddress: null,
                 solanaAddress: null,
+                chainAddresses: null,
                 role: 'user'
             }
 

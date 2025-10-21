@@ -16,6 +16,7 @@ model User {
   whatsappAccount String?
   evmAddress      String?
   solanaAddress   String?
+  chainAddresses  String?
   role            String          @default("user")
   status          String          @default("pending") // pending, active, suspended
   isApproved      Boolean         @default(false) // 管理员审核状态

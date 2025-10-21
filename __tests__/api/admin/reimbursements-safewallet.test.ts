@@ -63,7 +63,8 @@ const sampleReimbursements = [
       username: "Alice",
       email: "alice@example.com",
       evmAddress: "0xAlice",
-      solanaAddress: null
+      solanaAddress: null,
+      chainAddresses: null
     }
   },
   {
@@ -95,7 +96,8 @@ const sampleReimbursements = [
       username: "Alice",
       email: "alice@example.com",
       evmAddress: "0xAlice",
-      solanaAddress: null
+      solanaAddress: null,
+      chainAddresses: null
     }
   },
   {
@@ -127,7 +129,8 @@ const sampleReimbursements = [
       username: "Bob",
       email: "bob@example.com",
       evmAddress: null,
-      solanaAddress: null
+      solanaAddress: null,
+      chainAddresses: null
     }
   }
 ];

@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import { z } from "zod";
+
+const BodySchema = z.object({
+    approved: z.boolean(),
+    role: z.string().optional()
+});
 
 export async function POST(
     request: NextRequest,
@@ -25,8 +31,13 @@ export async function POST(
         }
 
         const { id } = params;
-        const body = await request.json();
-        const { approved, role } = body;
+        const parsed = BodySchema.safeParse(await request.json());
+
+        if (!parsed.success) {
+            return NextResponse.json({ error: "请求参数无效" }, { status: 400 });
+        }
+
+        const { approved, role } = parsed.data;
 
         // 查找用户
         const user = await prisma.user.findUnique({

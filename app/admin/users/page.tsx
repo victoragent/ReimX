@@ -326,7 +326,7 @@ export default function AdminUsersPage() {
             <div className="flex min-h-[50vh] items-center justify-center">
                 <div className="flex flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white/80 px-10 py-12 shadow-lg shadow-slate-200/70 backdrop-blur">
                     <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" />
-                    <p className="text-sm font-medium text-slate-600">正在加载用户数据...</p>
+                    <p className="text-sm font-medium text-slate-600">加载中...</p>
                 </div>
             </div>
         );
@@ -541,11 +541,10 @@ export default function AdminUsersPage() {
                                                         targetStatus: user.status === "suspended" ? "active" : "suspended"
                                                     });
                                                 }}
-                                                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${
-                                                    user.status === "suspended"
+                                                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${user.status === "suspended"
                                                         ? "border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                                                         : "border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
-                                                }`}
+                                                    }`}
                                             >
                                                 {user.status === "suspended" ? "解禁" : "禁用"}
                                             </button>
@@ -854,11 +853,10 @@ export default function AdminUsersPage() {
                                 </button>
                                 <button
                                     onClick={handleStatusChange}
-                                    className={`inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition sm:w-auto ${
-                                        statusModal.targetStatus === "suspended"
+                                    className={`inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition sm:w-auto ${statusModal.targetStatus === "suspended"
                                             ? "bg-rose-600 hover:bg-rose-700"
                                             : "bg-emerald-600 hover:bg-emerald-700"
-                                    }`}
+                                        }`}
                                 >
                                     确认{statusModal.targetStatus === "suspended" ? "禁用" : "解禁"}
                                 </button>

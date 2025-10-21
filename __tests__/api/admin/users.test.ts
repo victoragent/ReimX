@@ -494,9 +494,21 @@ describe('/api/admin/users', () => {
             mockGetServerSession.mockResolvedValue({
                 user: { email: 'admin@example.com', role: 'admin' }
             } as any)
-            mockPrisma.user.findUnique
-                .mockResolvedValueOnce(existingUser as any)
-                .mockResolvedValueOnce({ id: 'admin_1' } as any)
+
+            // Set up mocks in order: first for existingUser lookup, second for admin lookup
+            mockPrisma.user.findUnique.mockReset()
+            const calls: any[] = []
+            mockPrisma.user.findUnique.mockImplementation((args: any) => {
+                calls.push(args)
+                if (calls.length === 1) {
+                    // First call: lookup existing user by id
+                    return Promise.resolve(existingUser as any)
+                } else if (calls.length === 2) {
+                    // Second call: lookup admin by email
+                    return Promise.resolve({ id: 'admin_1' } as any)
+                }
+                return Promise.resolve(null)
+            })
             mockPrisma.user.update.mockResolvedValue(updatedUser as any)
 
             const request = {

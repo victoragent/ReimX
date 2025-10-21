@@ -57,7 +57,8 @@ describe("/api/admin/salaries/safewallet", () => {
           username: "Alice",
           email: "alice@example.com",
           evmAddress: "0xAlice",
-          solanaAddress: null
+          solanaAddress: null,
+          chainAddresses: null
         }
       },
       {
@@ -77,7 +78,8 @@ describe("/api/admin/salaries/safewallet", () => {
           username: "Bob",
           email: "bob@example.com",
           evmAddress: null,
-          solanaAddress: null
+          solanaAddress: null,
+          chainAddresses: null
         }
       }
     ]);

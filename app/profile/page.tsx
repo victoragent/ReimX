@@ -14,6 +14,7 @@ interface User {
     whatsappAccount?: string;
     evmAddress?: string;
     solanaAddress?: string;
+    chainAddresses?: Record<string, unknown> | null;
     role: string;
     status: string;
     isApproved?: boolean;
@@ -21,6 +22,121 @@ interface User {
     createdAt: string;
     updatedAt: string;
 }
+
+type ChainAddressEntry = {
+    chain: string;
+    address: string;
+};
+
+const chainOptions = [
+    { value: "evm", label: "EVM 通用" },
+    { value: "eth", label: "Ethereum" },
+    { value: "bsc", label: "BSC" },
+    { value: "polygon", label: "Polygon" },
+    { value: "arbitrum", label: "Arbitrum" },
+    { value: "base", label: "Base" },
+    { value: "solana", label: "Solana" }
+] as const;
+
+const evmChains = ["eth", "evm", "bsc", "polygon", "arbitrum", "base"] as const;
+
+const isStringRecord = (value: unknown): value is Record<string, string> => {
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+
+    return Object.values(value).every((item) => typeof item === "string");
+};
+
+const extractChainEntries = (user: User): ChainAddressEntry[] => {
+    const unique = new Map<string, string>();
+    let chainValue: unknown = user.chainAddresses;
+
+    if (typeof chainValue === "string") {
+        const trimmed = chainValue.trim();
+        if (trimmed) {
+            try {
+                chainValue = JSON.parse(trimmed);
+            } catch {
+                chainValue = null;
+            }
+        } else {
+            chainValue = null;
+        }
+    }
+
+    if (Array.isArray(chainValue)) {
+        for (const entry of chainValue) {
+            if (!entry || typeof entry !== "object") {
+                continue;
+            }
+
+            const chain = "chain" in entry ? (entry as { chain?: unknown }).chain : undefined;
+            const address = "address" in entry ? (entry as { address?: unknown }).address : undefined;
+
+            if (typeof chain === "string" && typeof address === "string") {
+                const normalizedChain = chain.trim().toLowerCase();
+                const trimmedAddress = address.trim();
+                if (normalizedChain && trimmedAddress) {
+                    unique.set(normalizedChain, trimmedAddress);
+                }
+            }
+        }
+    } else if (isStringRecord(chainValue)) {
+        for (const [chain, address] of Object.entries(chainValue)) {
+            if (typeof address === "string") {
+                const normalizedChain = chain.trim().toLowerCase();
+                const trimmedAddress = address.trim();
+                if (normalizedChain && trimmedAddress) {
+                    unique.set(normalizedChain, trimmedAddress);
+                }
+            }
+        }
+    } else if (chainValue && typeof chainValue === "object") {
+        for (const [chain, value] of Object.entries(chainValue as Record<string, unknown>)) {
+            if (
+                value &&
+                typeof value === "object" &&
+                "address" in value &&
+                typeof (value as { address?: unknown }).address === "string"
+            ) {
+                const address = (value as { address: string }).address.trim();
+                const normalizedChain = chain.trim().toLowerCase();
+                if (normalizedChain && address) {
+                    unique.set(normalizedChain, address);
+                }
+            }
+        }
+    }
+
+    if (user.evmAddress && !unique.has("evm")) {
+        unique.set("evm", user.evmAddress);
+    }
+
+    if (user.solanaAddress && !unique.has("solana")) {
+        unique.set("solana", user.solanaAddress);
+    }
+
+    return Array.from(unique.entries()).map(([chain, address]) => ({
+        chain,
+        address
+    }));
+};
+
+const deriveLegacyAddresses = (entries: ChainAddressEntry[]) => {
+    const trimmed = entries
+        .map((entry) => ({
+            chain: entry.chain.trim().toLowerCase(),
+            address: entry.address.trim()
+        }))
+        .filter((entry) => entry.chain && entry.address);
+
+    const evmAddress =
+        trimmed.find((entry) => evmChains.includes(entry.chain as (typeof evmChains)[number]))?.address ?? "";
+    const solanaAddress = trimmed.find((entry) => entry.chain === "solana")?.address ?? "";
+
+    return { evmAddress, solanaAddress, entries: trimmed };
+};
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
@@ -35,10 +151,61 @@ export default function ProfilePage() {
         email: "",
         role: "user",
         tgAccount: "",
-        whatsappAccount: "",
-        evmAddress: "",
-        solanaAddress: ""
+        whatsappAccount: ""
     });
+    const [chainAddresses, setChainAddresses] = useState<ChainAddressEntry[]>([]);
+
+    const resetFeedback = () => {
+        setError("");
+        setSuccess("");
+    };
+
+    const handleAddChainAddress = () => {
+        resetFeedback();
+        setChainAddresses((prev) => {
+            const used = new Set(prev.map((entry) => entry.chain));
+            const available = chainOptions.find((option) => !used.has(option.value));
+
+            if (!available) {
+                setError("所有支持的链均已添加，如需修改请先删除现有链。");
+                return prev;
+            }
+
+            return [...prev, { chain: available.value, address: "" }];
+        });
+    };
+
+    const handleChainSelectionChange = (index: number, chain: string) => {
+        resetFeedback();
+        setChainAddresses((prev) => {
+            if (prev.some((entry, idx) => idx !== index && entry.chain === chain)) {
+                setError("每条链只能保存一个地址，请先删除已存在的链。");
+                return prev;
+            }
+
+            const next = [...prev];
+            next[index] = { ...next[index], chain };
+            return next;
+        });
+    };
+
+    const handleChainAddressInputChange = (index: number, address: string) => {
+        resetFeedback();
+        setChainAddresses((prev) => {
+            const next = [...prev];
+            next[index] = { ...next[index], address };
+            return next;
+        });
+    };
+
+    const handleRemoveChainAddress = (index: number) => {
+        resetFeedback();
+        setChainAddresses((prev) => prev.filter((_, idx) => idx !== index));
+    };
+
+    const canAddMoreChains = chainOptions.some(
+        (option) => !chainAddresses.some((entry) => entry.chain === option.value)
+    );
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -63,10 +230,9 @@ export default function ProfilePage() {
                     email: data.user.email,
                     role: data.user.role,
                     tgAccount: data.user.tgAccount || "",
-                    whatsappAccount: data.user.whatsappAccount || "",
-                    evmAddress: data.user.evmAddress || "",
-                    solanaAddress: data.user.solanaAddress || ""
+                    whatsappAccount: data.user.whatsappAccount || ""
                 });
+                setChainAddresses(extractChainEntries(data.user));
             } else {
                 setError(data.error || "获取用户信息失败");
             }
@@ -98,7 +264,43 @@ export default function ProfilePage() {
         }
 
         try {
-            const payload: Record<string, unknown> = { ...formData };
+            const sanitizedChainEntries: ChainAddressEntry[] = chainAddresses.map((entry) => ({
+                chain: entry.chain.trim().toLowerCase(),
+                address: entry.address.trim()
+            }));
+
+            const seenChains = new Set<string>();
+            for (const entry of sanitizedChainEntries) {
+                if (!entry.chain) {
+                    setError("请选择链类型");
+                    setSaving(false);
+                    return;
+                }
+
+                if (!entry.address) {
+                    setError("链上地址不能为空");
+                    setSaving(false);
+                    return;
+                }
+
+                if (seenChains.has(entry.chain)) {
+                    setError("每条链只能保存一个地址，请检查重复项。");
+                    setSaving(false);
+                    return;
+                }
+
+                seenChains.add(entry.chain);
+            }
+
+            const { evmAddress, solanaAddress, entries } = deriveLegacyAddresses(sanitizedChainEntries);
+
+            const payload: Record<string, unknown> = {
+                ...formData,
+                chainAddresses: entries
+            };
+
+            payload.evmAddress = evmAddress;
+            payload.solanaAddress = solanaAddress;
 
             if (user.role === "admin") {
                 delete payload.role;
@@ -124,10 +326,9 @@ export default function ProfilePage() {
                     email: data.user.email,
                     role: data.user.role,
                     tgAccount: data.user.tgAccount || "",
-                    whatsappAccount: data.user.whatsappAccount || "",
-                    evmAddress: data.user.evmAddress || "",
-                    solanaAddress: data.user.solanaAddress || ""
+                    whatsappAccount: data.user.whatsappAccount || ""
                 });
+                setChainAddresses(extractChainEntries(data.user));
             } else {
                 setError(data.error || "更新失败");
             }
@@ -292,7 +493,7 @@ export default function ProfilePage() {
                     {user.role !== "admin" && (
                         <div className="space-y-1.5">
                             <label htmlFor="role" className="text-sm font-medium text-slate-700">
-                                角色申请
+                                角色
                             </label>
                             <select
                                 id="role"
@@ -335,33 +536,104 @@ export default function ProfilePage() {
                             className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                         />
                     </div>
-                    <div className="space-y-1.5">
-                        <label htmlFor="evmAddress" className="text-sm font-medium text-slate-700">
-                            EVM 地址
-                        </label>
-                        <input
-                            type="text"
-                            name="evmAddress"
-                            id="evmAddress"
-                            value={formData.evmAddress}
-                            onChange={handleChange}
-                            placeholder="0x..."
-                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <label htmlFor="solanaAddress" className="text-sm font-medium text-slate-700">
-                            Solana 地址
-                        </label>
-                        <input
-                            type="text"
-                            name="solanaAddress"
-                            id="solanaAddress"
-                            value={formData.solanaAddress}
-                            onChange={handleChange}
-                            placeholder="Base58..."
-                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                        />
+                    <div className="md:col-span-2 space-y-3">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <span className="text-sm font-medium text-slate-700">链上收款地址</span>
+                                <p className="text-xs text-slate-500 mt-1">
+                                    每条链仅可保存一个地址。
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleAddChainAddress}
+                                disabled={!canAddMoreChains}
+                                className={`inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium shadow-sm transition ${canAddMoreChains
+                                    ? "bg-slate-900 text-white hover:bg-slate-500"
+                                    : "bg-slate-100 text-slate-400 cursor-not-allowed opacity-60"
+                                    }`}
+                            >
+                                新增地址
+                            </button>
+                        </div>
+                        {chainAddresses.length > 0 ? (
+                            <div className="space-y-3">
+                                {chainAddresses.map((entry, index) => {
+                                    const usedChains = new Set(
+                                        chainAddresses
+                                            .filter((_, idx) => idx !== index)
+                                            .map((item) => item.chain)
+                                    );
+                                    const selectId = `chain-select-${index}`;
+                                    const addressId = `chain-address-${index}`;
+
+                                    return (
+                                        <div
+                                            key={`${entry.chain}-${index}`}
+                                            className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-4 shadow-sm backdrop-blur"
+                                        >
+                                            <div className="flex flex-col gap-4 md:flex-row md:items-end">
+                                                <div className="md:w-48">
+                                                    <label
+                                                        htmlFor={selectId}
+                                                        className="mb-1 inline-block text-xs font-medium text-slate-500 whitespace-nowrap"
+                                                    >
+                                                        链类型
+                                                    </label>
+                                                    <select
+                                                        id={selectId}
+                                                        value={entry.chain}
+                                                        onChange={(event) =>
+                                                            handleChainSelectionChange(index, event.target.value)
+                                                        }
+                                                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm whitespace-nowrap shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                    >
+                                                        {chainOptions.map((option) => (
+                                                            <option
+                                                                key={option.value}
+                                                                value={option.value}
+                                                                disabled={usedChains.has(option.value)}
+                                                            >
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label
+                                                        htmlFor={addressId}
+                                                        className="mb-1 block text-xs font-medium text-slate-500"
+                                                    >
+                                                        收款地址
+                                                    </label>
+                                                    <input
+                                                        id={addressId}
+                                                        type="text"
+                                                        value={entry.address}
+                                                        onChange={(event) =>
+                                                            handleChainAddressInputChange(index, event.target.value)
+                                                        }
+                                                        placeholder={entry.chain === "solana" ? "Base58..." : "0x..."}
+                                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveChainAddress(index)}
+                                                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-rose-500 shadow-sm transition hover:bg-rose-50 md:self-end md:shrink-0"
+                                                >
+                                                    移除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="rounded-2xl border border-dashed border-slate-200 bg-white/50 p-6 text-xs text-slate-500">
+                                当前尚未保存链上地址，点击“新增链地址”进行配置。
+                            </div>
+                        )}
                     </div>
                 </div>
 

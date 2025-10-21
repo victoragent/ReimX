@@ -258,8 +258,6 @@ export default function AdminReimbursementsPage() {
                         <option value="USD">美元</option>
                         <option value="CNY">人民币</option>
                         <option value="HKD">港币</option>
-                        <option value="ETH">以太坊</option>
-                        <option value="SOL">Solana</option>
                     </select>
                     <select
                         value={expenseTypeFilter}
@@ -271,15 +269,7 @@ export default function AdminReimbursementsPage() {
                             <option key={key} value={key}>{label}</option>
                         ))}
                     </select>
-                    <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="折合美元 ≥"
-                        value={minUsdFilter}
-                        onChange={(e) => setMinUsdFilter(e.target.value)}
-                        className="border-slate-200 rounded-md shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
-                    />
+
                     <button
                         onClick={fetchReimbursements}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
@@ -302,7 +292,7 @@ export default function AdminReimbursementsPage() {
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">费用类型</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">金额</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">折合美元</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">金额（美元）</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                                     描述
                                 </th>
@@ -442,7 +432,7 @@ export default function AdminReimbursementsPage() {
                                         </div>
                                     </div>
                                     <div className="text-sm text-slate-600">
-                                        <span className="mr-2 text-slate-500">折合美元</span>
+                                        <span className="mr-2 text-slate-500">金额（美元）</span>
                                         <span className="font-semibold text-indigo-600">
                                             {typeof selectedReimbursement.amountUsdEquivalent === "number"
                                                 ? `${selectedReimbursement.amountUsdEquivalent.toFixed(2)} USD`
