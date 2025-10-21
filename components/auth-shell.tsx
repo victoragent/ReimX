@@ -16,7 +16,7 @@ export function AuthShell({ title, description, children, illustration, classNam
         <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(79,70,229,0.18),rgba(14,165,233,0.12),transparent)]" />
       </div>
       <div className={cn("mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center gap-12 px-4 py-16 sm:px-8 lg:px-12", className)}>
-        <div className="grid gap-10 lg:grid-cols-[1.2fr,1fr] lg:items-center">
+        <div className="grid gap-10 lg:grid-cols-[0.8fr,1.4fr] lg:items-center">
           <div className="space-y-6">
             <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-[0.3em] text-slate-600">
               ReimX

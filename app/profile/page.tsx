@@ -403,7 +403,7 @@ export default function ProfilePage() {
             key="salary"
             className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
         >
-            <p className="text-xs uppercase tracking-wide text-indigo-500">标准月薪</p>
+            <p className="text-sm font-medium text-slate-700">标准月薪</p>
             <div className="mt-2 text-lg font-semibold text-slate-900">{salaryValue}</div>
             {typeof user.salaryUsdt === "number" && user.salaryUsdt > 0 ? (
                 <Link
@@ -421,21 +421,21 @@ export default function ProfilePage() {
             key="status"
             className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
         >
-            <p className="text-xs uppercase tracking-wide text-indigo-500">状态</p>
+            <p className="text-sm font-medium text-slate-700">状态</p>
             <div className="mt-2 text-sm text-slate-700">{statusPill}</div>
         </div>,
         <div
             key="role"
             className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
         >
-            <p className="text-xs uppercase tracking-wide text-indigo-500">角色</p>
+            <p className="text-sm font-medium text-slate-700">角色</p>
             <div className="mt-2 text-sm text-slate-700">{rolePill}</div>
         </div>,
         <div
             key="createdAt"
             className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
         >
-            <p className="text-xs uppercase tracking-wide text-indigo-500">注册时间</p>
+            <p className="text-sm font-medium text-slate-700">注册时间</p>
             <div className="mt-2 text-sm text-slate-700">
                 {new Date(user.createdAt).toLocaleDateString()}
             </div>
@@ -444,7 +444,7 @@ export default function ProfilePage() {
             key="email"
             className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-sm backdrop-blur"
         >
-            <p className="text-xs uppercase tracking-wide text-indigo-500">邮箱</p>
+            <p className="text-sm font-medium text-slate-700">邮箱</p>
             <div className="mt-2 text-sm text-slate-700 break-all">{user.email}</div>
         </div>
     ];
@@ -454,14 +454,14 @@ export default function ProfilePage() {
             title="个人资料"
             description="更新您的联系方式、链上地址与角色申请，保证账户信息始终准确可追踪。"
             illustration={(
-                <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                <div className="space-y-3 text-sm text-slate-600">
                     {highlightCards}
                 </div>
             )}
         >
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <div className="space-y-1.5">
+            <form onSubmit={handleSubmit} className="space-y-6" id="profile-form">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2" id="profile-fields">
+                    <div className="space-y-1.5" id="username-field">
                         <label htmlFor="username" className="text-sm font-medium text-slate-700">
                             用户名
                         </label>
@@ -475,7 +475,7 @@ export default function ProfilePage() {
                             required
                         />
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5" id="email-field">
                         <label htmlFor="email" className="text-sm font-medium text-slate-700">
                             邮箱
                         </label>
@@ -491,7 +491,7 @@ export default function ProfilePage() {
                         <p className="text-xs text-slate-500">修改邮箱后需要管理员再次审核。</p>
                     </div>
                     {user.role !== "admin" && (
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5" id="role-field">
                             <label htmlFor="role" className="text-sm font-medium text-slate-700">
                                 角色
                             </label>
@@ -508,7 +508,7 @@ export default function ProfilePage() {
                             <p className="text-xs text-slate-500">角色变更需管理员确认后生效。</p>
                         </div>
                     )}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5" id="telegram-field">
                         <label htmlFor="tgAccount" className="text-sm font-medium text-slate-700">
                             Telegram 账号
                         </label>
@@ -522,7 +522,7 @@ export default function ProfilePage() {
                             className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                         />
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5" id="whatsapp-field">
                         <label htmlFor="whatsappAccount" className="text-sm font-medium text-slate-700">
                             WhatsApp 账号
                         </label>
@@ -536,8 +536,8 @@ export default function ProfilePage() {
                             className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                         />
                     </div>
-                    <div className="md:col-span-2 space-y-3">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="md:col-span-2 space-y-3" id="chain-addresses-section">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" id="chain-addresses-header">
                             <div>
                                 <span className="text-sm font-medium text-slate-700">链上收款地址</span>
                                 <p className="text-xs text-slate-500 mt-1">
@@ -548,6 +548,7 @@ export default function ProfilePage() {
                                 type="button"
                                 onClick={handleAddChainAddress}
                                 disabled={!canAddMoreChains}
+                                id="add-chain-address-btn"
                                 className={`inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium shadow-sm transition ${canAddMoreChains
                                     ? "bg-slate-900 text-white hover:bg-slate-500"
                                     : "bg-slate-100 text-slate-400 cursor-not-allowed opacity-60"
@@ -557,7 +558,7 @@ export default function ProfilePage() {
                             </button>
                         </div>
                         {chainAddresses.length > 0 ? (
-                            <div className="space-y-3">
+                            <div className="space-y-3" id="chain-addresses-list">
                                 {chainAddresses.map((entry, index) => {
                                     const usedChains = new Set(
                                         chainAddresses
@@ -570,13 +571,14 @@ export default function ProfilePage() {
                                     return (
                                         <div
                                             key={`${entry.chain}-${index}`}
+                                            id={`chain-address-item-${index}`}
                                             className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-4 shadow-sm backdrop-blur"
                                         >
-                                            <div className="flex flex-col gap-4 md:flex-row md:items-end">
-                                                <div className="md:w-48">
+                                            <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+                                                <div className="lg:w-26 xl:w-26">
                                                     <label
                                                         htmlFor={selectId}
-                                                        className="mb-1 inline-block text-xs font-medium text-slate-500 whitespace-nowrap"
+                                                        className="mb-1 block text-xs font-medium text-slate-500"
                                                     >
                                                         链类型
                                                     </label>
@@ -586,7 +588,7 @@ export default function ProfilePage() {
                                                         onChange={(event) =>
                                                             handleChainSelectionChange(index, event.target.value)
                                                         }
-                                                        className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm whitespace-nowrap shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                        className="w-full rounded-xl border border-slate-200 px-2 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                                     >
                                                         {chainOptions.map((option) => (
                                                             <option
@@ -599,7 +601,7 @@ export default function ProfilePage() {
                                                         ))}
                                                     </select>
                                                 </div>
-                                                <div className="flex-1">
+                                                <div className="flex-1 min-w-0">
                                                     <label
                                                         htmlFor={addressId}
                                                         className="mb-1 block text-xs font-medium text-slate-500"
@@ -614,13 +616,15 @@ export default function ProfilePage() {
                                                             handleChainAddressInputChange(index, event.target.value)
                                                         }
                                                         placeholder={entry.chain === "solana" ? "Base58..." : "0x..."}
-                                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 font-mono"
+                                                        title={entry.address || "请输入收款地址"}
                                                     />
                                                 </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveChainAddress(index)}
-                                                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-rose-500 shadow-sm transition hover:bg-rose-50 md:self-end md:shrink-0"
+                                                    id={`remove-chain-address-${index}`}
+                                                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-rose-500 shadow-sm transition hover:bg-rose-50 lg:self-end lg:shrink-0"
                                                 >
                                                     移除
                                                 </button>
@@ -630,27 +634,27 @@ export default function ProfilePage() {
                                 })}
                             </div>
                         ) : (
-                            <div className="rounded-2xl border border-dashed border-slate-200 bg-white/50 p-6 text-xs text-slate-500">
-                                当前尚未保存链上地址，点击“新增链地址”进行配置。
+                            <div id="no-chain-addresses-message" className="rounded-2xl border border-dashed border-slate-200 bg-white/50 p-6 text-xs text-slate-500">
+                                当前尚未保存链上地址，点击"新增链地址"进行配置。
                             </div>
                         )}
                     </div>
                 </div>
 
                 {error ? (
-                    <div className="rounded-2xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-700">
+                    <div id="error-message" className="rounded-2xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-700">
                         {error}
                     </div>
                 ) : null}
 
                 {success ? (
-                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700">
+                    <div id="success-message" className="rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700">
                         {success}
                     </div>
                 ) : null}
 
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="space-y-1 text-xs text-slate-500">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" id="action-section">
+                    <div className="space-y-1 text-xs text-slate-500" id="action-info">
                         <p>提示：修改邮箱或链上地址后，账户将自动设为待审核状态。</p>
                         {typeof user.salaryUsdt === "number" && user.salaryUsdt > 0 ? (
                             <p>
@@ -665,10 +669,11 @@ export default function ProfilePage() {
                             </p>
                         ) : null}
                     </div>
-                    <div className="flex flex-col gap-3 sm:flex-row sm:w-auto">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:w-auto" id="action-buttons">
                         <button
                             type="submit"
                             disabled={saving}
+                            id="save-changes-btn"
                             className="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black sm:w-auto disabled:opacity-60"
                         >
                             {saving ? "保存中..." : "保存更改"}
@@ -676,6 +681,7 @@ export default function ProfilePage() {
                         <button
                             type="button"
                             onClick={handleLogout}
+                            id="logout-btn"
                             className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 sm:w-auto"
                         >
                             退出登录
