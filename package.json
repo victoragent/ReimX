@@ -14,7 +14,13 @@
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "deploy:production": "./scripts/deploy-production.sh",
+    "deploy:preview": "vercel",
+    "deploy:env": "vercel env pull .env.production",
+    "db:migrate": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:backup": "pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
