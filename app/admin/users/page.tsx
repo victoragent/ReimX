@@ -542,8 +542,8 @@ export default function AdminUsersPage() {
                                                     });
                                                 }}
                                                 className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${user.status === "suspended"
-                                                        ? "border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                                                        : "border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                                                    ? "border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                                    : "border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
                                                     }`}
                                             >
                                                 {user.status === "suspended" ? "解禁" : "禁用"}
@@ -808,13 +808,13 @@ export default function AdminUsersPage() {
                                         onClick={() => setApprovingUser(null)}
                                         className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 md:flex-none"
                                     >
-                                        取消
+                                        拒绝
                                     </button>
                                     <button
                                         onClick={handleApproveUser}
                                         className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 md:flex-none"
                                     >
-                                        确认审核
+                                        通过
                                     </button>
                                 </div>
                             </div>
@@ -854,8 +854,8 @@ export default function AdminUsersPage() {
                                 <button
                                     onClick={handleStatusChange}
                                     className={`inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition sm:w-auto ${statusModal.targetStatus === "suspended"
-                                            ? "bg-rose-600 hover:bg-rose-700"
-                                            : "bg-emerald-600 hover:bg-emerald-700"
+                                        ? "bg-rose-600 hover:bg-rose-700"
+                                        : "bg-emerald-600 hover:bg-emerald-700"
                                         }`}
                                 >
                                     确认{statusModal.targetStatus === "suspended" ? "禁用" : "解禁"}

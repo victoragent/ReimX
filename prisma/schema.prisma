@@ -27,6 +27,7 @@ model User {
   reviewedReimbursements  Reimbursement[] @relation("ReimbursementReviewer")
   approvedReimbursements  Reimbursement[] @relation("ReimbursementApprover")
   salaryPayments          SalaryPayment[]
+  passwordResetTokens   PasswordResetToken[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
@@ -76,4 +77,17 @@ model SalaryPayment {
   user           User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, month])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([expiresAt])
 }

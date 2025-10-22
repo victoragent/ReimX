@@ -111,7 +111,7 @@ function LoginForm() {
             </div>
           </div>
 
-            {message ? (
+          {message ? (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-700 text-center">
               {message}
             </div>
@@ -131,12 +131,19 @@ function LoginForm() {
             >
               {loading ? "登录中..." : "登录"}
             </button>
-            <p className="text-center text-sm text-slate-600">
-              还没有账户？{" "}
-              <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-                立即注册
-              </Link>
-            </p>
+            <div className="space-y-3">
+              <div className="flex justify-center space-x-4 text-sm">
+                <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                  找回密码
+                </Link>
+              </div>
+              <p className="text-center text-sm text-slate-600">
+                还没有账户？{" "}
+                <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                  立即注册
+                </Link>
+              </p>
+            </div>
           </div>
         </form>
       </div>

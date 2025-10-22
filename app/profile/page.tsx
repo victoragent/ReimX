@@ -678,14 +678,13 @@ export default function ProfilePage() {
                         >
                             {saving ? "保存中..." : "保存更改"}
                         </button>
-                        <button
-                            type="button"
-                            onClick={handleLogout}
-                            id="logout-btn"
-                            className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 sm:w-auto"
+                        <Link
+                            href="/change-password"
+                            id="change-password-btn"
+                            className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-indigo-600 shadow-sm transition hover:bg-indigo-50 sm:w-auto"
                         >
-                            退出登录
-                        </button>
+                            修改密码
+                        </Link>
                     </div>
                 </div>
             </form>
