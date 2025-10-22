@@ -191,6 +191,7 @@ export async function GET(request: NextRequest) {
                     whatsappAccount: true,
                     evmAddress: true,
                     solanaAddress: true,
+                    chainAddresses: true,
                     role: true,
                     status: true,
                     isApproved: true,

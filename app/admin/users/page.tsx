@@ -13,6 +13,7 @@ interface User {
     whatsappAccount?: string;
     evmAddress?: string;
     solanaAddress?: string;
+    chainAddresses?: string; // JSON字符串，存储所有链的地址
     role: string;
     status: string;
     salaryUsdt: number;
@@ -25,6 +26,121 @@ interface User {
         reimbursements: number;
     };
 }
+
+interface ChainAddressEntry {
+    chain: string;
+    address: string;
+}
+
+const chainOptions = [
+    { label: "EVM 通用", value: "evm" },
+    { label: "Ethereum", value: "eth" },
+    { label: "BSC", value: "bsc" },
+    { label: "Arbitrum", value: "arbitrum" },
+    { label: "Base", value: "base" },
+    { label: "Polygon", value: "polygon" },
+    { label: "Solana", value: "solana" }
+] as const;
+
+const evmChains = ["eth", "evm", "bsc", "polygon", "arbitrum", "base"] as const;
+
+const isStringRecord = (value: unknown): value is Record<string, string> => {
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+
+    return Object.values(value).every((item) => typeof item === "string");
+};
+
+const extractChainEntries = (user: User): ChainAddressEntry[] => {
+    const unique = new Map<string, string>();
+    let chainValue: unknown = user.chainAddresses;
+
+    if (typeof chainValue === "string") {
+        const trimmed = chainValue.trim();
+        if (trimmed) {
+            try {
+                chainValue = JSON.parse(trimmed);
+            } catch {
+                chainValue = null;
+            }
+        } else {
+            chainValue = null;
+        }
+    }
+
+    if (Array.isArray(chainValue)) {
+        for (const entry of chainValue) {
+            if (!entry || typeof entry !== "object") {
+                continue;
+            }
+
+            const chain = "chain" in entry ? (entry as { chain?: unknown }).chain : undefined;
+            const address = "address" in entry ? (entry as { address?: unknown }).address : undefined;
+
+            if (typeof chain === "string" && typeof address === "string") {
+                const normalizedChain = chain.trim().toLowerCase();
+                const trimmedAddress = address.trim();
+                if (normalizedChain && trimmedAddress) {
+                    unique.set(normalizedChain, trimmedAddress);
+                }
+            }
+        }
+    } else if (isStringRecord(chainValue)) {
+        for (const [chain, address] of Object.entries(chainValue)) {
+            if (typeof address === "string") {
+                const normalizedChain = chain.trim().toLowerCase();
+                const trimmedAddress = address.trim();
+                if (normalizedChain && trimmedAddress) {
+                    unique.set(normalizedChain, trimmedAddress);
+                }
+            }
+        }
+    } else if (chainValue && typeof chainValue === "object") {
+        for (const [chain, value] of Object.entries(chainValue as Record<string, unknown>)) {
+            if (
+                value &&
+                typeof value === "object" &&
+                "address" in value &&
+                typeof (value as { address?: unknown }).address === "string"
+            ) {
+                const address = (value as { address: string }).address.trim();
+                const normalizedChain = chain.trim().toLowerCase();
+                if (normalizedChain && address) {
+                    unique.set(normalizedChain, address);
+                }
+            }
+        }
+    }
+
+    if (user.evmAddress && !unique.has("evm")) {
+        unique.set("evm", user.evmAddress);
+    }
+
+    if (user.solanaAddress && !unique.has("solana")) {
+        unique.set("solana", user.solanaAddress);
+    }
+
+    return Array.from(unique.entries()).map(([chain, address]) => ({
+        chain,
+        address
+    }));
+};
+
+const deriveLegacyAddresses = (entries: ChainAddressEntry[]) => {
+    const trimmed = entries
+        .map((entry) => ({
+            chain: entry.chain.trim().toLowerCase(),
+            address: entry.address.trim()
+        }))
+        .filter((entry) => entry.chain && entry.address);
+
+    const evmAddress =
+        trimmed.find((entry) => evmChains.includes(entry.chain as (typeof evmChains)[number]))?.address ?? "";
+    const solanaAddress = trimmed.find((entry) => entry.chain === "solana")?.address ?? "";
+
+    return { evmAddress, solanaAddress, entries: trimmed };
+};
 
 interface Pagination {
     page: number;
@@ -57,6 +173,7 @@ export default function AdminUsersPage() {
         salaryUsdt: "",
         password: ""
     });
+    const [chainAddresses, setChainAddresses] = useState<ChainAddressEntry[]>([]);
     const [approvingUser, setApprovingUser] = useState<User | null>(null);
     const [approveForm, setApproveForm] = useState({
         approved: true,
@@ -174,6 +291,7 @@ export default function AdminUsersPage() {
             salaryUsdt: user.salaryUsdt ? user.salaryUsdt.toString() : "",
             password: ""
         });
+        setChainAddresses(extractChainEntries(user));
     };
 
     const handleApprove = (user: User) => {
@@ -221,6 +339,8 @@ export default function AdminUsersPage() {
 
             const isNewUser = !editingUser.id;
 
+            const { evmAddress, solanaAddress, entries } = deriveLegacyAddresses(chainAddresses);
+
             const payload: Record<string, unknown> = {
                 username: editForm.username,
                 email: editForm.email,
@@ -228,8 +348,9 @@ export default function AdminUsersPage() {
                 status: editForm.status,
                 tgAccount: editForm.tgAccount || undefined,
                 whatsappAccount: editForm.whatsappAccount || undefined,
-                evmAddress: editForm.evmAddress || undefined,
-                solanaAddress: editForm.solanaAddress || undefined
+                evmAddress: evmAddress || undefined,
+                solanaAddress: solanaAddress || undefined,
+                chainAddresses: entries.length > 0 ? JSON.stringify(entries) : undefined
             };
 
             if (editForm.salaryUsdt !== "") {
@@ -282,6 +403,7 @@ export default function AdminUsersPage() {
                     salaryUsdt: "",
                     password: ""
                 });
+                setChainAddresses([]);
                 fetchUsers();
             } else {
                 setError(data.error || (isNewUser ? "创建用户失败" : "更新失败"));
@@ -319,6 +441,49 @@ export default function AdminUsersPage() {
         } catch (error) {
             setError("网络错误，请重试");
         }
+    };
+
+    const handleAddChainAddress = () => {
+        setError("");
+        setChainAddresses((prev) => {
+            const used = new Set(prev.map((entry) => entry.chain));
+            const available = chainOptions.find((option) => !used.has(option.value));
+
+            if (!available) {
+                setError("所有支持的链均已添加，如需修改请先删除现有链。");
+                return prev;
+            }
+
+            return [...prev, { chain: available.value, address: "" }];
+        });
+    };
+
+    const handleChainSelectionChange = (index: number, chain: string) => {
+        setError("");
+        setChainAddresses((prev) => {
+            if (prev.some((entry, idx) => idx !== index && entry.chain === chain)) {
+                setError("每条链只能保存一个地址，请先删除已存在的链。");
+                return prev;
+            }
+
+            const next = [...prev];
+            next[index] = { ...next[index], chain };
+            return next;
+        });
+    };
+
+    const handleChainAddressInputChange = (index: number, address: string) => {
+        setError("");
+        setChainAddresses((prev) => {
+            const next = [...prev];
+            next[index] = { ...next[index], address };
+            return next;
+        });
+    };
+
+    const handleRemoveChainAddress = (index: number) => {
+        setError("");
+        setChainAddresses((prev) => prev.filter((_, idx) => idx !== index));
     };
 
     if (status === "loading" || loading) {
@@ -693,6 +858,57 @@ export default function AdminUsersPage() {
                                         className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                         placeholder="Base58..."
                                     />
+                                </div>
+                                <div className="md:col-span-2 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium text-slate-700">多链地址</label>
+                                        <button
+                                            type="button"
+                                            onClick={handleAddChainAddress}
+                                            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                                        >
+                                            + 添加链
+                                        </button>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {chainAddresses.map((entry, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <select
+                                                    value={entry.chain}
+                                                    onChange={(e) => handleChainSelectionChange(index, e.target.value)}
+                                                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                >
+                                                    {chainOptions.map((option) => (
+                                                        <option key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    type="text"
+                                                    value={entry.address}
+                                                    onChange={(e) => handleChainAddressInputChange(index, e.target.value)}
+                                                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                    placeholder="地址..."
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveChainAddress(index)}
+                                                    className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600 transition hover:bg-rose-100"
+                                                >
+                                                    删除
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {chainAddresses.length === 0 && (
+                                            <div className="rounded-xl border border-dashed border-slate-200 px-4 py-3 text-center text-sm text-slate-500">
+                                                暂无链地址，点击"添加链"开始添加
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-slate-500">
+                                        支持多链地址管理，系统会自动从链地址中提取 EVM 和 Solana 地址用于兼容性。
+                                    </p>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-medium text-slate-700">工资 (USDT)</label>

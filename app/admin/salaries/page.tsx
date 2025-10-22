@@ -75,6 +75,98 @@ const currentMonth = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 };
 
+const chainOptions = [
+  { label: "BSC", value: "bsc" },
+  { label: "Ethereum", value: "eth" },
+  { label: "Arbitrum", value: "arbitrum" },
+  { label: "Base", value: "base" }
+] as const;
+
+type ChainOptionValue = (typeof chainOptions)[number]["value"];
+type TokenType = "USDT" | "USDC";
+
+// 从报销页面复制的链地址解析逻辑
+const chainAliasMap: Record<string, string> = {
+  ethereum: "eth",
+  eth: "eth",
+  mainnet: "eth",
+  bsc: "bsc",
+  binance: "bsc",
+  arbitrum: "arbitrum",
+  arb: "arbitrum",
+  base: "base",
+  evm: "evm",
+  sol: "solana",
+  solana: "solana",
+  polygon: "polygon",
+  matic: "polygon"
+};
+
+const normalizeChainKey = (chain: string): string => {
+  const lower = chain.trim().toLowerCase();
+  return chainAliasMap[lower] ?? lower;
+};
+
+const evmChains = new Set<string>(["evm", "eth", "bsc", "arbitrum", "base", "polygon"]);
+
+const getChainLabel = (chain: string) => {
+  const normalized = normalizeChainKey(chain);
+  const matched = chainOptions.find((option) => option.value === normalized);
+  if (matched) {
+    return matched.label;
+  }
+  if (normalized === "evm") {
+    return "EVM 通用";
+  }
+  if (normalized === "solana") {
+    return "Solana";
+  }
+  return normalized.toUpperCase();
+};
+
+const resolveBatchAddress = (batch: SafeWalletBatch, selected: ChainOptionValue): string | null => {
+  const normalizedSelected = normalizeChainKey(selected);
+  const addresses = batch.chainAddresses ?? {};
+
+  if (addresses[normalizedSelected]) {
+    return addresses[normalizedSelected];
+  }
+
+  if (normalizedSelected === "solana") {
+    return addresses.solana ?? batch.solanaAddress ?? null;
+  }
+
+  if (evmChains.has(normalizedSelected)) {
+    if (addresses[normalizedSelected]) {
+      return addresses[normalizedSelected];
+    }
+    if (addresses.evm) {
+      return addresses.evm;
+    }
+    if (addresses.eth) {
+      return addresses.eth;
+    }
+    return batch.evmAddress ?? null;
+  }
+
+  return batch.evmAddress ?? null;
+};
+
+const tokenAddresses: Record<TokenType, Record<ChainOptionValue, string>> = {
+  USDT: {
+    bsc: "0x55d398326f99059fF775485246999027B3197955", // BSC USDT
+    eth: "0xdAC17F958D2ee523a2206206994597C13D831ec7", // Ethereum USDT
+    arbitrum: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", // Arbitrum USDT
+    base: "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb" // Base USDT
+  },
+  USDC: {
+    bsc: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", // BSC USDC
+    eth: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // Ethereum USDC
+    arbitrum: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", // Arbitrum USDC
+    base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" // Base USDC
+  }
+};
+
 const createSelectionFromBatches = (batches: SafeWalletBatch[]): SelectionState =>
   batches.reduce<SelectionState>((acc, batch) => {
     acc[batch.applicantId] = {
@@ -98,6 +190,8 @@ export default function AdminSalariesPage() {
   const [transactionHash, setTransactionHash] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [tokenType, setTokenType] = useState<TokenType>("USDT");
+  const [selectedChain, setSelectedChain] = useState<ChainOptionValue>("eth");
 
   const hasBatches = data?.batches && data.batches.length > 0;
 
@@ -332,23 +426,70 @@ export default function AdminSalariesPage() {
   };
 
   const handleCopyPayload = async () => {
-    if (!transactionsPreview) return;
+    if (!csvPreview) return;
     try {
-      await navigator.clipboard.writeText(transactionsPreview);
-      setMessage("Safe Wallet JSON 已复制");
+      await navigator.clipboard.writeText(csvPreview);
+      setMessage("CSV 已复制");
     } catch (err) {
       console.error(err);
       setError("复制失败，请手动选择文本");
     }
   };
 
+  const csvData = useMemo(() => {
+    if (!filteredBatches.length) {
+      return null;
+    }
+
+    const csvRows: { token_type: string; token_address: string; receiver: string; amount: string; id: string }[] = [];
+
+    filteredBatches.forEach(batch => {
+      const resolvedAddress = resolveBatchAddress(batch, selectedChain);
+      if (!resolvedAddress) {
+        console.warn(`Skipping batch for ${batch.applicantName} (ID: ${batch.applicantId}) due to missing address for chain ${selectedChain}.`);
+        return;
+      }
+
+      const tokenAddress = tokenAddresses[tokenType][selectedChain];
+      if (!tokenAddress) {
+        console.warn(`Skipping batch for ${batch.applicantName} (ID: ${batch.applicantId}) due to missing token address for ${selectedChain} ${tokenType}.`);
+        return;
+      }
+
+      // 为每个工资记录生成一行CSV
+      batch.items.forEach(item => {
+        csvRows.push({
+          token_type: "ERC20",
+          token_address: tokenAddress,
+          receiver: resolvedAddress,
+          amount: item.amountUsdt.toFixed(2),
+          id: item.reimbursementId
+        });
+      });
+    });
+
+    return csvRows;
+  }, [filteredBatches, tokenType, selectedChain]);
+
+  const csvPreview = useMemo(() => {
+    if (!csvData || csvData.length === 0) return "";
+
+    const headers = "token_type,token_address,receiver,amount,id";
+    const rows = csvData.map(row =>
+      `${row.token_type},${row.token_address},${row.receiver},${row.amount},${row.id}`
+    );
+
+    return [headers, ...rows].join("\n");
+  }, [csvData]);
+
   const handleDownload = () => {
-    if (!transactionsPreview) return;
-    const blob = new Blob([transactionsPreview], { type: "application/json" });
+    if (!csvPreview) return;
+    const blob = new Blob([csvPreview], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
+    const chainLabel = getChainLabel(selectedChain);
+    link.download = `reimx-payroll-${tokenType}-${chainLabel}-${month}.csv`;
     link.href = url;
-    link.download = `reimx-payroll-${month}.json`;
     link.click();
     window.URL.revokeObjectURL(url);
   };
@@ -375,7 +516,7 @@ export default function AdminSalariesPage() {
               生成 Safe Wallet 批次、导出 JSON 并追踪发放状态，让链上工资发放透明可控。
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm shadow-slate-200/50">
               <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">批次</p>
               <p className="mt-2 text-2xl font-semibold text-slate-900">{totalBatches}</p>
@@ -387,9 +528,14 @@ export default function AdminSalariesPage() {
               <p className="text-xs text-slate-500">当前筛选范围</p>
             </div>
             <div className="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm shadow-slate-200/50">
-              <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">USDT</p>
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">{tokenType}</p>
               <p className="mt-2 text-2xl font-semibold text-indigo-600">{totalUsdt.toFixed(2)}</p>
               <p className="text-xs text-slate-500">待发放总额</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-sm shadow-slate-200/50">
+              <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">链</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{getChainLabel(selectedChain)}</p>
+              <p className="text-xs text-slate-500">当前选择</p>
             </div>
           </div>
         </div>
@@ -397,7 +543,7 @@ export default function AdminSalariesPage() {
 
       <section className="space-y-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
         <h2 className="text-lg font-semibold text-slate-900">筛选与操作</h2>
-        <div className="grid gap-4 lg:grid-cols-4">
+        <div className="grid gap-4 lg:grid-cols-6">
           <div>
             <label className="block text-sm font-medium text-slate-700">结算月份</label>
             <input
@@ -418,6 +564,31 @@ export default function AdminSalariesPage() {
               <option value="scheduled">已计划</option>
               <option value="paid">已发放</option>
               <option value="all">全部</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">链</label>
+            <select
+              value={selectedChain}
+              onChange={(event) => setSelectedChain(event.target.value as ChainOptionValue)}
+              className="mt-1 block w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-slate-200/50 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              {chainOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700">代币</label>
+            <select
+              value={tokenType}
+              onChange={(event) => setTokenType(event.target.value as TokenType)}
+              className="mt-1 block w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-slate-200/50 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+            >
+              <option value="USDT">USDT</option>
+              <option value="USDC">USDC</option>
             </select>
           </div>
           <div className="lg:col-span-2">
@@ -469,22 +640,22 @@ export default function AdminSalariesPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Safe Wallet 批次</h2>
-              <p className="text-sm text-slate-500">可按需剔除员工或工资记录，导出 JSON 并在发放完成后同步状态。</p>
+              <p className="text-sm text-slate-500">可按需剔除员工或工资记录，导出 CSV 并在发放完成后同步状态。</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleCopyPayload}
-                disabled={!transactionsPreview}
+                disabled={!csvPreview}
                 className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-black disabled:opacity-60"
               >
-                复制 JSON
+                复制 CSV
               </button>
               <button
                 onClick={handleDownload}
-                disabled={!transactionsPreview}
+                disabled={!csvPreview}
                 className="inline-flex items-center justify-center rounded-full border border-indigo-600 bg-white/80 px-4 py-2.5 text-sm font-semibold text-indigo-600 shadow-sm shadow-slate-200/50 transition hover:bg-indigo-50 disabled:opacity-50"
               >
-                下载 JSON
+                下载 CSV
               </button>
             </div>
           </div>
@@ -524,12 +695,12 @@ export default function AdminSalariesPage() {
                         工资条数：{batch.items.length} · 合计
                         <span className="font-semibold text-indigo-600"> {batch.totalAmountUsdt.toFixed(2)} USDT</span>
                       </div>
-                      {batch.evmAddress ? (
+                      {resolveBatchAddress(batch, selectedChain) ? (
                         <div className="text-xs text-slate-500">
-                          EVM 地址：<span className="font-mono">{batch.evmAddress}</span>
+                          {getChainLabel(selectedChain)} 地址：<span className="font-mono">{resolveBatchAddress(batch, selectedChain)}</span>
                         </div>
                       ) : (
-                        <div className="text-xs text-rose-600">缺少 EVM 地址，导出前需补充该用户的收款地址。</div>
+                        <div className="text-xs text-rose-600">缺少 {getChainLabel(selectedChain)} 地址，导出前需补充该用户的收款地址。</div>
                       )}
                       {excludedItems > 0 && (
                         <div className="text-xs text-amber-600">已剔除 {excludedItems} 条工资记录。</div>
@@ -589,10 +760,10 @@ export default function AdminSalariesPage() {
           </div>
 
           <div>
-            <h3 className="mb-3 text-lg font-semibold text-slate-900">Safe Wallet JSON</h3>
-            {transactionsPreview ? (
+            <h3 className="mb-3 text-lg font-semibold text-slate-900">CSV 预览 (ERC20 - {getChainLabel(selectedChain)})</h3>
+            {csvPreview ? (
               <pre className="max-h-96 overflow-auto rounded-3xl bg-slate-900 p-4 text-xs text-slate-100">
-                {transactionsPreview}
+                {csvPreview}
               </pre>
             ) : (
               <div className="rounded-3xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
