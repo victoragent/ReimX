@@ -237,6 +237,7 @@ ReimX/
 - [⚙️ 环境变量模板](./env.production.example) - 生产环境配置模板
 - [🔧 部署脚本](./scripts/deploy-production.sh) - 自动化部署脚本
 - [🔐 NextAuth 配置](./NEXTAUTH_CONFIG.md) - NextAuth 认证配置指南
+- [🚨 故障排除](./VERCEL_TROUBLESHOOTING.md) - Vercel 部署问题解决方案
 
 ## 🤝 贡献指南
 
