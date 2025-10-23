@@ -22,6 +22,14 @@ npx prisma generate
 if [ "$VERCEL_ENV" = "production" ] && [ -n "$DATABASE_URL" ]; then
     echo "🗄️  推送数据库架构到生产环境..."
     npx prisma db push --accept-data-loss
+    
+    # 初始化根管理员（如果设置了环境变量）
+    if [ -n "$ROOT_ADMIN_EMAIL" ]; then
+        echo "👤 初始化根管理员..."
+        node scripts/init-root-admin.js
+    else
+        echo "ℹ️  未设置 ROOT_ADMIN_EMAIL，跳过管理员初始化"
+    fi
 elif [ "$VERCEL_ENV" = "production" ] && [ -z "$DATABASE_URL" ]; then
     echo "⚠️  生产环境缺少 DATABASE_URL，跳过数据库推送"
 else
