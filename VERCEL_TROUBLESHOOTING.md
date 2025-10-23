@@ -71,6 +71,98 @@ Command "npm run build" exited with 1
    # 推荐使用 Node.js 18.x
    ```
 
+### 3. 动态路由构建错误
+
+**错误信息：**
+```
+Error: Failed to collect page data for /api/admin/reimbursements/[id]/review
+```
+
+**解决方案：**
+
+1. **添加动态配置**
+   ```bash
+   # 运行动态路由修复脚本
+   pnpm fix:routes
+   ```
+
+2. **手动添加动态配置**
+   ```typescript
+   // 在 API 路由文件顶部添加
+   export const dynamic = "force-dynamic";
+   ```
+
+3. **检查路由文件**
+   ```bash
+   # 确保所有 API 路由都有动态配置
+   grep -r "export const dynamic" app/api/
+   ```
+
+### 4. Vercel 配置错误
+
+**错误信息：**
+```
+Error: Function Runtimes must have a valid version, for example `now-php@1.0.0`.
+```
+
+**解决方案：**
+
+1. **简化 vercel.json 配置**
+   ```json
+   {
+     "framework": "nextjs",
+     "buildCommand": "npm run build",
+     "installCommand": "npm install",
+     "env": {
+       "NODE_ENV": "production"
+     }
+   }
+   ```
+
+2. **删除不必要的配置**
+   - 移除 `functions` 配置
+   - 移除 `outputDirectory` 配置
+   - 让 Vercel 自动检测 Next.js 项目
+
+### 5. Prisma 构建错误
+
+**错误信息：**
+```
+Learn how: https://pris.ly/d/vercel-build
+Error: Failed to collect page data for /api/admin/reimbursements
+```
+
+**解决方案：**
+
+1. **更新 Prisma 配置**
+   ```typescript
+   // lib/prisma.ts
+   const createPrismaClient = () => {
+     return new PrismaClient({
+       log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+       datasources: {
+         db: {
+           url: process.env.DATABASE_URL,
+         },
+       },
+     });
+   };
+   ```
+
+2. **创建 Vercel 构建脚本**
+   ```bash
+   # scripts/vercel-build.sh
+   npx prisma generate
+   npm run build
+   ```
+
+3. **更新 vercel.json**
+   ```json
+   {
+     "buildCommand": "./scripts/vercel-build.sh"
+   }
+   ```
+
 ### 3. 数据库连接失败
 
 **错误信息：**

@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 import { sendNotification } from "@/lib/notifications";
 
+export const dynamic = "force-dynamic";
+
 const reviewSchema = z.object({
     action: z.enum(["approve", "reject"]),
     comment: z.string().optional()

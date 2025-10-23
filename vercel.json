@@ -1,0 +1,8 @@
+{
+    "framework": "nextjs",
+    "buildCommand": "./scripts/vercel-build.sh",
+    "installCommand": "npm install",
+    "env": {
+        "NODE_ENV": "production"
+    }
+}
