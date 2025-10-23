@@ -20,7 +20,9 @@
     "deploy:env": "vercel env pull .env.production",
     "db:migrate": "prisma db push",
     "db:studio": "prisma studio",
-    "db:backup": "pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql"
+    "db:backup": "pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql",
+    "config:nextauth": "./scripts/generate-nextauth-config.sh",
+    "config:env": "cp env.production.example .env.production"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

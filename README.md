@@ -236,6 +236,7 @@ ReimX/
 - [✅ 部署检查清单](./DEPLOYMENT_CHECKLIST.md) - 部署前检查清单
 - [⚙️ 环境变量模板](./env.production.example) - 生产环境配置模板
 - [🔧 部署脚本](./scripts/deploy-production.sh) - 自动化部署脚本
+- [🔐 NextAuth 配置](./NEXTAUTH_CONFIG.md) - NextAuth 认证配置指南
 
 ## 🤝 贡献指南
 
