@@ -92,7 +92,7 @@ export default function AdminAnalyticsPage() {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-                    <p className="mt-4 text-gray-600">加载中...</p>
+                    <p className="mt-4 text-slate-600">加载中...</p>
                 </div>
             </div>
         );
@@ -109,45 +109,45 @@ export default function AdminAnalyticsPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* 页面标题和统计 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200 p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">数据分析</h1>
-                        <p className="mt-1 text-gray-600">系统运营数据统计与分析</p>
+                        <h1 className="text-2xl font-bold text-slate-900">数据分析</h1>
+                        <p className="mt-1 text-slate-600">系统运营数据统计与分析</p>
                     </div>
                     <div className="flex items-center space-x-6">
                         <div className="text-center">
                             <div className="text-2xl font-bold text-indigo-600">{analytics.users.total}</div>
-                            <div className="text-sm text-gray-500">总用户</div>
+                            <div className="text-sm text-slate-500">总用户</div>
                         </div>
                         <div className="text-center">
                             <div className="text-2xl font-bold text-green-600">{analytics.reimbursements.total}</div>
-                            <div className="text-sm text-gray-500">总报销</div>
+                            <div className="text-sm text-slate-500">总报销</div>
                         </div>
                         <div className="text-center">
                             <div className="text-2xl font-bold text-blue-600">
                                 {formatCurrency(analytics.reimbursements.totalAmount)}
                             </div>
-                            <div className="text-sm text-gray-500">总金额</div>
+                            <div className="text-sm text-slate-500">总金额</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* 时间范围选择 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200 p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h3 className="text-lg font-medium text-gray-900">时间范围</h3>
-                        <p className="mt-1 text-sm text-gray-600">选择要分析的时间范围</p>
+                        <h3 className="text-lg font-medium text-slate-900">时间范围</h3>
+                        <p className="mt-1 text-sm text-slate-600">选择要分析的时间范围</p>
                     </div>
                     <div className="flex items-center space-x-3">
                         <select
                             value={timeRange}
                             onChange={(e) => setTimeRange(e.target.value)}
-                            className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="border-gray-300 rounded-md shadow-sm shadow-slate-200/50 focus:ring-indigo-500 focus:border-indigo-500"
                         >
                             <option value="1month">最近1个月</option>
                             <option value="3months">最近3个月</option>
@@ -176,7 +176,7 @@ export default function AdminAnalyticsPage() {
 
             {/* 关键指标卡片 */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200 p-6">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <div className="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center">
@@ -187,14 +187,14 @@ export default function AdminAnalyticsPage() {
                         </div>
                         <div className="ml-5 w-0 flex-1">
                             <dl>
-                                <dt className="text-sm font-medium text-gray-500 truncate">总用户数</dt>
-                                <dd className="text-lg font-medium text-gray-900">{analytics.users.total}</dd>
+                                <dt className="text-sm font-medium text-slate-500 truncate">总用户数</dt>
+                                <dd className="text-lg font-medium text-slate-900">{analytics.users.total}</dd>
                             </dl>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200 p-6">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
@@ -205,14 +205,14 @@ export default function AdminAnalyticsPage() {
                         </div>
                         <div className="ml-5 w-0 flex-1">
                             <dl>
-                                <dt className="text-sm font-medium text-gray-500 truncate">活跃用户</dt>
-                                <dd className="text-lg font-medium text-gray-900">{analytics.users.active}</dd>
+                                <dt className="text-sm font-medium text-slate-500 truncate">活跃用户</dt>
+                                <dd className="text-lg font-medium text-slate-900">{analytics.users.active}</dd>
                             </dl>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200 p-6">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <div className="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
@@ -223,14 +223,14 @@ export default function AdminAnalyticsPage() {
                         </div>
                         <div className="ml-5 w-0 flex-1">
                             <dl>
-                                <dt className="text-sm font-medium text-gray-500 truncate">总报销数</dt>
-                                <dd className="text-lg font-medium text-gray-900">{analytics.reimbursements.total}</dd>
+                                <dt className="text-sm font-medium text-slate-500 truncate">总报销数</dt>
+                                <dd className="text-lg font-medium text-slate-900">{analytics.reimbursements.total}</dd>
                             </dl>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200 p-6">
                     <div className="flex items-center">
                         <div className="flex-shrink-0">
                             <div className="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
@@ -241,8 +241,8 @@ export default function AdminAnalyticsPage() {
                         </div>
                         <div className="ml-5 w-0 flex-1">
                             <dl>
-                                <dt className="text-sm font-medium text-gray-500 truncate">总金额</dt>
-                                <dd className="text-lg font-medium text-gray-900">
+                                <dt className="text-sm font-medium text-slate-500 truncate">总金额</dt>
+                                <dd className="text-lg font-medium text-slate-900">
                                     {formatCurrency(analytics.reimbursements.totalAmount)}
                                 </dd>
                             </dl>
@@ -254,24 +254,24 @@ export default function AdminAnalyticsPage() {
             {/* 详细统计 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* 用户统计 */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200">
                     <div className="p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">用户统计</h3>
+                        <h3 className="text-lg font-medium text-slate-900 mb-4">用户统计</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">总用户数</span>
+                                <span className="text-sm text-slate-500">总用户数</span>
                                 <span className="text-sm font-medium">{analytics.users.total}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">活跃用户</span>
+                                <span className="text-sm text-slate-500">活跃用户</span>
                                 <span className="text-sm font-medium text-green-600">{analytics.users.active}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">待审核用户</span>
+                                <span className="text-sm text-slate-500">待审核用户</span>
                                 <span className="text-sm font-medium text-yellow-600">{analytics.users.pending}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">已禁用用户</span>
+                                <span className="text-sm text-slate-500">已禁用用户</span>
                                 <span className="text-sm font-medium text-red-600">{analytics.users.suspended}</span>
                             </div>
                         </div>
@@ -279,24 +279,24 @@ export default function AdminAnalyticsPage() {
                 </div>
 
                 {/* 报销统计 */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200">
                     <div className="p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">报销统计</h3>
+                        <h3 className="text-lg font-medium text-slate-900 mb-4">报销统计</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">总报销数</span>
+                                <span className="text-sm text-slate-500">总报销数</span>
                                 <span className="text-sm font-medium">{analytics.reimbursements.total}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">待审核</span>
+                                <span className="text-sm text-slate-500">待审核</span>
                                 <span className="text-sm font-medium text-yellow-600">{analytics.reimbursements.pending}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">已批准</span>
+                                <span className="text-sm text-slate-500">已批准</span>
                                 <span className="text-sm font-medium text-green-600">{analytics.reimbursements.approved}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">已拒绝</span>
+                                <span className="text-sm text-slate-500">已拒绝</span>
                                 <span className="text-sm font-medium text-red-600">{analytics.reimbursements.rejected}</span>
                             </div>
                         </div>
@@ -306,32 +306,32 @@ export default function AdminAnalyticsPage() {
 
             {/* 效率指标 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200">
                     <div className="p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">审核效率</h3>
+                        <h3 className="text-lg font-medium text-slate-900 mb-4">审核效率</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">批准率</span>
+                                <span className="text-sm text-slate-500">批准率</span>
                                 <span className="text-sm font-medium">{analytics.efficiency.approvalRate}%</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">平均审核时间</span>
+                                <span className="text-sm text-slate-500">平均审核时间</span>
                                 <span className="text-sm font-medium">{analytics.efficiency.avgReviewTime} 天</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200">
                     <div className="p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">财务概览</h3>
+                        <h3 className="text-lg font-medium text-slate-900 mb-4">财务概览</h3>
                         <div className="space-y-4">
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">总报销金额</span>
+                                <span className="text-sm text-slate-500">总报销金额</span>
                                 <span className="text-sm font-medium">{formatCurrency(analytics.reimbursements.totalAmount)}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-sm text-gray-500">平均报销金额</span>
+                                <span className="text-sm text-slate-500">平均报销金额</span>
                                 <span className="text-sm font-medium">
                                     {analytics.reimbursements.total > 0
                                         ? formatCurrency(analytics.reimbursements.totalAmount / analytics.reimbursements.total)
@@ -346,36 +346,36 @@ export default function AdminAnalyticsPage() {
 
             {/* 最近活动 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200">
                     <div className="p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">最近注册用户</h3>
+                        <h3 className="text-lg font-medium text-slate-900 mb-4">最近注册用户</h3>
                         <div className="space-y-3">
                             {analytics.recent.users.map((user: any) => (
                                 <div key={user.id} className="flex justify-between items-center">
                                     <div>
-                                        <div className="text-sm font-medium text-gray-900">{user.username}</div>
-                                        <div className="text-sm text-gray-500">{user.email}</div>
+                                        <div className="text-sm font-medium text-slate-900">{user.username}</div>
+                                        <div className="text-sm text-slate-500">{user.email}</div>
                                     </div>
-                                    <div className="text-sm text-gray-500">{formatDate(user.createdAt)}</div>
+                                    <div className="text-sm text-slate-500">{formatDate(user.createdAt)}</div>
                                 </div>
                             ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div className="bg-white/80 rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200">
                     <div className="p-6">
-                        <h3 className="text-lg font-medium text-gray-900 mb-4">最近报销申请</h3>
+                        <h3 className="text-lg font-medium text-slate-900 mb-4">最近报销申请</h3>
                         <div className="space-y-3">
                             {analytics.recent.reimbursements.map((reimbursement: any) => (
                                 <div key={reimbursement.id} className="flex justify-between items-center">
                                     <div>
-                                        <div className="text-sm font-medium text-gray-900">
+                                        <div className="text-sm font-medium text-slate-900">
                                             {reimbursement.amount} {reimbursement.currency}
                                         </div>
-                                        <div className="text-sm text-gray-500">{reimbursement.applicant?.username || 'N/A'}</div>
+                                        <div className="text-sm text-slate-500">{reimbursement.applicant?.username || 'N/A'}</div>
                                     </div>
-                                    <div className="text-sm text-gray-500">{formatDate(reimbursement.createdAt)}</div>
+                                    <div className="text-sm text-slate-500">{formatDate(reimbursement.createdAt)}</div>
                                 </div>
                             ))}
                         </div>

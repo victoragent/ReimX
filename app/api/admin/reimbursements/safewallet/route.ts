@@ -122,7 +122,8 @@ export async function POST(request: Request) {
             username: true,
             email: true,
             evmAddress: true,
-            solanaAddress: true
+            solanaAddress: true,
+            chainAddresses: true
           }
         }
       }

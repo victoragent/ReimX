@@ -54,6 +54,7 @@ describe('/api/admin/reimbursements/[id]/review', () => {
             amountUsdEquivalent: 100.50,
             currency: 'USD',
             chain: 'ETH',
+            expenseType: 'tech',
             applicantId: 'user_123',
             applicant: {
                 username: 'testuser',
@@ -141,6 +142,7 @@ describe('/api/admin/reimbursements/[id]/review', () => {
             amountUsdEquivalent: 100.50,
             currency: 'USD',
             chain: 'ETH',
+            expenseType: 'tech',
             applicantId: 'user_123',
             applicant: {
                 username: 'testuser',

@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
         // 获取当前用户信息
         const currentUser = await prisma.user.findUnique({
             where: { email: session.user.email },
-            select: { id: true }
+            select: {
+                id: true,
+                salaryUsdt: true
+            }
         });
 
         if (!currentUser) {
@@ -68,7 +71,8 @@ export async function GET(request: NextRequest) {
             pendingReimbursements,
             approvedReimbursements,
             totalAmount: totalAmount._sum.amountUsdEquivalent || 0,
-            pendingAmount: pendingAmount._sum.amountUsdEquivalent || 0
+            pendingAmount: pendingAmount._sum.amountUsdEquivalent || 0,
+            salaryUsdt: currentUser.salaryUsdt || 0
         });
 
     } catch (error) {

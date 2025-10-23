@@ -102,6 +102,7 @@ describe('User Flow Integration Tests', () => {
                         solanaAddress: 'So11111111111111111111111111111111111111112',
                         role: 'user',
                         status: 'active',
+                        isApproved: true,
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString()
                     }
@@ -119,9 +120,11 @@ describe('User Flow Integration Tests', () => {
 
             // Verify user information is displayed
             expect(screen.getByDisplayValue('testuser')).toBeInTheDocument()
+            expect(screen.getByDisplayValue('test@example.com')).toBeInTheDocument()
             expect(screen.getByDisplayValue('@testuser')).toBeInTheDocument()
             expect(screen.getByDisplayValue('+1234567890')).toBeInTheDocument()
             expect(screen.getByDisplayValue('0x1234567890abcdef')).toBeInTheDocument()
+            expect(screen.getByLabelText('角色')).toBeInTheDocument()
         })
     })
 

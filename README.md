@@ -228,6 +228,15 @@ ReimX/
 - **链上依赖**：ethers.js（EVM）、@solana/web3.js（Solana）
 - **通知渠道**：Telegram Bot、Resend 邮件
 
+## 🚀 生产环境部署
+
+详细的线上正式环境部署指南请参考：
+
+- [📋 部署指南](./DEPLOYMENT.md) - 完整的 Vercel 部署说明
+- [✅ 部署检查清单](./DEPLOYMENT_CHECKLIST.md) - 部署前检查清单
+- [⚙️ 环境变量模板](./env.production.example) - 生产环境配置模板
+- [🔧 部署脚本](./scripts/deploy-production.sh) - 自动化部署脚本
+
 ## 🤝 贡献指南
 
 1. Fork 项目

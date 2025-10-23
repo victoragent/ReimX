@@ -91,6 +91,7 @@ async function generateTestData() {
         const currencies = ['CNY', 'USD', 'EUR', 'JPY', 'GBP'];
         const chains = ['Ethereum', 'BSC', 'Polygon', 'Arbitrum', 'Optimism'];
         const statuses = ['submitted', 'under_review', 'approved', 'rejected', 'paid'];
+        const expenseTypePool = ['tech', 'travel', 'admin', 'hr', 'operations', 'other'];
 
         const regularUsers = users.filter(u => u.role === 'user');
         const reviewers = users.filter(u => u.role === 'reviewer');
@@ -129,6 +130,7 @@ async function generateTestData() {
                     exchangeRateSource: 'CoinGecko',
                     exchangeRateTime: generateDate(Math.floor(Math.random() * 30)),
                     isManualRate: Math.random() > 0.8,
+                    expenseType: expenseTypePool[Math.floor(Math.random() * expenseTypePool.length)],
                     chain: chain,
                     receiptUrl: `https://example.com/receipts/${Math.random().toString(36).substr(2, 9)}.pdf`,
                     status: status,

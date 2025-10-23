@@ -48,6 +48,7 @@ const sampleReimbursements = [
     isManualRate: false,
     convertedBy: "system",
     chain: "evm",
+    expenseType: "travel",
     receiptUrl: null,
     status: "approved",
     reviewerId: null,
@@ -62,7 +63,8 @@ const sampleReimbursements = [
       username: "Alice",
       email: "alice@example.com",
       evmAddress: "0xAlice",
-      solanaAddress: null
+      solanaAddress: null,
+      chainAddresses: null
     }
   },
   {
@@ -79,6 +81,7 @@ const sampleReimbursements = [
     isManualRate: false,
     convertedBy: "system",
     chain: "evm",
+    expenseType: "operations",
     receiptUrl: null,
     status: "approved",
     reviewerId: null,
@@ -93,7 +96,8 @@ const sampleReimbursements = [
       username: "Alice",
       email: "alice@example.com",
       evmAddress: "0xAlice",
-      solanaAddress: null
+      solanaAddress: null,
+      chainAddresses: null
     }
   },
   {
@@ -110,6 +114,7 @@ const sampleReimbursements = [
     isManualRate: false,
     convertedBy: "system",
     chain: "evm",
+    expenseType: "tech",
     receiptUrl: null,
     status: "approved",
     reviewerId: null,
@@ -124,7 +129,8 @@ const sampleReimbursements = [
       username: "Bob",
       email: "bob@example.com",
       evmAddress: null,
-      solanaAddress: null
+      solanaAddress: null,
+      chainAddresses: null
     }
   }
 ];

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface Stats {
     totalUsers: number;
@@ -32,16 +34,16 @@ export default function AdminDashboard() {
         }
 
         if (status === "authenticated" && session?.user?.role === "admin") {
-            fetchStats();
+            void fetchStats();
         }
-    }, [status, session, router]);
+    }, [status, session?.user?.role, router]);
 
     const fetchStats = async () => {
         try {
             const response = await fetch("/api/admin/stats");
-            const data = await response.json() as { stats?: any; error?: string };
+            const data = (await response.json()) as { stats?: any; error?: string };
 
-            if (response.ok) {
+            if (response.ok && data.stats) {
                 setStats({
                     totalUsers: data.stats.users.total,
                     activeUsers: data.stats.users.active,
@@ -52,7 +54,6 @@ export default function AdminDashboard() {
                 });
             } else {
                 console.error("获取统计数据失败:", data.error);
-                // 使用默认值
                 setStats({
                     totalUsers: 0,
                     activeUsers: 0,
@@ -64,7 +65,6 @@ export default function AdminDashboard() {
             }
         } catch (error) {
             console.error("获取统计数据失败:", error);
-            // 使用默认值
             setStats({
                 totalUsers: 0,
                 activeUsers: 0,
@@ -80,10 +80,10 @@ export default function AdminDashboard() {
 
     if (status === "loading" || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-                    <p className="mt-4 text-gray-600">加载中...</p>
+            <div className="flex min-h-[50vh] items-center justify-center">
+                <div className="flex flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white/80 px-10 py-12 shadow-lg shadow-slate-200/70 backdrop-blur">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" />
+                    <p className="text-sm font-medium text-slate-600">加载中...</p>
                 </div>
             </div>
         );
@@ -91,281 +91,294 @@ export default function AdminDashboard() {
 
     if (!stats) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <p className="text-red-600">获取统计数据失败</p>
-                </div>
+            <div className="rounded-3xl border border-rose-200 bg-white/80 px-8 py-10 text-center text-rose-600 shadow-lg shadow-rose-100/60 backdrop-blur">
+                获取统计数据失败，请稍后重试。
             </div>
         );
     }
 
+    const lastUpdated = new Date().toLocaleString("zh-CN", { hour12: false });
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* 页面头部 */}
-                <div className="mb-8">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h1 className="text-3xl font-bold text-gray-900">管理概览</h1>
-                                <p className="mt-2 text-lg text-gray-600">欢迎回来，{session?.user?.name}</p>
-                                <p className="text-sm text-gray-500">这是您的管理仪表板，实时监控系统状态</p>
-                            </div>
-                            <div className="flex items-center space-x-4">
-                                <div className="flex items-center space-x-2 bg-green-50 px-4 py-2 rounded-full">
-                                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                                    <span className="text-sm font-medium text-green-700">系统运行正常</span>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-sm text-gray-500">最后更新</div>
-                                    <div className="text-sm font-medium text-gray-900">{new Date().toLocaleTimeString()}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 关键指标卡片 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    {/* 总用户数 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">总用户数</p>
-                                    <p className="text-3xl font-bold text-gray-900">{stats.totalUsers}</p>
-                                    <p className="text-sm text-green-600 mt-1">
-                                        +{stats.activeUsers} 活跃用户
-                                    </p>
-                                </div>
-                                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 待审核用户 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">待审核用户</p>
-                                    <p className="text-3xl font-bold text-gray-900">{stats.pendingUsers}</p>
-                                    <p className="text-sm text-yellow-600 mt-1">
-                                        需要处理
-                                    </p>
-                                </div>
-                                <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 总报销数 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">总报销数</p>
-                                    <p className="text-3xl font-bold text-gray-900">{stats.totalReimbursements}</p>
-                                    <p className="text-sm text-blue-600 mt-1">
-                                        {stats.pendingReimbursements} 待审核
-                                    </p>
-                                </div>
-                                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 总金额 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                        <div className="p-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-500">总金额</p>
-                                    <p className="text-3xl font-bold text-gray-900">${stats.totalAmount.toFixed(2)}</p>
-                                    <p className="text-sm text-green-600 mt-1">
-                                        USD
-                                    </p>
-                                </div>
-                                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 快速操作区域 */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-                    {/* 用户管理 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center">
-                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                </svg>
-                                用户管理
-                            </h3>
-                        </div>
-                        <div className="p-6 space-y-3">
-                            <Link
-                                href="/admin/users"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">查看所有用户</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
-                            <Link
-                                href="/admin/users?status=pending"
-                                className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">待审核用户</span>
-                                <span className="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs font-medium rounded-full">
-                                    {stats.pendingUsers}
-                                </span>
-                            </Link>
-                            <Link
-                                href="/admin/users?role=admin"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">管理员列表</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* 报销管理 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center">
-                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
-                                报销管理
-                            </h3>
-                        </div>
-                        <div className="p-6 space-y-3">
-                            <Link
-                                href="/admin/reimbursements"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">查看所有报销</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
-                            <Link
-                                href="/admin/reimbursements?status=submitted"
-                                className="flex items-center justify-between p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">待审核报销</span>
-                                <span className="px-2 py-1 bg-orange-200 text-orange-800 text-xs font-medium rounded-full">
-                                    {stats.pendingReimbursements}
-                                </span>
-                            </Link>
-                            <Link
-                                href="/admin/reimbursements?status=approved"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">已批准报销</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* 数据分析 */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
-                            <h3 className="text-lg font-semibold text-white flex items-center">
-                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                                数据分析
-                            </h3>
-                        </div>
-                        <div className="p-6 space-y-3">
-                            <Link
-                                href="/admin/analytics"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">数据分析报告</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
-                            <Link
-                                href="/admin/analytics?export=csv"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">导出数据 (CSV)</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </Link>
-                            <Link
-                                href="/admin/settings"
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                <span className="text-sm font-medium text-gray-700">系统设置</span>
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(59,130,246,0.12),rgba(14,165,233,0.08),transparent)]" />
+            <div className="space-y-8 px-4 py-8 sm:px-10 lg:px-2">
+                <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="space-y-3">
+                            <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium uppercase tracking-[0.3em] text-slate-600">
+                                <svg className="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
-                            </Link>
+                                管理控制台
+                            </span>
+                            <h1 className="text-4xl font-semibold leading-tight sm:text-6xl">
+                                欢迎回到
+                                <span className="mx-2 bg-gradient-to-r from-indigo-300 via-sky-200 to-teal-200 bg-clip-text text-transparent">
+                                    管理面板
+                                </span>
+                            </h1>
+                            <p className="text-lg leading-relaxed text-slate-600 sm:text-xl">
+                                欢迎回来，{session?.user?.name ?? "管理员"}。在这里掌控用户、报销、工资与分析。
+                            </p>
+                            <div className="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 shadow-sm">
+                                <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+                                系统运行正常 · 最后更新 {lastUpdated}
+                            </div>
+                        </div>
+                        <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-indigo-500 via-sky-500 to-cyan-400 p-6 text-white shadow-sm">
+                            <p className="text-xs font-medium uppercase tracking-[0.3em] text-white/80">Today</p>
+                            <p className="mt-2 text-2xl font-semibold">
+                                {stats.totalReimbursements} 条报销记录
+                            </p>
+                            <p className="text-sm text-white/80">
+                                累计金额 ${stats.totalAmount.toFixed(2)} USD
+                            </p>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                {/* 系统状态 */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900">系统状态</h3>
-                    </div>
-                    <div className="p-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                                <div>
-                                    <div className="text-sm font-medium text-gray-900">系统版本</div>
-                                    <div className="text-sm text-gray-500">v1.0.0</div>
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                                <div>
-                                    <div className="text-sm font-medium text-gray-900">数据库</div>
-                                    <div className="text-sm text-gray-500">PostgreSQL</div>
-                                </div>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                                <div>
-                                    <div className="text-sm font-medium text-gray-900">部署环境</div>
-                                    <div className="text-sm text-gray-500">Vercel</div>
-                                </div>
-                            </div>
+                <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+                    <MetricCard
+                        title="总用户"
+                        value={stats.totalUsers.toString()}
+                        hint={`活跃用户 ${stats.activeUsers}`}
+                        tone="indigo"
+                        icon={
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                            </svg>
+                        }
+                    />
+                    <MetricCard
+                        title="待审核用户"
+                        value={stats.pendingUsers.toString()}
+                        hint="需要尽快处理"
+                        tone="amber"
+                        icon={
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        }
+                    />
+                    <MetricCard
+                        title="报销记录"
+                        value={stats.totalReimbursements.toString()}
+                        hint={`待审核 ${stats.pendingReimbursements}`}
+                        tone="sky"
+                        icon={
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        }
+                    />
+                    <MetricCard
+                        title="总金额"
+                        value={`$${stats.totalAmount.toFixed(2)}`}
+                        hint="单位 USD"
+                        tone="emerald"
+                        icon={
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                            </svg>
+                        }
+                    />
+                </section>
+
+                <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                    <QuickPanel
+                        title="用户管理"
+                        icon={
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                            </svg>
+                        }
+                        links={[
+                            { href: "/admin/users", label: "查看所有用户" },
+                            { href: "/admin/users?status=pending", label: "待审核用户", badge: stats.pendingUsers.toString(), tone: "amber" },
+                            { href: "/admin/users?role=admin", label: "管理员列表" }
+                        ]}
+                    />
+                    <QuickPanel
+                        title="报销管理"
+                        icon={
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        }
+                        links={[
+                            { href: "/admin/reimbursements", label: "查看所有报销" },
+                            { href: "/admin/reimbursements?status=submitted", label: "待审核报销", badge: stats.pendingReimbursements.toString(), tone: "sky" },
+                            { href: "/admin/reimbursements/safewallet", label: "Safe Wallet 批付" }
+                        ]}
+                    />
+                    <QuickPanel
+                        title="工资与系统"
+                        icon={
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                            </svg>
+                        }
+                        links={[
+                            { href: "/admin/salaries", label: "工资发放工作台" },
+                            { href: "/admin/analytics", label: "数据分析仪表盘" },
+                            { href: "#", label: "系统设置", disabled: true }
+                        ]}
+                    />
+                </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <span className="text-xs font-semibold uppercase tracking-[0.35em] text-indigo-500">System Status</span>
+                            <h2 className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">系统状态</h2>
                         </div>
                     </div>
+                    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <StatusChip label="系统版本" value="v1.0.0" tone="emerald" />
+                        <StatusChip label="数据库" value="PostgreSQL" tone="sky" />
+                        <StatusChip label="部署环境" value="Vercel" tone="violet" />
+                    </div>
+                </section>
+            </div>
+        </div>
+    );
+}
+
+function MetricCard({
+    title,
+    value,
+    hint,
+    tone,
+    icon
+}: {
+    title: string;
+    value: string;
+    hint: string;
+    tone: "indigo" | "amber" | "sky" | "emerald";
+    icon: ReactNode;
+}) {
+    const colors = {
+        indigo: "bg-indigo-100 text-indigo-600",
+        amber: "bg-amber-100 text-amber-600",
+        sky: "bg-sky-100 text-sky-600",
+        emerald: "bg-emerald-100 text-emerald-600"
+    } as const;
+
+    return (
+        <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 transition duration-300 hover:border-slate-300 hover:shadow-md">
+            <div className="flex items-center justify-between gap-4">
+                <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-500">{title}</p>
+                    <p className="mt-3 text-3xl font-semibold text-slate-900">{value}</p>
+                    <p className="mt-1 text-xs text-slate-500">{hint}</p>
                 </div>
+                <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl", colors[tone])}>
+                    {icon}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function QuickPanel({
+    title,
+    icon,
+    links
+}: {
+    title: string;
+    icon: ReactNode;
+    links: Array<{ href: string; label: string; badge?: string; tone?: "emerald" | "amber" | "sky" | "slate"; disabled?: boolean }>;
+}) {
+    return (
+        <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 transition duration-300 hover:border-slate-300 hover:shadow-md">
+            <div className={cn("rounded-2xl px-6 py-4 text-white shadow-lg shadow-indigo-200/60", `bg-gradient-to-r from-indigo-500 via-sky-500 to-cyan-400`)}>
+                <h3 className="flex items-center text-lg font-semibold">
+                    <span className="mr-2">{icon}</span>
+                    {title}
+                </h3>
+            </div>
+            <div className="space-y-3">
+                {links.map((link) => (
+                    <QuickLink
+                        key={link.label}
+                        href={link.href}
+                        label={link.label}
+                        badge={link.badge}
+                        badgeTone={link.tone}
+                        disabled={link.disabled}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function QuickLink({
+    href,
+    label,
+    badge,
+    badgeTone = "slate",
+    disabled
+}: {
+    href: string;
+    label: string;
+    badge?: string;
+    badgeTone?: "emerald" | "amber" | "sky" | "slate";
+    disabled?: boolean;
+}) {
+    const toneMap: Record<typeof badgeTone, string> = {
+        emerald: "bg-emerald-100 text-emerald-700",
+        amber: "bg-amber-100 text-amber-700",
+        sky: "bg-sky-100 text-sky-700",
+        slate: "bg-slate-100 text-slate-600"
+    } as const;
+
+    const content = (
+        <span className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-white">
+            <span>{label}</span>
+            <span className="flex items-center gap-2 text-xs text-slate-400">
+                {badge && (
+                    <span className={cn("rounded-full px-2 py-0.5 text-xs font-semibold", toneMap[badgeTone])}>
+                        {badge}
+                    </span>
+                )}
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                </svg>
+            </span>
+        </span>
+    );
+
+    if (disabled) {
+        return (
+            <span className="flex cursor-not-allowed items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-white/60 px-4 py-3 text-sm font-medium text-slate-400">
+                {label}
+                <span className="text-xs text-slate-300">即将推出</span>
+            </span>
+        );
+    }
+
+    return (
+        <Link href={href} className="block">
+            {content}
+        </Link>
+    );
+}
+
+function StatusChip({ label, value, tone }: { label: string; value: string; tone: "emerald" | "sky" | "violet" }) {
+    const dotClass =
+        tone === "emerald" ? "bg-emerald-500" : tone === "sky" ? "bg-sky-500" : "bg-violet-500";
+
+    return (
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 shadow-sm shadow-slate-200/40">
+            <span className={cn("h-2 w-2 rounded-full", dotClass)} />
+            <div>
+                <p className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">
+                    {label}
+                </p>
+                <p className="text-sm font-semibold text-slate-900">{value}</p>
             </div>
         </div>
     );

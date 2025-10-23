@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import type { ChangeEvent } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +13,7 @@ interface User {
     whatsappAccount?: string;
     evmAddress?: string;
     solanaAddress?: string;
+    chainAddresses?: string; // JSON字符串，存储所有链的地址
     role: string;
     status: string;
     salaryUsdt: number;
@@ -24,6 +26,121 @@ interface User {
         reimbursements: number;
     };
 }
+
+interface ChainAddressEntry {
+    chain: string;
+    address: string;
+}
+
+const chainOptions = [
+    { label: "EVM 通用", value: "evm" },
+    { label: "Ethereum", value: "eth" },
+    { label: "BSC", value: "bsc" },
+    { label: "Arbitrum", value: "arbitrum" },
+    { label: "Base", value: "base" },
+    { label: "Polygon", value: "polygon" },
+    { label: "Solana", value: "solana" }
+] as const;
+
+const evmChains = ["eth", "evm", "bsc", "polygon", "arbitrum", "base"] as const;
+
+const isStringRecord = (value: unknown): value is Record<string, string> => {
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+
+    return Object.values(value).every((item) => typeof item === "string");
+};
+
+const extractChainEntries = (user: User): ChainAddressEntry[] => {
+    const unique = new Map<string, string>();
+    let chainValue: unknown = user.chainAddresses;
+
+    if (typeof chainValue === "string") {
+        const trimmed = chainValue.trim();
+        if (trimmed) {
+            try {
+                chainValue = JSON.parse(trimmed);
+            } catch {
+                chainValue = null;
+            }
+        } else {
+            chainValue = null;
+        }
+    }
+
+    if (Array.isArray(chainValue)) {
+        for (const entry of chainValue) {
+            if (!entry || typeof entry !== "object") {
+                continue;
+            }
+
+            const chain = "chain" in entry ? (entry as { chain?: unknown }).chain : undefined;
+            const address = "address" in entry ? (entry as { address?: unknown }).address : undefined;
+
+            if (typeof chain === "string" && typeof address === "string") {
+                const normalizedChain = chain.trim().toLowerCase();
+                const trimmedAddress = address.trim();
+                if (normalizedChain && trimmedAddress) {
+                    unique.set(normalizedChain, trimmedAddress);
+                }
+            }
+        }
+    } else if (isStringRecord(chainValue)) {
+        for (const [chain, address] of Object.entries(chainValue)) {
+            if (typeof address === "string") {
+                const normalizedChain = chain.trim().toLowerCase();
+                const trimmedAddress = address.trim();
+                if (normalizedChain && trimmedAddress) {
+                    unique.set(normalizedChain, trimmedAddress);
+                }
+            }
+        }
+    } else if (chainValue && typeof chainValue === "object") {
+        for (const [chain, value] of Object.entries(chainValue as Record<string, unknown>)) {
+            if (
+                value &&
+                typeof value === "object" &&
+                "address" in value &&
+                typeof (value as { address?: unknown }).address === "string"
+            ) {
+                const address = (value as { address: string }).address.trim();
+                const normalizedChain = chain.trim().toLowerCase();
+                if (normalizedChain && address) {
+                    unique.set(normalizedChain, address);
+                }
+            }
+        }
+    }
+
+    if (user.evmAddress && !unique.has("evm")) {
+        unique.set("evm", user.evmAddress);
+    }
+
+    if (user.solanaAddress && !unique.has("solana")) {
+        unique.set("solana", user.solanaAddress);
+    }
+
+    return Array.from(unique.entries()).map(([chain, address]) => ({
+        chain,
+        address
+    }));
+};
+
+const deriveLegacyAddresses = (entries: ChainAddressEntry[]) => {
+    const trimmed = entries
+        .map((entry) => ({
+            chain: entry.chain.trim().toLowerCase(),
+            address: entry.address.trim()
+        }))
+        .filter((entry) => entry.chain && entry.address);
+
+    const evmAddress =
+        trimmed.find((entry) => evmChains.includes(entry.chain as (typeof evmChains)[number]))?.address ?? "";
+    const solanaAddress = trimmed.find((entry) => entry.chain === "solana")?.address ?? "";
+
+    return { evmAddress, solanaAddress, entries: trimmed };
+};
 
 interface Pagination {
     page: number;
@@ -53,13 +170,23 @@ export default function AdminUsersPage() {
         whatsappAccount: "",
         evmAddress: "",
         solanaAddress: "",
-        salaryUsdt: ""
+        salaryUsdt: "",
+        password: ""
     });
+    const [chainAddresses, setChainAddresses] = useState<ChainAddressEntry[]>([]);
     const [approvingUser, setApprovingUser] = useState<User | null>(null);
     const [approveForm, setApproveForm] = useState({
         approved: true,
         role: "user"
     });
+    const [statusModal, setStatusModal] = useState<{
+        user: User;
+        targetStatus: "active" | "suspended";
+    } | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [importing, setImporting] = useState(false);
+    const [importSummary, setImportSummary] = useState<string | null>(null);
+    const isCreatingUser = editingUser?.id === "";
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -104,7 +231,53 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleImportChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        if (!/\.(xlsx|xls)$/i.test(file.name)) {
+            setImportSummary("仅支持 .xlsx 或 .xls 格式文件");
+            event.target.value = "";
+            return;
+        }
+
+        setImporting(true);
+        setImportSummary(null);
+        setError("");
+
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await fetch("/api/admin/users/import", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json() as { created?: number; skipped?: number; errors?: Array<{ row: number; message: string }>; error?: string };
+
+            if (!response.ok) {
+                setError(result.error || "导入失败，请检查文件内容");
+            } else {
+                const baseSummary = `成功导入 ${result.created ?? 0} 个用户，跳过 ${result.skipped ?? 0} 个。`;
+                const issues = (result.errors ?? []).slice(0, 3).map((item) => `第 ${item.row} 行：${item.message}`);
+                const issueText = issues.length ? ` ${issues.join('；')}${(result.errors ?? []).length > 3 ? ' ...' : ''}` : '';
+                setImportSummary(baseSummary + issueText);
+                await fetchUsers();
+            }
+        } catch (error) {
+            setError("导入失败，请重试");
+        } finally {
+            setImporting(false);
+            event.target.value = "";
+        }
+    };
+
+
     const handleEdit = (user: User) => {
+        setError("");
         setEditingUser(user);
         setEditForm({
             username: user.username,
@@ -115,43 +288,10 @@ export default function AdminUsersPage() {
             whatsappAccount: user.whatsappAccount || "",
             evmAddress: user.evmAddress || "",
             solanaAddress: user.solanaAddress || "",
-            salaryUsdt: user.salaryUsdt ? user.salaryUsdt.toString() : ""
+            salaryUsdt: user.salaryUsdt ? user.salaryUsdt.toString() : "",
+            password: ""
         });
-    };
-
-    const handleSave = async () => {
-        try {
-            const payload: Record<string, unknown> = {
-                id: editingUser?.id,
-                ...editForm
-            };
-
-            if (payload.salaryUsdt === "") {
-                delete payload.salaryUsdt;
-            } else if (typeof payload.salaryUsdt === "string") {
-                const parsed = Number(payload.salaryUsdt);
-                payload.salaryUsdt = Number.isFinite(parsed) ? parsed : 0;
-            }
-
-            const response = await fetch("/api/admin/users", {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await response.json() as { error?: string };
-
-            if (response.ok) {
-                setEditingUser(null);
-                fetchUsers();
-            } else {
-                setError(data.error || "更新失败");
-            }
-        } catch (error) {
-            setError("网络错误，请重试");
-        }
+        setChainAddresses(extractChainEntries(user));
     };
 
     const handleApprove = (user: User) => {
@@ -192,17 +332,108 @@ export default function AdminUsersPage() {
         }
     };
 
-    const handleDelete = async (userId: string) => {
-        if (!confirm("确定要禁用此用户吗？")) return;
-
+    const handleSave = async () => {
+        setError("");
         try {
-            const response = await fetch(`/api/admin/users?id=${userId}`, {
-                method: "DELETE",
+            if (!editingUser) return;
+
+            const isNewUser = !editingUser.id;
+
+            const { evmAddress, solanaAddress, entries } = deriveLegacyAddresses(chainAddresses);
+
+            const payload: Record<string, unknown> = {
+                username: editForm.username,
+                email: editForm.email,
+                role: editForm.role,
+                status: editForm.status,
+                tgAccount: editForm.tgAccount || undefined,
+                whatsappAccount: editForm.whatsappAccount || undefined,
+                evmAddress: evmAddress || undefined,
+                solanaAddress: solanaAddress || undefined,
+                chainAddresses: entries.length > 0 ? JSON.stringify(entries) : undefined
+            };
+
+            if (editForm.salaryUsdt !== "") {
+                const parsed = Number(editForm.salaryUsdt);
+                payload.salaryUsdt = Number.isFinite(parsed) ? parsed : 0;
+            }
+
+            let method: "POST" | "PUT" = "PUT";
+
+            if (isNewUser) {
+                const password = editForm.password.trim();
+                if (!password) {
+                    setError("请为新用户设置初始密码");
+                    return;
+                }
+                payload.password = password;
+                method = "POST";
+            } else {
+                payload.id = editingUser.id;
+                // 如状态未变更，则移除 role/status 以避免触发不必要的审核
+                if (editForm.role === editingUser.role) {
+                    delete payload.role;
+                }
+                if (editForm.status === editingUser.status) {
+                    delete payload.status;
+                }
+            }
+
+            const response = await fetch("/api/admin/users", {
+                method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json() as { error?: string };
 
             if (response.ok) {
+                setEditingUser(null);
+                setEditForm({
+                    username: "",
+                    email: "",
+                    role: "user",
+                    status: "active",
+                    tgAccount: "",
+                    whatsappAccount: "",
+                    evmAddress: "",
+                    solanaAddress: "",
+                    salaryUsdt: "",
+                    password: ""
+                });
+                setChainAddresses([]);
+                fetchUsers();
+            } else {
+                setError(data.error || (isNewUser ? "创建用户失败" : "更新失败"));
+            }
+        } catch (error) {
+            setError("网络错误，请重试");
+        }
+    };
+
+    const handleStatusChange = async () => {
+        if (!statusModal) return;
+
+        try {
+            setError("");
+            const response = await fetch("/api/admin/users", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    id: statusModal.user.id,
+                    status: statusModal.targetStatus,
+                    isApproved: statusModal.targetStatus === "active"
+                })
+            });
+
+            const data = await response.json() as { error?: string };
+
+            if (response.ok) {
+                setStatusModal(null);
                 fetchUsers();
             } else {
                 setError(data.error || "操作失败");
@@ -212,28 +443,80 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleAddChainAddress = () => {
+        setError("");
+        setChainAddresses((prev) => {
+            const used = new Set(prev.map((entry) => entry.chain));
+            const available = chainOptions.find((option) => !used.has(option.value));
+
+            if (!available) {
+                setError("所有支持的链均已添加，如需修改请先删除现有链。");
+                return prev;
+            }
+
+            return [...prev, { chain: available.value, address: "" }];
+        });
+    };
+
+    const handleChainSelectionChange = (index: number, chain: string) => {
+        setError("");
+        setChainAddresses((prev) => {
+            if (prev.some((entry, idx) => idx !== index && entry.chain === chain)) {
+                setError("每条链只能保存一个地址，请先删除已存在的链。");
+                return prev;
+            }
+
+            const next = [...prev];
+            next[index] = { ...next[index], chain };
+            return next;
+        });
+    };
+
+    const handleChainAddressInputChange = (index: number, address: string) => {
+        setError("");
+        setChainAddresses((prev) => {
+            const next = [...prev];
+            next[index] = { ...next[index], address };
+            return next;
+        });
+    };
+
+    const handleRemoveChainAddress = (index: number) => {
+        setError("");
+        setChainAddresses((prev) => prev.filter((_, idx) => idx !== index));
+    };
+
     if (status === "loading" || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-                    <p className="mt-4 text-gray-600">加载中...</p>
+            <div className="flex min-h-[50vh] items-center justify-center">
+                <div className="flex flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white/80 px-10 py-12 shadow-lg shadow-slate-200/70 backdrop-blur">
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" />
+                    <p className="text-sm font-medium text-slate-600">加载中...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* 页面标题和操作栏 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
-                        <p className="mt-1 text-gray-600">管理系统用户账户和权限</p>
+                        <h1 className="text-2xl font-semibold text-slate-900 sm:text-3xl">用户管理</h1>
+                        <p className="mt-1 text-sm text-slate-600">管理系统用户账户和权限</p>
                     </div>
-                    <div className="flex items-center space-x-3">
-                        <span className="text-sm text-gray-500">共 {pagination?.total || 0} 个用户</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-xs font-medium uppercase tracking-[0.3em] text-slate-500">
+                            共 {pagination?.total || 0} 个用户
+                        </span>
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={importing}
+                            className="inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-200 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                            {importing ? "导入中..." : "导入 Excel"}
+                        </button>
                         <button
                             onClick={() => {
                                 setEditingUser({
@@ -261,19 +544,33 @@ export default function AdminUsersPage() {
                                     whatsappAccount: '',
                                     evmAddress: '',
                                     solanaAddress: '',
-                                    salaryUsdt: ''
+                                    salaryUsdt: '',
+                                    password: ''
                                 });
+                                setError("");
                             }}
-                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="inline-flex items-center rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
                         >
                             + 添加用户
                         </button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".xlsx,.xls"
+                            className="hidden"
+                            onChange={handleImportChange}
+                        />
                     </div>
+                    {importSummary && (
+                        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-700">
+                            {importSummary}
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* 搜索和筛选 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm shadow-slate-200/50 backdrop-blur">
                 {/* 搜索和筛选 */}
                 <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <input
@@ -281,12 +578,12 @@ export default function AdminUsersPage() {
                         placeholder="搜索用户名或邮箱"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                     />
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                     >
                         <option value="">所有角色</option>
                         <option value="user">用户</option>
@@ -296,7 +593,7 @@ export default function AdminUsersPage() {
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        className="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-700 shadow-sm focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200"
                     >
                         <option value="">所有状态</option>
                         <option value="active">正常</option>
@@ -305,62 +602,64 @@ export default function AdminUsersPage() {
                     </select>
                     <button
                         onClick={fetchUsers}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                        className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-black"
                     >
                         搜索
                     </button>
                 </div>
 
                 {error && (
-                    <div className="mb-4 text-red-600 text-sm">{error}</div>
+                    <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600">
+                        {error}
+                    </div>
                 )}
 
                 {/* 用户列表 */}
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                <div className="overflow-x-auto rounded-3xl border border-slate-200">
+                    <table className="min-w-full divide-y divide-slate-200 bg-white/70">
+                        <thead className="bg-slate-50/80">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     用户信息
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     联系方式
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     区块链地址
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     工资 (USDT)
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     角色/状态
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     报销数量
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
                                     操作
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="divide-y divide-slate-200">
                             {users.map((user) => (
-                                <tr key={user.id}>
+                                <tr key={user.id} className="transition hover:bg-slate-50/70">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div>
-                                            <div className="text-sm font-medium text-gray-900">{user.username}</div>
-                                            <div className="text-sm text-gray-500">{user.email}</div>
+                                            <div className="text-sm font-medium text-slate-900">{user.username}</div>
+                                            <div className="text-sm text-slate-500">{user.email}</div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         <div>{user.tgAccount && `TG: ${user.tgAccount}`}</div>
                                         <div>{user.whatsappAccount && `WA: ${user.whatsappAccount}`}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         <div>{user.evmAddress && `EVM: ${user.evmAddress.slice(0, 10)}...`}</div>
                                         <div>{user.solanaAddress && `SOL: ${user.solanaAddress.slice(0, 10)}...`}</div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                                         {typeof user.salaryUsdt === "number" ? user.salaryUsdt.toFixed(2) : "—"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
@@ -380,30 +679,39 @@ export default function AdminUsersPage() {
                                                 user.status === "pending" ? "待审核" : "已禁用"}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                         {user._count.reimbursements}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div className="flex space-x-2">
+                                        <div className="flex flex-wrap gap-2">
                                             {!user.isApproved && user.status === "pending" && (
                                                 <button
                                                     onClick={() => handleApprove(user)}
-                                                    className="text-green-600 hover:text-green-900"
+                                                    className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600 transition hover:bg-emerald-100"
                                                 >
                                                     审核
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => handleEdit(user)}
-                                                className="text-indigo-600 hover:text-indigo-900"
+                                                className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100"
                                             >
                                                 编辑
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(user.id)}
-                                                className="text-red-600 hover:text-red-900"
+                                                onClick={() => {
+                                                    setError("");
+                                                    setStatusModal({
+                                                        user,
+                                                        targetStatus: user.status === "suspended" ? "active" : "suspended"
+                                                    });
+                                                }}
+                                                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition ${user.status === "suspended"
+                                                    ? "border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                                    : "border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                                                    }`}
                                             >
-                                                禁用
+                                                {user.status === "suspended" ? "解禁" : "禁用"}
                                             </button>
                                         </div>
                                     </td>
@@ -420,17 +728,17 @@ export default function AdminUsersPage() {
                             <button
                                 onClick={() => setCurrentPage(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                                className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50 disabled:hover:border-slate-200"
                             >
                                 上一页
                             </button>
-                            <span className="px-3 py-2 text-sm text-gray-700">
+                            <span className="px-3 py-2 text-sm text-slate-700">
                                 第 {currentPage} 页，共 {pagination.pages} 页
                             </span>
                             <button
                                 onClick={() => setCurrentPage(currentPage + 1)}
                                 disabled={currentPage === pagination.pages}
-                                className="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50"
+                                className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:border-slate-300 disabled:opacity-50 disabled:hover:border-slate-200"
                             >
                                 下一页
                             </button>
@@ -441,79 +749,212 @@ export default function AdminUsersPage() {
 
             {/* 编辑用户模态框 */}
             {editingUser && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">编辑用户</h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">用户名</label>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+                    <div className="relative mx-4 w-full max-w-4xl">
+                        <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-indigo-200/40 blur-3xl" />
+                        <div className="absolute -right-16 top-1/2 h-48 w-48 -translate-y-1/2 rounded-full bg-sky-200/30 blur-3xl" />
+                        <div className="relative rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl">
+                            <div className="flex items-start justify-between">
+                                <div className="space-y-1">
+                                    <h3 className="text-2xl font-semibold text-slate-900">
+                                        {isCreatingUser ? "创建新用户" : "编辑用户资料"}
+                                    </h3>
+                                    <p className="text-sm text-slate-600">
+                                        {isCreatingUser
+                                            ? "为团队成员创建账户，并设置初始登录信息。敏感字段保存后将进入管理员审核流程。"
+                                            : "调整角色与联系方式，修改敏感字段后用户会重新进入待审核状态。"}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setEditingUser(null)}
+                                    className="rounded-full border border-slate-200 bg-white/80 p-2 text-slate-500 transition hover:text-slate-900"
+                                    aria-label="关闭"
+                                >
+                                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+                                        <path d="M4 4l8 8m0-8l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">用户名</label>
                                     <input
                                         type="text"
                                         value={editForm.username}
                                         onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">邮箱</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">邮箱</label>
                                     <input
                                         type="email"
                                         value={editForm.email}
                                         onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">角色</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">角色</label>
                                     <select
                                         value={editForm.role}
                                         onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                     >
                                         <option value="user">用户</option>
                                         <option value="reviewer">审核员</option>
                                         <option value="admin">管理员</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">状态</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">状态</label>
                                     <select
                                         value={editForm.status}
                                         onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                     >
                                         <option value="active">正常</option>
                                         <option value="pending">待审核</option>
                                         <option value="suspended">已禁用</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">工资 (USDT)</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">Telegram</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.tgAccount}
+                                        onChange={(e) => setEditForm({ ...editForm, tgAccount: e.target.value })}
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        placeholder="@username"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">WhatsApp</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.whatsappAccount}
+                                        onChange={(e) => setEditForm({ ...editForm, whatsappAccount: e.target.value })}
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        placeholder="+86 138 0000 0000"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">EVM 地址</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.evmAddress}
+                                        onChange={(e) => setEditForm({ ...editForm, evmAddress: e.target.value })}
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        placeholder="0x..."
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">Solana 地址</label>
+                                    <input
+                                        type="text"
+                                        value={editForm.solanaAddress}
+                                        onChange={(e) => setEditForm({ ...editForm, solanaAddress: e.target.value })}
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        placeholder="Base58..."
+                                    />
+                                </div>
+                                <div className="md:col-span-2 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-medium text-slate-700">多链地址</label>
+                                        <button
+                                            type="button"
+                                            onClick={handleAddChainAddress}
+                                            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                                        >
+                                            + 添加链
+                                        </button>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {chainAddresses.map((entry, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <select
+                                                    value={entry.chain}
+                                                    onChange={(e) => handleChainSelectionChange(index, e.target.value)}
+                                                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                >
+                                                    {chainOptions.map((option) => (
+                                                        <option key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    type="text"
+                                                    value={entry.address}
+                                                    onChange={(e) => handleChainAddressInputChange(index, e.target.value)}
+                                                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                    placeholder="地址..."
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveChainAddress(index)}
+                                                    className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600 transition hover:bg-rose-100"
+                                                >
+                                                    删除
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {chainAddresses.length === 0 && (
+                                            <div className="rounded-xl border border-dashed border-slate-200 px-4 py-3 text-center text-sm text-slate-500">
+                                                暂无链地址，点击"添加链"开始添加
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-slate-500">
+                                        支持多链地址管理，系统会自动从链地址中提取 EVM 和 Solana 地址用于兼容性。
+                                    </p>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">工资 (USDT)</label>
                                     <input
                                         type="number"
                                         min="0"
                                         step="0.01"
                                         value={editForm.salaryUsdt}
                                         onChange={(e) => setEditForm({ ...editForm, salaryUsdt: e.target.value })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                         placeholder="仅管理员可设置"
                                     />
                                 </div>
+                                {isCreatingUser && (
+                                    <div className="space-y-1.5 md:col-span-2">
+                                        <label className="text-sm font-medium text-slate-700">初始密码</label>
+                                        <input
+                                            type="password"
+                                            value={editForm.password}
+                                            onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="为新用户设置登录密码"
+                                        />
+                                        <p className="text-xs text-slate-500">管理员创建用户时需提供初始密码，用户可在登录后修改。</p>
+                                    </div>
+                                )}
                             </div>
-                            <div className="mt-6 flex justify-end space-x-3">
-                                <button
-                                    onClick={() => setEditingUser(null)}
-                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                                >
-                                    取消
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                                >
-                                    保存
-                                </button>
+
+                            <div className="mt-8 flex flex-col items-center justify-between gap-3 md:flex-row">
+                                <div className="text-xs text-slate-500">
+                                    提示：若修改邮箱或链上地址，系统将把该用户状态重置为待审核。
+                                </div>
+                                <div className="flex w-full gap-3 md:w-auto">
+                                    <button
+                                        onClick={() => setEditingUser(null)}
+                                        className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 md:flex-none"
+                                    >
+                                        取消
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        className="inline-flex flex-1 items-center justify-center rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-black md:flex-none"
+                                    >
+                                        保存
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -522,36 +963,50 @@ export default function AdminUsersPage() {
 
             {/* 审核用户模态框 */}
             {approvingUser && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">审核用户</h3>
-                            <div className="mb-4">
-                                <p className="text-sm text-gray-600">
-                                    用户：{approvingUser.username} ({approvingUser.email})
-                                </p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+                    <div className="relative mx-4 w-full max-w-xl">
+                        <div className="absolute -left-8 -top-8 h-32 w-32 rounded-full bg-indigo-200/40 blur-3xl" />
+                        <div className="absolute -right-12 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-emerald-200/30 blur-3xl" />
+                        <div className="relative rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl">
+                            <div className="flex items-start justify-between">
+                                <div className="space-y-1">
+                                    <h3 className="text-2xl font-semibold text-slate-900">审核用户</h3>
+                                    <p className="text-sm text-slate-600">
+                                        用户：{approvingUser.username} ({approvingUser.email})
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setApprovingUser(null)}
+                                    className="rounded-full border border-slate-200 bg-white/80 p-2 text-slate-500 transition hover:text-slate-900"
+                                    aria-label="关闭"
+                                >
+                                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none">
+                                        <path d="M4 4l8 8m0-8l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                                    </svg>
+                                </button>
                             </div>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">审核结果</label>
+
+                            <div className="mt-6 space-y-5">
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">审核结果</label>
                                     <select
                                         value={approveForm.approved ? "approved" : "rejected"}
                                         onChange={(e) => setApproveForm({
                                             ...approveForm,
                                             approved: e.target.value === "approved"
                                         })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                     >
                                         <option value="approved">通过</option>
                                         <option value="rejected">拒绝</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">分配角色</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-medium text-slate-700">分配角色</label>
                                     <select
                                         value={approveForm.role}
                                         onChange={(e) => setApproveForm({ ...approveForm, role: e.target.value })}
-                                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
                                     >
                                         <option value="user">普通用户</option>
                                         <option value="reviewer">审核员</option>
@@ -559,18 +1014,67 @@ export default function AdminUsersPage() {
                                     </select>
                                 </div>
                             </div>
-                            <div className="flex justify-end space-x-3 mt-6">
+
+                            <div className="mt-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <p className="text-xs text-slate-500">
+                                    通过审核将同步激活账户，并记录审核人及审核时间。
+                                </p>
+                                <div className="flex w-full gap-3 md:w-auto">
+                                    <button
+                                        onClick={() => setApprovingUser(null)}
+                                        className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 md:flex-none"
+                                    >
+                                        拒绝
+                                    </button>
+                                    <button
+                                        onClick={handleApproveUser}
+                                        className="inline-flex flex-1 items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 md:flex-none"
+                                    >
+                                        通过
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 状态变更模态框 */}
+            {statusModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+                    <div className="relative mx-4 w-full max-w-lg">
+                        <div className="absolute -left-8 -top-8 h-32 w-32 rounded-full bg-rose-200/40 blur-3xl" />
+                        <div className="absolute -right-10 top-1/2 h-36 w-36 -translate-y-1/2 rounded-full bg-emerald-200/40 blur-3xl" />
+                        <div className="relative rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl">
+                            <div className="space-y-3 text-center">
+                                <h3 className="text-2xl font-semibold text-slate-900">
+                                    {statusModal.targetStatus === "suspended" ? "禁用用户" : "解禁用户"}
+                                </h3>
+                                <p className="text-sm text-slate-600">
+                                    {statusModal.targetStatus === "suspended"
+                                        ? "禁用后该用户将无法登录或提交报销，您可随时重新启用。"
+                                        : "确认解禁该账户？用户将恢复正常访问和审批权限。"}
+                                </p>
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm text-slate-700">
+                                    <p className="font-medium">{statusModal.user.username}</p>
+                                    <p className="text-xs text-slate-500">{statusModal.user.email}</p>
+                                </div>
+                            </div>
+                            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end">
                                 <button
-                                    onClick={() => setApprovingUser(null)}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+                                    onClick={() => setStatusModal(null)}
+                                    className="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 sm:w-auto"
                                 >
                                     取消
                                 </button>
                                 <button
-                                    onClick={handleApproveUser}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
+                                    onClick={handleStatusChange}
+                                    className={`inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-sm transition sm:w-auto ${statusModal.targetStatus === "suspended"
+                                        ? "bg-rose-600 hover:bg-rose-700"
+                                        : "bg-emerald-600 hover:bg-emerald-700"
+                                        }`}
                                 >
-                                    确认审核
+                                    确认{statusModal.targetStatus === "suspended" ? "禁用" : "解禁"}
                                 </button>
                             </div>
                         </div>

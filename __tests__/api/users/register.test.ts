@@ -39,20 +39,19 @@ describe('/api/users/register', () => {
                 solanaAddress: 'So11111111111111111111111111111111111111112'
             }
 
-            const hashedPassword = 'hashed_password_123'
-            const createdUser = {
-                id: 'user_123',
-                ...userData,
-                password: hashedPassword,
-                role: 'user',
-                status: 'active',
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }
+        const hashedPassword = 'hashed_password_123'
+        const createdUser = {
+            id: 'user_123',
+            username: userData.username,
+            email: userData.email,
+            status: 'pending',
+            isApproved: false,
+            createdAt: new Date()
+        }
 
-            mockPrisma.user.findUnique.mockResolvedValue(null)
-            mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
-            mockPrisma.user.create.mockResolvedValue(createdUser)
+        mockPrisma.user.findUnique.mockResolvedValue(null)
+        mockBcrypt.hash.mockResolvedValue(hashedPassword as never)
+        mockPrisma.user.create.mockResolvedValue(createdUser)
 
             const request = {
                 url: 'http://localhost:3000/api/users/register',
@@ -70,9 +69,9 @@ describe('/api/users/register', () => {
 
             // Assert
             expect(response.status).toBe(201)
-            expect(data.message).toBe('注册成功')
+            expect(data.message).toBe('注册成功，请等待管理员审核后再登录')
             expect(data.user).toBeDefined()
-            expect(data.user.password).toBeUndefined()
+            expect(data.user?.isApproved).toBe(false)
             expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
                 where: { email: userData.email }
             })
@@ -87,7 +86,16 @@ describe('/api/users/register', () => {
                     evmAddress: userData.evmAddress,
                     solanaAddress: userData.solanaAddress,
                     role: 'user',
-                    status: 'active'
+                    status: 'pending',
+                    isApproved: false
+                },
+                select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    status: true,
+                    isApproved: true,
+                    createdAt: true
                 }
             })
         })

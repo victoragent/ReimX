@@ -34,6 +34,7 @@ async function seedTestData() {
                 exchangeRateSource: 'manual',
                 exchangeRateTime: new Date(),
                 isManualRate: true,
+                expenseType: 'tech',
                 chain: 'ethereum',
                 status: 'submitted'
             }
@@ -54,6 +55,7 @@ async function seedTestData() {
                 exchangeRateSource: 'manual',
                 exchangeRateTime: new Date(),
                 isManualRate: true,
+                expenseType: 'operations',
                 chain: 'ethereum',
                 status: 'approved'
             }

@@ -10,11 +10,17 @@
     "dev:status": "./scripts/dev.sh status",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "deploy:production": "./scripts/deploy-production.sh",
+    "deploy:preview": "vercel",
+    "deploy:env": "vercel env pull .env.production",
+    "db:migrate": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:backup": "pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
@@ -38,6 +44,7 @@
     "resend": "^4.7.0",
     "tailwind-merge": "^2.5.1",
     "tailwindcss": "^3.4.14",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {

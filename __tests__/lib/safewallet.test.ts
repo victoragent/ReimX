@@ -10,6 +10,7 @@ const baseReimbursement = {
   isManualRate: false,
   convertedBy: null,
   chain: "evm",
+  expenseType: "tech",
   receiptUrl: null,
   status: "approved",
   reviewerId: null,
@@ -25,7 +26,8 @@ const baseReimbursement = {
     username: "Alice",
     email: "alice@example.com",
     evmAddress: "0xAlice",
-    solanaAddress: null
+    solanaAddress: null,
+    chainAddresses: null
   }
 } as const;
 
@@ -59,7 +61,8 @@ describe("aggregateForSafeWallet", () => {
           username: "Bob",
           email: "bob@example.com",
           evmAddress: null,
-          solanaAddress: null
+          solanaAddress: null,
+          chainAddresses: null
         },
         title: "Taxi",
         description: null,
@@ -75,6 +78,7 @@ describe("aggregateForSafeWallet", () => {
     expect(aliceBatch).toBeDefined();
     expect(aliceBatch?.totalAmountUsdt).toBeCloseTo(1700);
     expect(aliceBatch?.reimbursementIds).toEqual(["reimb_1", "reimb_2"]);
+    expect(aliceBatch?.chainAddresses.evm).toBe("0xAlice");
 
     const safewalletTx = aggregation.safewalletPayload.transactions.find((tx) => tx.metadata.applicantId === "user_1");
     expect(safewalletTx).toBeDefined();
@@ -107,7 +111,8 @@ describe("aggregateSalariesForSafeWallet", () => {
           username: "Alice",
           email: "alice@example.com",
           evmAddress: "0xAlice",
-          solanaAddress: null
+          solanaAddress: null,
+          chainAddresses: null
         }
       },
       {
@@ -127,7 +132,8 @@ describe("aggregateSalariesForSafeWallet", () => {
           username: "Bob",
           email: "bob@example.com",
           evmAddress: null,
-          solanaAddress: null
+          solanaAddress: null,
+          chainAddresses: null
         }
       }
     ]);

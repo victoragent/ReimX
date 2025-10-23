@@ -59,6 +59,7 @@ const descriptions = [
 const currencies = ['CNY', 'USD', 'EUR', 'JPY'];
 const chains = ['ethereum', 'polygon', 'bsc', 'arbitrum'];
 const statuses = ['submitted', 'under_review', 'approved', 'rejected'];
+const expenseTypePool = ['tech', 'travel', 'admin', 'hr', 'operations', 'other'];
 
 async function generateUsers() {
     console.log('生成用户数据...');
@@ -165,6 +166,7 @@ async function generateReimbursements() {
                 isManualRate: true,
                 convertedBy: 'system',
                 status,
+                expenseType: expenseTypePool[Math.floor(Math.random() * expenseTypePool.length)],
                 receiptUrl: `https://example.com/receipts/receipt_${i + 1}.pdf`,
                 txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
                 applicantId: applicant.id,
