@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+export const dynamic = "force-dynamic";
 const registerSchema = z.object({
     username: z.string().min(2, "用户名至少2个字符"),
     email: z.string().email("请输入有效的邮箱地址"),

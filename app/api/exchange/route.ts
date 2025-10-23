@@ -3,6 +3,7 @@ import { z } from "zod";
 import { currencies } from "@/lib/utils";
 import { getExchangeRateToUsd, ExchangeRateError } from "@/lib/exchange";
 
+export const dynamic = "force-dynamic";
 const querySchema = z.object({
   currency: z.enum(currencies, {
     errorMap: () => ({ message: "不支持的货币类型" })

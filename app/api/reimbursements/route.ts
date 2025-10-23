@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { sendNotification } from "@/lib/notifications";
 
+export const dynamic = "force-dynamic";
 const createSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),

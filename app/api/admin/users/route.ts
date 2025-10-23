@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
+export const dynamic = "force-dynamic";
 const roleEnum = ["user", "reviewer", "admin"] as const;
 const statusEnum = ["active", "suspended", "pending"] as const;
 

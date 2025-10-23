@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { currencies } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
 const schema = z.object({
   amount: z.number().positive(),
   currency: z.enum(currencies),

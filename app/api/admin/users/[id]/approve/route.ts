@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
 const BodySchema = z.object({
     approved: z.boolean(),
     role: z.string().optional()

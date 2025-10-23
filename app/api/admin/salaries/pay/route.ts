@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
 const schema = z.object({
   salaryPaymentIds: z.array(z.string()).min(1),
   transactionHash: z.string().optional()

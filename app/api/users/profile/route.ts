@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
 const editableRoles = ["user", "reviewer"] as const;
 
 const chainAddressInputSchema = z.array(

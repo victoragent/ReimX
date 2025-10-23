@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
 const resetPasswordSchema = z.object({
     token: z.string().min(1, "重置令牌无效"),
     newPassword: z.string().min(6, "新密码长度至少为6位"),

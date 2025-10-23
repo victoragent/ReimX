@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { aggregateForSafeWallet } from "@/lib/safewallet";
 
+export const dynamic = "force-dynamic";
 const filterSchema = z.object({
   applicantId: z.string().optional(),
   currency: z.string().optional(),

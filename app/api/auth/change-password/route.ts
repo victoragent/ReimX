@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
 const changePasswordSchema = z.object({
     currentPassword: z.string().min(1, "请输入当前密码"),
     newPassword: z.string().min(6, "新密码长度至少为6位"),

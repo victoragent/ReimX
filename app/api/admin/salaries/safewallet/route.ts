@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { aggregateSalariesForSafeWallet } from "@/lib/safewallet";
 
+export const dynamic = "force-dynamic";
 const schema = z.object({
   month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/),
   status: z.string().optional(),

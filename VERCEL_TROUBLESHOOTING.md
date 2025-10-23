@@ -163,6 +163,41 @@ Error: Failed to collect page data for /api/admin/reimbursements
    }
    ```
 
+### 6. 数据库配置错误
+
+**错误信息：**
+```
+Datasource "db": SQLite database "dev.db" at "file:./dev.db"
+SQLite database dev.db created at file:./dev.db
+```
+
+**问题：** 生产环境使用了 SQLite 开发数据库，应该使用 PostgreSQL
+
+**解决方案：**
+
+1. **更新 Prisma Schema**
+   ```prisma
+   // prisma/schema.prisma
+   datasource db {
+     provider = "postgresql"
+     url      = env("DATABASE_URL")
+   }
+   ```
+
+2. **确保环境变量配置**
+   ```bash
+   # 在 Vercel 中设置
+   DATABASE_URL="postgresql://username:password@host:5432/database"
+   ```
+
+3. **更新构建脚本**
+   ```bash
+   # scripts/vercel-build.sh
+   if [ "$VERCEL_ENV" = "production" ] && [ -n "$DATABASE_URL" ]; then
+     npx prisma db push --accept-data-loss
+   fi
+   ```
+
 ### 3. 数据库连接失败
 
 **错误信息：**

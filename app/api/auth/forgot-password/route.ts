@@ -4,6 +4,7 @@ import { z } from "zod";
 import { randomBytes } from "crypto";
 import { sendEmailNotification } from "@/lib/notifications";
 
+export const dynamic = "force-dynamic";
 const forgotPasswordSchema = z.object({
     email: z.string().email("请输入有效的邮箱地址"),
 });
