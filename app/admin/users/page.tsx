@@ -346,11 +346,11 @@ export default function AdminUsersPage() {
                 email: editForm.email,
                 role: editForm.role,
                 status: editForm.status,
-                tgAccount: editForm.tgAccount || undefined,
-                whatsappAccount: editForm.whatsappAccount || undefined,
-                evmAddress: evmAddress || undefined,
-                solanaAddress: solanaAddress || undefined,
-                chainAddresses: entries.length > 0 ? JSON.stringify(entries) : undefined
+                tgAccount: editForm.tgAccount || "",
+                whatsappAccount: editForm.whatsappAccount || "",
+                evmAddress: evmAddress || "",
+                solanaAddress: solanaAddress || "",
+                chainAddresses: entries.length > 0 ? JSON.stringify(entries) : ""
             };
 
             if (editForm.salaryUsdt !== "") {

@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
             user
         }, { status: 201 });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("注册错误:", error);
         return NextResponse.json(
-            { error: "服务器内部错误" },
+            { error: `注册失败: ${error.message || error}` },
             { status: 500 }
         );
     }

@@ -57,8 +57,12 @@ start_dev() {
     fi
 
     # 生成 Prisma 客户端
-    print_message $BLUE "🔧 生成 Prisma 客户端..."
-    pnpm prisma:generate
+    # print_message $BLUE "🔧 生成 Prisma 客户端..."
+    # pnpm prisma:generate
+
+    # 设置本地开发环境 (SQLite)
+    print_message $BLUE "🛠️  设置本地开发环境..."
+    node scripts/setup-local.js
 
     # 启动开发服务器
     print_message $GREEN "🌟 启动 Next.js 开发服务器..."

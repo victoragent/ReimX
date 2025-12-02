@@ -11,8 +11,9 @@ try {
     // 1. Read production schema
     let schema = fs.readFileSync(schemaPath, 'utf8');
 
-    // 2. Replace provider with sqlite
+    // 2. Replace provider with sqlite and set fixed url
     schema = schema.replace('provider = "postgresql"', 'provider = "sqlite"');
+    schema = schema.replace('url      = env("DATABASE_URL")', 'url      = "file:./dev.db"');
 
     // 3. Write local schema
     fs.writeFileSync(localSchemaPath, schema);

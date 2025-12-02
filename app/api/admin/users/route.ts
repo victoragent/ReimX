@@ -20,6 +20,7 @@ const userCreateSchema = z.object({
     whatsappAccount: z.string().optional(),
     evmAddress: z.string().optional(),
     solanaAddress: z.string().optional(),
+    chainAddresses: z.string().optional(),
     salaryUsdt: z.number().nonnegative().optional()
 });
 
@@ -34,6 +35,7 @@ const userUpdateSchema = z.object({
     whatsappAccount: z.string().optional(),
     evmAddress: z.string().optional(),
     solanaAddress: z.string().optional(),
+    chainAddresses: z.string().optional(),
     salaryUsdt: z.number().nonnegative().optional()
 });
 
@@ -74,6 +76,7 @@ export async function POST(request: NextRequest) {
             whatsappAccount,
             evmAddress,
             solanaAddress,
+            chainAddresses,
             salaryUsdt
         } = parsed.data;
 
@@ -109,6 +112,7 @@ export async function POST(request: NextRequest) {
                 whatsappAccount,
                 evmAddress,
                 solanaAddress,
+                chainAddresses,
                 salaryUsdt,
                 ...(shouldApprove && adminUser
                     ? {
@@ -292,7 +296,8 @@ export async function PUT(request: NextRequest) {
             ...(updateData.tgAccount !== undefined && { tgAccount: sanitizeString(updateData.tgAccount) }),
             ...(updateData.whatsappAccount !== undefined && { whatsappAccount: sanitizeString(updateData.whatsappAccount) }),
             ...(updateData.evmAddress !== undefined && { evmAddress: sanitizeString(updateData.evmAddress) }),
-            ...(updateData.solanaAddress !== undefined && { solanaAddress: sanitizeString(updateData.solanaAddress) })
+            ...(updateData.solanaAddress !== undefined && { solanaAddress: sanitizeString(updateData.solanaAddress) }),
+            ...(updateData.chainAddresses !== undefined && { chainAddresses: sanitizeString(updateData.chainAddresses) })
         };
 
         if (updateData.isApproved !== undefined) {
