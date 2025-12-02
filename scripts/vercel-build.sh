@@ -21,7 +21,7 @@ npx prisma generate
 # 执行数据库推送（仅在生产环境且有数据库连接时）
 if [ "$VERCEL_ENV" = "production" ] && [ -n "$DATABASE_URL" ]; then
     echo "🗄️  推送数据库架构到生产环境..."
-    npx prisma db push --accept-data-loss
+    npx prisma db push
     
     # 初始化根管理员（如果设置了环境变量）
     if [ -n "$ROOT_ADMIN_EMAIL" ]; then
