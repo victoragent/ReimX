@@ -145,6 +145,29 @@ export default function AdminReimbursementsPage() {
         }
     };
 
+    const handleDelete = async (reimbursementId: string) => {
+        if (!confirm("确定要删除这条报销记录吗？此操作无法撤销。")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/admin/reimbursements/${reimbursementId}`, {
+                method: "DELETE",
+            });
+
+            const data = await response.json() as { error?: string };
+
+            if (response.ok) {
+                setSelectedReimbursement(null);
+                fetchReimbursements();
+            } else {
+                setError(data.error || "删除失败");
+            }
+        } catch (error) {
+            setError("网络错误，请重试");
+        }
+    };
+
     const getStatusColor = (status: string) => {
         switch (status) {
             case "submitted":
@@ -357,12 +380,19 @@ export default function AdminReimbursementsPage() {
                                                 </button>
                                                 <button
                                                     onClick={() => handleReview(reimbursement.id, "reject")}
-                                                    className="text-red-600 hover:text-red-900"
+                                                    className="text-red-600 hover:text-red-900 mr-3"
                                                 >
                                                     拒绝
                                                 </button>
                                             </>
                                         )}
+                                        <button
+                                            onClick={() => handleDelete(reimbursement.id)}
+                                            className="text-slate-400 hover:text-red-600"
+                                            title="删除"
+                                        >
+                                            删除
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -518,6 +548,16 @@ export default function AdminReimbursementsPage() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* 底部操作栏 */}
+                            <div className="mt-6 flex justify-end border-t border-slate-200 pt-6">
+                                <button
+                                    onClick={() => handleDelete(selectedReimbursement.id)}
+                                    className="text-sm font-medium text-slate-400 hover:text-red-600 transition"
+                                >
+                                    删除此报销单
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
