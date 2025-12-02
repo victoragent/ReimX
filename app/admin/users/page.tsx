@@ -749,11 +749,11 @@ export default function AdminUsersPage() {
 
             {/* 编辑用户模态框 */}
             {editingUser && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-                    <div className="relative mx-4 w-full max-w-4xl">
+                <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/60 backdrop-blur-sm py-10">
+                    <div className="relative mx-4 flex w-full max-w-4xl max-h-[90vh] flex-col">
                         <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-indigo-200/40 blur-3xl" />
                         <div className="absolute -right-16 top-1/2 h-48 w-48 -translate-y-1/2 rounded-full bg-sky-200/30 blur-3xl" />
-                        <div className="relative rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl">
+                        <div className="relative flex h-full flex-col rounded-3xl border border-slate-200 bg-white/95 p-8 shadow-2xl">
                             <div className="flex items-start justify-between">
                                 <div className="space-y-1">
                                     <h3 className="text-2xl font-semibold text-slate-900">
@@ -776,168 +776,172 @@ export default function AdminUsersPage() {
                                 </button>
                             </div>
 
-                            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">用户名</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.username}
-                                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">邮箱</label>
-                                    <input
-                                        type="email"
-                                        value={editForm.email}
-                                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">角色</label>
-                                    <select
-                                        value={editForm.role}
-                                        onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                    >
-                                        <option value="user">用户</option>
-                                        <option value="reviewer">审核员</option>
-                                        <option value="admin">管理员</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">状态</label>
-                                    <select
-                                        value={editForm.status}
-                                        onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                    >
-                                        <option value="active">正常</option>
-                                        <option value="pending">待审核</option>
-                                        <option value="suspended">已禁用</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">Telegram</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.tgAccount}
-                                        onChange={(e) => setEditForm({ ...editForm, tgAccount: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                        placeholder="@username"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">WhatsApp</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.whatsappAccount}
-                                        onChange={(e) => setEditForm({ ...editForm, whatsappAccount: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                        placeholder="+86 138 0000 0000"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">EVM 地址</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.evmAddress}
-                                        onChange={(e) => setEditForm({ ...editForm, evmAddress: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                        placeholder="0x..."
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">Solana 地址</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.solanaAddress}
-                                        onChange={(e) => setEditForm({ ...editForm, solanaAddress: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                        placeholder="Base58..."
-                                    />
-                                </div>
-                                <div className="md:col-span-2 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <label className="text-sm font-medium text-slate-700">多链地址</label>
-                                        <button
-                                            type="button"
-                                            onClick={handleAddChainAddress}
-                                            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
-                                        >
-                                            + 添加链
-                                        </button>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {chainAddresses.map((entry, index) => (
-                                            <div key={index} className="flex gap-2">
-                                                <select
-                                                    value={entry.chain}
-                                                    onChange={(e) => handleChainSelectionChange(index, e.target.value)}
-                                                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                >
-                                                    {chainOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <input
-                                                    type="text"
-                                                    value={entry.address}
-                                                    onChange={(e) => handleChainAddressInputChange(index, e.target.value)}
-                                                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                                    placeholder="地址..."
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveChainAddress(index)}
-                                                    className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600 transition hover:bg-rose-100"
-                                                >
-                                                    删除
-                                                </button>
-                                            </div>
-                                        ))}
-                                        {chainAddresses.length === 0 && (
-                                            <div className="rounded-xl border border-dashed border-slate-200 px-4 py-3 text-center text-sm text-slate-500">
-                                                暂无链地址，点击"添加链"开始添加
-                                            </div>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-slate-500">
-                                        支持多链地址管理，系统会自动从链地址中提取 EVM 和 Solana 地址用于兼容性。
-                                    </p>
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-medium text-slate-700">工资 (USDT)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={editForm.salaryUsdt}
-                                        onChange={(e) => setEditForm({ ...editForm, salaryUsdt: e.target.value })}
-                                        className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                        placeholder="仅管理员可设置"
-                                    />
-                                </div>
-                                {isCreatingUser && (
-                                    <div className="space-y-1.5 md:col-span-2">
-                                        <label className="text-sm font-medium text-slate-700">初始密码</label>
+                            {/* 表单内容区域：可滚动 */}
+                            <div className="mt-8 flex-1 overflow-y-auto pr-1 md:pr-2">
+                                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">用户名</label>
                                         <input
-                                            type="password"
-                                            value={editForm.password}
-                                            onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                                            type="text"
+                                            value={editForm.username}
+                                            onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
                                             className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-                                            placeholder="为新用户设置登录密码"
                                         />
-                                        <p className="text-xs text-slate-500">管理员创建用户时需提供初始密码，用户可在登录后修改。</p>
                                     </div>
-                                )}
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">邮箱</label>
+                                        <input
+                                            type="email"
+                                            value={editForm.email}
+                                            onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">角色</label>
+                                        <select
+                                            value={editForm.role}
+                                            onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        >
+                                            <option value="user">用户</option>
+                                            <option value="reviewer">审核员</option>
+                                            <option value="admin">管理员</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">状态</label>
+                                        <select
+                                            value={editForm.status}
+                                            onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                        >
+                                            <option value="active">正常</option>
+                                            <option value="pending">待审核</option>
+                                            <option value="suspended">已禁用</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">Telegram</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.tgAccount}
+                                            onChange={(e) => setEditForm({ ...editForm, tgAccount: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="@username"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">WhatsApp</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.whatsappAccount}
+                                            onChange={(e) => setEditForm({ ...editForm, whatsappAccount: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="+86 138 0000 0000"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">EVM 地址</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.evmAddress}
+                                            onChange={(e) => setEditForm({ ...editForm, evmAddress: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="0x..."
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">Solana 地址</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.solanaAddress}
+                                            onChange={(e) => setEditForm({ ...editForm, solanaAddress: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="Base58..."
+                                        />
+                                    </div>
+                                    <div className="md:col-span-2 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="text-sm font-medium text-slate-700">多链地址</label>
+                                            <button
+                                                type="button"
+                                                onClick={handleAddChainAddress}
+                                                className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                                            >
+                                                + 添加链
+                                            </button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {chainAddresses.map((entry, index) => (
+                                                <div key={index} className="flex gap-2">
+                                                    <select
+                                                        value={entry.chain}
+                                                        onChange={(e) => handleChainSelectionChange(index, e.target.value)}
+                                                        className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                    >
+                                                        {chainOptions.map((option) => (
+                                                            <option key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <input
+                                                        type="text"
+                                                        value={entry.address}
+                                                        onChange={(e) => handleChainAddressInputChange(index, e.target.value)}
+                                                        className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                        placeholder="地址..."
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveChainAddress(index)}
+                                                        className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-600 transition hover:bg-rose-100"
+                                                    >
+                                                        删除
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {chainAddresses.length === 0 && (
+                                                <div className="rounded-xl border border-dashed border-slate-200 px-4 py-3 text-center text-sm text-slate-500">
+                                                    暂无链地址，点击"添加链"开始添加
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-slate-500">
+                                            支持多链地址管理，系统会自动从链地址中提取 EVM 和 Solana 地址用于兼容性。
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-medium text-slate-700">工资 (USDT)</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={editForm.salaryUsdt}
+                                            onChange={(e) => setEditForm({ ...editForm, salaryUsdt: e.target.value })}
+                                            className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                            placeholder="仅管理员可设置"
+                                        />
+                                    </div>
+                                    {isCreatingUser && (
+                                        <div className="space-y-1.5 md:col-span-2">
+                                            <label className="text-sm font-medium text-slate-700">初始密码</label>
+                                            <input
+                                                type="password"
+                                                value={editForm.password}
+                                                onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                                                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm shadow-sm transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                                placeholder="为新用户设置登录密码"
+                                            />
+                                            <p className="text-xs text-slate-500">管理员创建用户时需提供初始密码，用户可在登录后修改。</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="mt-8 flex flex-col items-center justify-between gap-3 md:flex-row">
+                            {/* 底部固定操作区 */}
+                            <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-4 md:flex-row">
                                 <div className="text-xs text-slate-500">
                                     提示：若修改邮箱或链上地址，系统将把该用户状态重置为待审核。
                                 </div>
