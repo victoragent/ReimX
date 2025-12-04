@@ -116,7 +116,7 @@ export default function ReimbursementDetailPage() {
 
     if (status === "loading" || loading) {
         return (
-            <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
+            <div className="relative min-h-screen overflow-y-auto bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
                 <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(59,130,246,0.14),rgba(14,165,233,0.08),transparent)]" />
                 <div className="flex min-h-screen items-center justify-center">
                     <div className="flex flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white/80 px-12 py-10 shadow-lg shadow-slate-200/60 backdrop-blur">
@@ -134,7 +134,7 @@ export default function ReimbursementDetailPage() {
 
     if (error) {
         return (
-            <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
+            <div className="relative min-h-screen overflow-y-auto bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
                 <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(59,130,246,0.14),rgba(14,165,233,0.08),transparent)]" />
                 <div className="flex min-h-screen items-center justify-center px-6">
                     <div className="w-full max-w-md rounded-3xl border border-rose-200 bg-white/85 p-8 text-center shadow-xl shadow-rose-100/60 backdrop-blur">
@@ -155,7 +155,7 @@ export default function ReimbursementDetailPage() {
 
     if (!reimbursement) {
         return (
-            <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
+            <div className="relative min-h-screen overflow-y-auto bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
                 <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(79,70,229,0.14),rgba(14,165,233,0.08),transparent)]" />
                 <div className="flex min-h-screen items-center justify-center px-6">
                     <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white/85 p-8 text-center shadow-xl shadow-slate-200/60 backdrop-blur">
@@ -175,7 +175,7 @@ export default function ReimbursementDetailPage() {
     }
 
     return (
-        <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
+        <div className="relative min-h-screen overflow-y-auto bg-gradient-to-br from-white via-slate-50 to-slate-100 text-slate-900">
             <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_120%_at_50%_0%,rgba(59,130,246,0.14),rgba(14,165,233,0.08),transparent)]" />
             <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-24 sm:px-10">
                 <section className="flex flex-col gap-6 rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-lg shadow-slate-200/70 backdrop-blur lg:flex-row lg:items-center lg:justify-between">

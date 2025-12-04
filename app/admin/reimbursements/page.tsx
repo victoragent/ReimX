@@ -203,8 +203,8 @@ export default function AdminReimbursementsPage() {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
-                    <p className="mt-4 text-slate-600">加载中...</p>
+                    <div className="h-12 w-12 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-500" />
+                    <p className="mt-4 text-sm font-medium text-slate-600">加载中...</p>
                 </div>
             </div>
         );
@@ -429,8 +429,8 @@ export default function AdminReimbursementsPage() {
 
             {/* 报销详情模态框 */}
             {selectedReimbursement && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4 py-10">
-                    <div className="relative w-full max-w-4xl rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-2xl shadow-slate-300/70">
+                <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-900/60 backdrop-blur-sm px-4 py-10">
+                    <div className="relative flex w-full max-w-4xl max-h-[90vh] flex-col rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-2xl shadow-slate-300/70">
                         <button
                             onClick={() => setSelectedReimbursement(null)}
                             className="absolute right-6 top-6 inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:text-slate-900"
@@ -438,7 +438,8 @@ export default function AdminReimbursementsPage() {
                         >
                             ✕
                         </button>
-                        <div className="space-y-6">
+                        {/* 内容区域可滚动，底部操作区固定 */}
+                        <div className="mt-4 flex-1 space-y-6 overflow-y-auto pr-1 md:pr-2">
                             <div className="space-y-2">
                                 <p className="text-xs font-medium uppercase tracking-[0.3em] text-indigo-500">Reimbursement</p>
                                 <h3 className="text-2xl font-semibold text-slate-900">
@@ -506,7 +507,7 @@ export default function AdminReimbursementsPage() {
                                         href={selectedReimbursement.receiptUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="mt-3 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 break-all"
+                                        className="mt-3 inline-flex items-center break-all text-sm font-medium text-indigo-600 hover:text-indigo-800"
                                     >
                                         查看凭证链接
                                         <span className="ml-1 text-xs">↗</span>
@@ -569,15 +570,16 @@ export default function AdminReimbursementsPage() {
                                 </div>
                             )}
 
-                            {/* 底部操作栏 */}
-                            <div className="mt-6 flex justify-end border-t border-slate-200 pt-6">
-                                <button
-                                    onClick={() => handleDelete(selectedReimbursement.id)}
-                                    className="text-sm font-medium text-slate-400 hover:text-red-600 transition"
-                                >
-                                    删除此报销单
-                                </button>
-                            </div>
+                        </div>
+
+                        {/* 底部操作栏（固定在模态框底部） */}
+                        <div className="mt-4 flex justify-end border-t border-slate-200 pt-4">
+                            <button
+                                onClick={() => handleDelete(selectedReimbursement.id)}
+                                className="text-sm font-medium text-slate-400 transition hover:text-red-600"
+                            >
+                                删除此报销单
+                            </button>
                         </div>
                     </div>
                 </div>
