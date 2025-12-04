@@ -11,6 +11,7 @@ interface Reimbursement {
     amount: number;
     amountOriginal?: number;
     currency: string;
+    receiptUrl?: string;
     expenseType?: ExpenseType;
     amountUsdEquivalent?: number;
     description: string;
@@ -493,6 +494,25 @@ export default function AdminReimbursementsPage() {
                                     <p className="mt-3 text-sm leading-relaxed text-slate-600">{selectedReimbursement.description || "暂无描述"}</p>
                                 </div>
                             </div>
+
+                            {/* 原始凭证链接（如果有） */}
+                            {selectedReimbursement.receiptUrl && (
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">报销凭证链接</h4>
+                                    <p className="mt-2 text-sm text-slate-600">
+                                        用户在提交报销时上传了原始凭证链接：
+                                    </p>
+                                    <a
+                                        href={selectedReimbursement.receiptUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-3 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 break-all"
+                                    >
+                                        查看凭证链接
+                                        <span className="ml-1 text-xs">↗</span>
+                                    </a>
+                                </div>
+                            )}
 
                             {selectedReimbursement.attachments && selectedReimbursement.attachments.length > 0 && (
                                 <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
