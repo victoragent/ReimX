@@ -90,9 +90,12 @@ export async function GET(request: NextRequest) {
         ]);
 
         // 转换数据格式以匹配前端期望
+        // 注意：前端“金额”列应展示原币种金额（amountOriginal），
+        // 金额（美元）单独使用 amountUsdEquivalent。
         const formattedReimbursements = reimbursements.map(reimbursement => ({
             ...reimbursement,
-            amount: reimbursement.amountUsdEquivalent ?? reimbursement.amountOriginal,
+            // 显式保留原金额字段，避免混淆
+            amount: reimbursement.amountOriginal,
             submittedAt: reimbursement.createdAt
         }));
 
