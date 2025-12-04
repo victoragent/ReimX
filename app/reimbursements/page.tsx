@@ -372,7 +372,7 @@ export default function ReimbursementsPage() {
                                         placeholder="https://example.com/receipt.pdf"
                                     />
                                     <p className="mt-2 text-xs text-slate-500">
-                                        将票据上传至云存储或链上凭证库，并在此粘贴可访问链接，便于财务团队复核。
+                                        将票据上传至云存储（google drive），并在此粘贴可访问链接，便于财务团队复核。
                                     </p>
                                 </div>
                             </div>
