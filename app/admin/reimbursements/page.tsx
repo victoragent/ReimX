@@ -177,6 +177,7 @@ export default function AdminReimbursementsPage() {
                 return "bg-green-100 text-green-800";
             case "rejected":
                 return "bg-red-100 text-red-800";
+            case "reimbursed":
             case "paid":
                 return "bg-blue-100 text-blue-800";
             default:
@@ -192,6 +193,7 @@ export default function AdminReimbursementsPage() {
                 return "已批准";
             case "rejected":
                 return "已拒绝";
+            case "reimbursed":
             case "paid":
                 return "已支付";
             default:
@@ -271,7 +273,7 @@ export default function AdminReimbursementsPage() {
                         <option value="submitted">待审核</option>
                         <option value="approved">已批准</option>
                         <option value="rejected">已拒绝</option>
-                        <option value="paid">已支付</option>
+                        <option value="reimbursed">已支付</option>
                     </select>
                     <select
                         value={currencyFilter}
