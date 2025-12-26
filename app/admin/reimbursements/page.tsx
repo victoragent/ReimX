@@ -12,6 +12,7 @@ interface Reimbursement {
     amountOriginal?: number;
     currency: string;
     receiptUrl?: string;
+    reimbursementUrl?: string;
     expenseType?: ExpenseType;
     amountUsdEquivalent?: number;
     description: string;
@@ -535,6 +536,25 @@ export default function AdminReimbursementsPage() {
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                            )}
+
+                            {/* 报销链接/交易证明 */}
+                            {selectedReimbursement.reimbursementUrl && (
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">支付证明链接</h4>
+                                    <p className="mt-2 text-sm text-slate-600">
+                                        管理员已标记支付并提供了相关链接（如链上交易或转账凭证）：
+                                    </p>
+                                    <a
+                                        href={selectedReimbursement.reimbursementUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-3 inline-flex items-center break-all text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                                    >
+                                        {selectedReimbursement.reimbursementUrl}
+                                        <span className="ml-1 text-xs">↗</span>
+                                    </a>
                                 </div>
                             )}
 

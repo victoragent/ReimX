@@ -23,6 +23,7 @@ interface ReimbursementDetail {
     reviewerId?: string;
     approverId?: string;
     txHash?: string;
+    reimbursementUrl?: string;
     createdAt: string;
     updatedAt: string;
     applicant: {
@@ -88,6 +89,7 @@ export default function ReimbursementDetailPage() {
                 return "bg-emerald-100 text-emerald-700";
             case "rejected":
                 return "bg-rose-100 text-rose-700";
+            case "reimbursed":
             case "paid":
                 return "bg-sky-100 text-sky-700";
             default:
@@ -103,6 +105,7 @@ export default function ReimbursementDetailPage() {
                 return "已批准";
             case "rejected":
                 return "已拒绝";
+            case "reimbursed":
             case "paid":
                 return "已支付";
             default:
@@ -365,6 +368,22 @@ export default function ReimbursementDetailPage() {
                                 <p className="mt-3 break-all rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-xs text-slate-700">
                                     {reimbursement.txHash}
                                 </p>
+                            </div>
+                        )}
+
+                        {reimbursement.reimbursementUrl && (
+                            <div className="rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-sm shadow-slate-200/50">
+                                <h3 className="text-sm font-semibold uppercase tracking-[0.3em] text-indigo-500">支付证明</h3>
+                                <div className="mt-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                                    <a
+                                        href={reimbursement.reimbursementUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="break-all text-sm font-medium text-indigo-600 hover:underline"
+                                    >
+                                        {reimbursement.reimbursementUrl}
+                                    </a>
+                                </div>
                             </div>
                         )}
                     </div>
