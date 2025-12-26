@@ -12,6 +12,7 @@ interface Reimbursement {
     amountOriginal?: number;
     currency: string;
     receiptUrl?: string;
+    reimbursementUrl?: string;
     expenseType?: ExpenseType;
     amountUsdEquivalent?: number;
     description: string;
@@ -177,6 +178,7 @@ export default function AdminReimbursementsPage() {
                 return "bg-green-100 text-green-800";
             case "rejected":
                 return "bg-red-100 text-red-800";
+            case "reimbursed":
             case "paid":
                 return "bg-blue-100 text-blue-800";
             default:
@@ -192,6 +194,7 @@ export default function AdminReimbursementsPage() {
                 return "已批准";
             case "rejected":
                 return "已拒绝";
+            case "reimbursed":
             case "paid":
                 return "已支付";
             default:
@@ -271,7 +274,7 @@ export default function AdminReimbursementsPage() {
                         <option value="submitted">待审核</option>
                         <option value="approved">已批准</option>
                         <option value="rejected">已拒绝</option>
-                        <option value="paid">已支付</option>
+                        <option value="reimbursed">已支付</option>
                     </select>
                     <select
                         value={currencyFilter}
@@ -533,6 +536,25 @@ export default function AdminReimbursementsPage() {
                                             </div>
                                         ))}
                                     </div>
+                                </div>
+                            )}
+
+                            {/* 报销链接/交易证明 */}
+                            {selectedReimbursement.reimbursementUrl && (
+                                <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm shadow-slate-200/50">
+                                    <h4 className="text-sm font-semibold text-slate-900">支付证明链接</h4>
+                                    <p className="mt-2 text-sm text-slate-600">
+                                        管理员已标记支付并提供了相关链接（如链上交易或转账凭证）：
+                                    </p>
+                                    <a
+                                        href={selectedReimbursement.reimbursementUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-3 inline-flex items-center break-all text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                                    >
+                                        {selectedReimbursement.reimbursementUrl}
+                                        <span className="ml-1 text-xs">↗</span>
+                                    </a>
                                 </div>
                             )}
 

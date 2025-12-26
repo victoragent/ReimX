@@ -219,6 +219,11 @@ export default function AdminSafeWalletPage() {
   const [tokenType, setTokenType] = useState<TokenType>("USDT");
   const [selectedChain, setSelectedChain] = useState<ChainOptionValue>("eth");
 
+  // Modal state
+  const [showMarkPaidModal, setShowMarkPaidModal] = useState(false);
+  const [reimbursementUrl, setReimbursementUrl] = useState("");
+  const [isSubmittingPaid, setIsSubmittingPaid] = useState(false);
+
   const buildRequestFilters = () => {
     const payload: Record<string, unknown> = {};
 
@@ -483,6 +488,53 @@ export default function AdminSafeWalletPage() {
     }
   };
 
+  const handleMarkAsPaid = async () => {
+    try {
+      setIsSubmittingPaid(true);
+      setError(null);
+
+      // Collect all selected reimbursement IDs from active batches
+      const selectedIds = activeBatches.flatMap(batch =>
+        batch.items.map(item => item.reimbursementId)
+      );
+
+      if (selectedIds.length === 0) {
+        setError("未选择任何报销单");
+        setShowMarkPaidModal(false);
+        return;
+      }
+
+      const response = await fetch("/api/admin/reimbursements/mark-paid", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          reimbursementIds: selectedIds,
+          reimbursementUrl: reimbursementUrl.trim() || undefined
+        })
+      });
+
+      const result = await response.json() as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(result.error || "操作失败");
+      }
+
+      // Success
+      setShowMarkPaidModal(false);
+      setReimbursementUrl("");
+      // Refresh data to remove paid items from the list
+      await fetchBatches();
+
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "标记失败，请重试");
+    } finally {
+      setIsSubmittingPaid(false);
+    }
+  };
+
   const handleDownload = () => {
     if (!csvPreview) {
       return;
@@ -624,6 +676,13 @@ export default function AdminSafeWalletPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowMarkPaidModal(true)}
+                disabled={totalReimbursements === 0}
+                className="px-4 py-2 border border-green-600 text-green-600 rounded-md hover:bg-green-50 disabled:opacity-50"
+              >
+                标注已报销
+              </button>
               <button
                 onClick={handleCopyCSV}
                 disabled={!csvPreview}
@@ -798,20 +857,21 @@ export default function AdminSafeWalletPage() {
               <h3 className="text-lg font-semibold text-slate-900">CSV 预览 (ERC20 - {chainOptions.find(c => c.value === selectedChain)?.label})</h3>
             </div>
             {csvPreview ? (
-              <pre className="max-h-96 overflow-auto rounded-lg bg-slate-900 text-slate-100 text-xs p-4">
+              <pre className="overflow-x-auto rounded-xl bg-slate-900 p-4 text-xs text-slate-300 font-mono leading-relaxed">
                 {csvPreview}
               </pre>
             ) : (
-              <div className="rounded-lg border border-dashed border-slate-200 p-6 text-sm text-slate-500 text-center">
-                当前筛选或手动剔除后没有可导出的支付记录。
+              <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
+                暂无符合条件的支付数据
               </div>
             )}
           </div>
         </div>
       ) : (
-        !loading && (
-          <div className="bg-white/80 rounded-lg border border-dashed border-slate-200 p-10 text-center text-slate-500">
-            暂无符合筛选条件的已批准报销，请调整筛选项或稍后再试。
+        !loading &&
+        !error && (
+          <div className="rounded-3xl border border-slate-200 bg-white/80 p-12 text-center shadow-sm">
+            <div className="text-slate-500">没有找到待支付的报销单</div>
           </div>
         )
       )}
@@ -826,6 +886,54 @@ export default function AdminSafeWalletPage() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* Mark Paid Modal */}
+      {showMarkPaidModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-slate-900 mb-2">确认标记为已报销？</h3>
+              <p className="text-sm text-slate-500 mb-6">
+                您即将标记 <span className="font-semibold text-indigo-600">{totalReimbursements}</span> 笔报销单为“已报销”。
+                此操作将把它们从待支付列表中移除。
+              </p>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  支付/报销凭证链接 (可选)
+                </label>
+                <input
+                  type="text"
+                  value={reimbursementUrl}
+                  onChange={(e) => setReimbursementUrl(e.target.value)}
+                  placeholder="https://etherscan.io/tx/..."
+                  className="w-full border-slate-200 rounded-lg shadow-sm focus:ring-indigo-200 focus:border-indigo-400"
+                />
+                <p className="mt-1 text-xs text-slate-400">
+                  可以输入区块链浏览器交易链接或其他凭证 URL。
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 justify-end">
+                <button
+                  onClick={() => setShowMarkPaidModal(false)}
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  disabled={isSubmittingPaid}
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleMarkAsPaid}
+                  disabled={isSubmittingPaid}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-sm shadow-green-200 disabled:opacity-70 flex items-center gap-2"
+                >
+                  {isSubmittingPaid ? "处理中..." : "确认标记"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

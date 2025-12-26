@@ -63,6 +63,7 @@ export default function ReimbursementHistoryPage() {
                 return "bg-green-100 text-green-800";
             case "rejected":
                 return "bg-red-100 text-red-800";
+            case "reimbursed":
             case "paid":
                 return "bg-blue-100 text-blue-800";
             default:
@@ -78,6 +79,7 @@ export default function ReimbursementHistoryPage() {
                 return "已批准";
             case "rejected":
                 return "已拒绝";
+            case "reimbursed":
             case "paid":
                 return "已支付";
             default:
