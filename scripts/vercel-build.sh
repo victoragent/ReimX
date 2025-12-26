@@ -18,8 +18,8 @@ echo "DATABASE_URL: ${DATABASE_URL:0:20}..."
 echo "📦 生成 Prisma 客户端..."
 npx prisma generate
 
-# 执行数据库推送（仅在生产环境且有数据库连接时）
-if [ "$VERCEL_ENV" = "production" ] && [ -n "$DATABASE_URL" ]; then
+# 执行数据库推送（在生产环境或预览环境，且有数据库连接时）
+if ([ "$VERCEL_ENV" = "production" ] || [ "$VERCEL_ENV" = "preview" ]) && [ -n "$DATABASE_URL" ]; then
     echo "🗄️  推送数据库架构到生产环境..."
     npx prisma db push
     
@@ -30,8 +30,8 @@ if [ "$VERCEL_ENV" = "production" ] && [ -n "$DATABASE_URL" ]; then
     else
         echo "ℹ️  未设置 ROOT_ADMIN_EMAIL，跳过管理员初始化"
     fi
-elif [ "$VERCEL_ENV" = "production" ] && [ -z "$DATABASE_URL" ]; then
-    echo "⚠️  生产环境缺少 DATABASE_URL，跳过数据库推送"
+elif ([ "$VERCEL_ENV" = "production" ] || [ "$VERCEL_ENV" = "preview" ]) && [ -z "$DATABASE_URL" ]; then
+    echo "⚠️  环境 ($VERCEL_ENV) 缺少 DATABASE_URL，跳过数据库推送"
 else
     echo "ℹ️  非生产环境，跳过数据库推送"
 fi
