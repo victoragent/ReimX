@@ -48,6 +48,7 @@ model Reimbursement {
   convertedBy          String?
   chain                String   @default("evm")
   receiptUrl           String?
+  reimbursementUrl     String?  // 支付/报销凭证链接
   status               String   @default("submitted")
   reviewerId           String?
   approverId           String?
