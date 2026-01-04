@@ -51,7 +51,13 @@ export async function POST(request: Request) {
     }
 
     const salaries = await prisma.salaryPayment.findMany({
-      where,
+      where: {
+        ...where,
+        user: {
+          status: "active",
+          isApproved: true
+        }
+      },
       orderBy: { createdAt: "desc" },
       include: {
         user: {

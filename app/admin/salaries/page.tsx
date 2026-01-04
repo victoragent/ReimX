@@ -314,7 +314,7 @@ export default function AdminSalariesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [month, statusFilter]);
 
-  const handleSchedule = async () => {
+  const handleSchedule = async (force = false) => {
     try {
       setScheduleLoading(true);
       setError(null);
@@ -325,7 +325,7 @@ export default function AdminSalariesPage() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ month })
+        body: JSON.stringify({ month, force })
       });
 
       const result = (await response.json()) as { error?: string; message?: string };
@@ -604,13 +604,29 @@ export default function AdminSalariesPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={handleSchedule}
-            disabled={scheduleLoading}
-            className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-indigo-700 disabled:opacity-60"
-          >
-            {scheduleLoading ? "生成中..." : `生成 ${month} 工资记录`}
-          </button>
+          <div className="flex bg-slate-100 rounded-full p-1 gap-1">
+            <button
+              onClick={() => handleSchedule()}
+              disabled={scheduleLoading}
+              className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+            >
+              {scheduleLoading ? "处理中..." : `生成 ${month} 工资`}
+            </button>
+            <button
+              onClick={() => {
+                if (confirm(`确定要完全重新生成 ${month} 的工资单吗？\n\n警告：所有状态为“待发放 (Pending)”的现有工资单将被删除并重新创建。已发放或已计划的记录不会受影响。`)) {
+                  handleSchedule(true);
+                }
+              }}
+              disabled={scheduleLoading}
+              className="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition disabled:opacity-50"
+              title="重新生成：删除待发放记录并重新计算"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </button>
+          </div>
           <button
             onClick={fetchData}
             disabled={loading}
