@@ -48,6 +48,7 @@ model Reimbursement {
   convertedBy          String?
   chain                String   @default("evm")
   receiptUrl           String?
+  reimbursementUrl     String?  // 支付/报销凭证链接
   status               String   @default("submitted")
   reviewerId           String?
   approverId           String?
@@ -66,6 +67,7 @@ model SalaryPayment {
   userId         String
   month          String
   amountUsdt     Float
+  paymentAmountUsdt Float? // 实际发放金额 (如果不一致)
   status         String   @default("pending") // pending, scheduled, paid
   scheduledAt    DateTime?
   paidAt         DateTime?

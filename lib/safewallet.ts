@@ -13,6 +13,7 @@ export interface SafeWalletItem {
   title: string;
   description: string | null;
   amountOriginal: number;
+  baseAmount?: number;
   currency: string;
   amountUsdt: number;
   exchangeRateToUsd: number;
@@ -20,6 +21,8 @@ export interface SafeWalletItem {
   applicantName: string;
   applicantEmail: string;
   chain: string;
+  status?: string;
+  transactionHash?: string | null;
 }
 
 export interface SafeWalletBatch {
@@ -401,14 +404,17 @@ export function aggregateSalariesForSafeWallet(payments: SalaryPaymentWithUser[]
     reimbursementId: payment.id,
     title: `工资发放 ${payment.month}`,
     description: payment.notes ?? null,
-    amountOriginal: payment.amountUsdt,
+    amountOriginal: payment.paymentAmountUsdt ?? payment.amountUsdt,
+    baseAmount: payment.amountUsdt,
     currency: "USDT",
-    amountUsdt: formatAmount(payment.amountUsdt),
+    amountUsdt: formatAmount(payment.paymentAmountUsdt ?? payment.amountUsdt),
     exchangeRateToUsd: 1,
     applicantId: payment.userId,
     applicantName: payment.user.username,
     applicantEmail: payment.user.email,
-    chain: "evm"
+    chain: "evm",
+    status: payment.status,
+    transactionHash: payment.transactionHash
   }));
 
   const batchesMap = new Map<string, SafeWalletBatch>();

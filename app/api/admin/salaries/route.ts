@@ -9,7 +9,8 @@ const monthSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "月份格式应
 
 const scheduleSchema = z.object({
   month: monthSchema,
-  userIds: z.array(z.string()).optional()
+  userIds: z.array(z.string()).optional(),
+  force: z.boolean().optional()
 });
 
 export async function GET(request: NextRequest) {
@@ -57,7 +58,17 @@ export async function GET(request: NextRequest) {
         orderBy: [{ month: "desc" }, { createdAt: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
-        include: {
+        select: {
+          id: true,
+          month: true,
+          amountUsdt: true,
+          paymentAmountUsdt: true,
+          status: true,
+          scheduledAt: true,
+          paidAt: true,
+          transactionHash: true,
+          notes: true,
+          createdAt: true,
           user: {
             select: {
               id: true,
@@ -119,11 +130,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "请求参数无效", issues: parsed.error.flatten() }, { status: 400 });
     }
 
-    const { month, userIds } = parsed.data;
+    const { month, userIds, force } = parsed.data;
 
     const userWhere: Record<string, unknown> = {
       salaryUsdt: { gt: 0 },
-      status: "active"
+      status: "active",
+      isApproved: true
     };
 
     if (userIds && userIds.length > 0) {
@@ -144,6 +156,17 @@ export async function POST(request: NextRequest) {
         message: "没有符合条件的用户或工资未设置",
         created: 0,
         skipped: []
+      });
+    }
+
+    // Force regeneration: delete old pending records
+    if (force) {
+      await prisma.salaryPayment.deleteMany({
+        where: {
+          month,
+          userId: { in: users.map(u => u.id) },
+          status: "pending" // Only delete pending records
+        }
       });
     }
 
