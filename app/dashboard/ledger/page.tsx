@@ -29,6 +29,26 @@ export default function UserLedgerPage() {
         fetchEntries();
     }, []);
 
+    const handleDelete = async (id: string) => {
+        if (!confirm("确定要删除这条记录吗？")) return;
+
+        try {
+            const res = await fetch(`/api/ledger/${id}`, {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                fetchEntries();
+            } else {
+                const data = await res.json() as { error?: string };
+                alert(data.error || "删除失败");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("删除失败，请重试");
+        }
+    };
+
     return (
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 sm:px-8 lg:px-12 bg-white min-h-screen text-black">
             {/* Header */}
@@ -48,7 +68,7 @@ export default function UserLedgerPage() {
 
             {/* List */}
             <div className="space-y-4">
-                <LedgerTable entries={entries} />
+                <LedgerTable entries={entries} onDelete={handleDelete} />
             </div>
 
             {/* Modal */}

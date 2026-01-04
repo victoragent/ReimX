@@ -51,6 +51,26 @@ export default function AdminLedgerPage() {
         }
     };
 
+    const handleDelete = async (id: string) => {
+        if (!confirm("确定要删除这条记录吗？此操作无法撤销。")) return;
+
+        try {
+            const res = await fetch(`/api/ledger/${id}`, {
+                method: "DELETE"
+            });
+
+            if (res.ok) {
+                fetchEntries();
+            } else {
+                const data = await res.json() as { error?: string };
+                alert(data.error || "删除失败");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("删除失败，请重试");
+        }
+    };
+
     return (
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-10 sm:px-8 lg:px-12 bg-white min-h-screen text-black">
             {/* Header */}
@@ -95,10 +115,11 @@ export default function AdminLedgerPage() {
                     entries={entries}
                     isAdmin={true}
                     onReview={handleReview}
+                    onDelete={handleDelete}
                 />
             </div>
 
-            {/* Modal (Admin can also create) */}
+            {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] p-4 transition-all">
                     <div className="relative w-full max-w-xl rounded-2xl border border-gray-200 bg-white p-8 shadow-xl animate-in fade-in zoom-in-95 duration-200">

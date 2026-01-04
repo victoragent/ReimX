@@ -1,4 +1,4 @@
-import { GET, PATCH } from "@/app/api/ledger/[id]/route";
+import { GET, PATCH, DELETE } from "@/app/api/ledger/[id]/route";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 
@@ -6,7 +6,7 @@ jest.mock("next-auth", () => ({ getServerSession: jest.fn() }));
 jest.mock("@/lib/prisma", () => ({
     prisma: {
         user: { findUnique: jest.fn() },
-        ledgerEntry: { findUnique: jest.fn(), update: jest.fn() }
+        ledgerEntry: { findUnique: jest.fn(), update: jest.fn(), delete: jest.fn() }
     }
 }));
 
@@ -67,5 +67,56 @@ describe("Ledger Entry API (GET/PATCH [id])", () => {
         const res = await PATCH(req, { params: { id: mockId } });
 
         expect(res.status).toBe(400);
+    });
+
+    describe("DELETE", () => {
+        it("should allow admin to delete any record", async () => {
+            const adminUser = { ...mockUser, role: "admin" };
+            (getServerSession as jest.Mock).mockResolvedValue({ user: { email: adminUser.email } });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(adminUser);
+            (prisma.ledgerEntry.findUnique as jest.Mock).mockResolvedValue(mockEntry);
+
+            const req = { url: `http://localhost/api/ledger/${mockId}` } as any;
+            const res = await DELETE(req, { params: { id: mockId } });
+
+            expect(res.status).toBe(200);
+            expect(prisma.ledgerEntry.delete).toHaveBeenCalledWith({ where: { id: mockId } });
+        });
+
+        it("should allow user to delete their own PENDING record", async () => {
+            (getServerSession as jest.Mock).mockResolvedValue({ user: { email: mockUser.email } });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+            (prisma.ledgerEntry.findUnique as jest.Mock).mockResolvedValue({ ...mockEntry, status: "PENDING" });
+
+            const req = { url: `http://localhost/api/ledger/${mockId}` } as any;
+            const res = await DELETE(req, { params: { id: mockId } });
+
+            expect(res.status).toBe(200);
+            expect(prisma.ledgerEntry.delete).toHaveBeenCalledWith({ where: { id: mockId } });
+        });
+
+        it("should deny user deleting APPROVED record", async () => {
+            (getServerSession as jest.Mock).mockResolvedValue({ user: { email: mockUser.email } });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+            (prisma.ledgerEntry.findUnique as jest.Mock).mockResolvedValue({ ...mockEntry, status: "APPROVED" });
+
+            const req = { url: `http://localhost/api/ledger/${mockId}` } as any;
+            const res = await DELETE(req, { params: { id: mockId } });
+
+            expect(res.status).toBe(403);
+            expect(prisma.ledgerEntry.delete).not.toHaveBeenCalled();
+        });
+
+        it("should deny user deleting someone else's record", async () => {
+            (getServerSession as jest.Mock).mockResolvedValue({ user: { email: "other@test.com" } });
+            (prisma.user.findUnique as jest.Mock).mockResolvedValue({ id: "u2", role: "user" });
+            (prisma.ledgerEntry.findUnique as jest.Mock).mockResolvedValue(mockEntry); // owner is u1
+
+            const req = { url: `http://localhost/api/ledger/${mockId}` } as any;
+            const res = await DELETE(req, { params: { id: mockId } });
+
+            expect(res.status).toBe(403);
+            expect(prisma.ledgerEntry.delete).not.toHaveBeenCalled();
+        });
     });
 });

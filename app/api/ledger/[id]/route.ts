@@ -114,3 +114,49 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
     }
 }
+
+// DELETE /api/ledger/[id]
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: "未授权" }, { status: 401 });
+        }
+
+        const { id } = params;
+        const currentUser = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true, role: true }
+        });
+
+        if (!currentUser) return NextResponse.json({ error: "用户不存在" }, { status: 404 });
+
+        const entry = await prisma.ledgerEntry.findUnique({ where: { id } });
+
+        if (!entry) return NextResponse.json({ error: "记录不存在" }, { status: 404 });
+
+        // Permission Check
+        const isAdmin = currentUser.role === "admin";
+        const isOwner = entry.userId === currentUser.id;
+
+        if (isAdmin) {
+            // Admin can delete any record, regardless of status
+            await prisma.ledgerEntry.delete({ where: { id } });
+            return NextResponse.json({ success: true });
+        } else if (isOwner) {
+            // Owner can only delete if status is PENDING
+            if (entry.status === "PENDING") {
+                await prisma.ledgerEntry.delete({ where: { id } });
+                return NextResponse.json({ success: true });
+            } else {
+                return NextResponse.json({ error: "已审核的记录无法删除" }, { status: 403 });
+            }
+        } else {
+            return NextResponse.json({ error: "无权删除此记录" }, { status: 403 });
+        }
+
+    } catch (error) {
+        console.error("删除记录失败:", error);
+        return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
+    }
+}

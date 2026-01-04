@@ -154,6 +154,15 @@ export function LedgerTable({ entries, isAdmin = false, onReview, onDelete }: Le
                                                 <Trash2 className="h-3.5 w-3.5" />
                                             </button>
                                         )}
+                                        {isAdmin && onDelete && (
+                                            <button
+                                                onClick={() => onDelete(entry.id)}
+                                                className="rounded-md border border-gray-200 p-1.5 text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                                                title="删除"
+                                            >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                            </button>
+                                        )}
                                     </div>
                                 </td>
                             </tr>

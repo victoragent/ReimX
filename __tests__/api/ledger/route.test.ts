@@ -71,7 +71,8 @@ describe("Ledger API (GET/POST)", () => {
     describe("POST /api/ledger", () => {
         const payload = {
             type: "SALARY_FIAT",
-            amount: 1000,
+            amountOriginal: 1000,
+            amountUsdEquivalent: 140,
             currency: "CNY",
             title: "Test Salary",
             transactionDate: "2024-01-01T00:00:00.000Z"
