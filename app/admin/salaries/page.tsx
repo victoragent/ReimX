@@ -734,7 +734,8 @@ export default function AdminSalariesPage() {
                         <tr>
                           <th className="px-4 py-2 text-left font-medium text-slate-500">包含</th>
                           <th className="px-4 py-2 text-left font-medium text-slate-500">工资记录</th>
-                          <th className="px-4 py-2 text-left font-medium text-slate-500">USDT</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">原始金额 (USDT)</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">实发金额</th>
                           <th className="px-4 py-2 text-left font-medium text-slate-500">说明</th>
                         </tr>
                       </thead>
@@ -758,8 +759,26 @@ export default function AdminSalariesPage() {
                                 <div className="font-medium text-slate-900">{item.title}</div>
                                 <div className="text-xs text-slate-500">ID: {item.reimbursementId}</div>
                               </td>
-                              <td className="px-4 py-2 align-top font-semibold text-indigo-600">
-                                {item.amountUsdt.toFixed(2)} USDT
+                              <td className="px-4 py-2 align-top text-slate-500 font-mono">
+                                {item.baseAmount ? item.baseAmount.toFixed(2) : "-"}
+                              </td>
+                              <td className="px-4 py-2 align-top">
+                                <input
+                                  type="number"
+                                  className="w-24 rounded border-slate-200 px-2 py-1 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-200"
+                                  defaultValue={item.amountOriginal}
+                                  onBlur={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    if (!isNaN(val) && val !== item.amountOriginal) {
+                                      handleUpdateAmount(item.reimbursementId, e.target.value);
+                                    }
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.currentTarget.blur();
+                                    }
+                                  }}
+                                />
                               </td>
                               <td className="px-4 py-2 align-top text-slate-600">
                                 {item.description || "—"}

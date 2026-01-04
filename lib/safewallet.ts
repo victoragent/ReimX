@@ -13,6 +13,7 @@ export interface SafeWalletItem {
   title: string;
   description: string | null;
   amountOriginal: number;
+  baseAmount?: number;
   currency: string;
   amountUsdt: number;
   exchangeRateToUsd: number;
@@ -401,9 +402,10 @@ export function aggregateSalariesForSafeWallet(payments: SalaryPaymentWithUser[]
     reimbursementId: payment.id,
     title: `工资发放 ${payment.month}`,
     description: payment.notes ?? null,
-    amountOriginal: payment.amountUsdt,
+    amountOriginal: payment.paymentAmountUsdt ?? payment.amountUsdt,
+    baseAmount: payment.amountUsdt,
     currency: "USDT",
-    amountUsdt: formatAmount(payment.amountUsdt),
+    amountUsdt: formatAmount(payment.paymentAmountUsdt ?? payment.amountUsdt),
     exchangeRateToUsd: 1,
     applicantId: payment.userId,
     applicantName: payment.user.username,

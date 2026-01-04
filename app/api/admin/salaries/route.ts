@@ -58,7 +58,17 @@ export async function GET(request: NextRequest) {
         orderBy: [{ month: "desc" }, { createdAt: "desc" }],
         skip: (page - 1) * limit,
         take: limit,
-        include: {
+        select: {
+          id: true,
+          month: true,
+          amountUsdt: true,
+          paymentAmountUsdt: true,
+          status: true,
+          scheduledAt: true,
+          paidAt: true,
+          transactionHash: true,
+          notes: true,
+          createdAt: true,
           user: {
             select: {
               id: true,
