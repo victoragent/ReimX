@@ -249,6 +249,13 @@ export default function DashboardPage() {
                   description="了解每月发放进度及明细"
                   accent="from-emerald-500/10 to-emerald-500/5 text-emerald-600"
                 />
+                <DashboardLink
+                  href="/dashboard/ledger"
+                  icon={FileText}
+                  title="我的账本"
+                  description="记录个人非报销类支出"
+                  accent="from-purple-500/10 to-purple-500/5 text-purple-600"
+                />
               </div>
             </div>
           </div>
@@ -440,7 +447,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-      </section>
+        </section>
       </div>
     </div>
   );

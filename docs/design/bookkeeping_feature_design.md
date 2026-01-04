@@ -144,6 +144,24 @@ model User {
   * **全局表格**: 包含用户信息列，支持按用户、状态筛选。
   * **审核操作**: 表格行内或详情页提供 "通过/驳回" 按钮。
 
+### 4.3 设计一致性指南 (Design Consistency)
+
+为保持与现有 Dashboard 风格高度一致，必须遵循以下 UI 规范：
+
+* **背景风格**:
+  * 全局背景: `bg-gradient-to-br from-white via-slate-50 to-slate-100` (参照 `AdminLayout`)
+  * 卡片/容器: `bg-white/80` + `backdrop-blur-2xl` + `border border-slate-200/80` + `shadow-xl shadow-slate-200/50`
+* **颜色系统**:
+  * 主色调: Indigo (`text-indigo-600`, `bg-indigo-500`)
+  * 渐变色: `from-indigo-500 via-sky-500 to-cyan-500` (用于激活状态或高亮图标)
+  * 文本色: `text-slate-900` (标题), `text-slate-600` (正文), `text-slate-500` (辅助)
+* **组件风格**:
+  * **圆角**: 大量使用 `rounded-2xl` 或 `rounded-3xl`，展现柔和现代感。
+  * **表格**: 使用 Shadcn/UI Table 组件，表头透明或轻微灰色背景，行悬停效果 `hover:bg-slate-50`。
+  * **按钮**: 主要按钮采用渐变背景或 Indigo 实色，次要按钮使用 `bg-white` 加 `border-slate-200`。
+* **交互**:
+  * 使用 `framer-motion` (如有) 或 CSS transitions (`transition-all duration-200`) 增加微交互。
+
 ## 5. 开发分步计划 (Implementation Plan)
 
 1. **数据库迁移**: 更新 `schema.prisma` 并运行 migration。

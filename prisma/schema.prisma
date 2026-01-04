@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -28,6 +28,8 @@ model User {
   approvedReimbursements  Reimbursement[] @relation("ReimbursementApprover")
   salaryPayments          SalaryPayment[]
   passwordResetTokens   PasswordResetToken[]
+  ledgerEntries   LedgerEntry[]     @relation("UserLedgerEntries")
+  reviewedLedgers LedgerEntry[]     @relation("LedgerReviewer")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
@@ -48,7 +50,7 @@ model Reimbursement {
   convertedBy          String?
   chain                String   @default("evm")
   receiptUrl           String?
-  reimbursementUrl     String?  // 支付/报销凭证链接
+  reimbursementUrl     String?
   status               String   @default("submitted")
   reviewerId           String?
   approverId           String?
@@ -67,8 +69,8 @@ model SalaryPayment {
   userId         String
   month          String
   amountUsdt     Float
-  paymentAmountUsdt Float? // 实际发放金额 (如果不一致)
-  status         String   @default("pending") // pending, scheduled, paid
+  paymentAmountUsdt Float?
+  status         String   @default("pending")
   scheduledAt    DateTime?
   paidAt         DateTime?
   transactionHash String?
@@ -92,4 +94,40 @@ model PasswordResetToken {
 
   @@index([token])
   @@index([expiresAt])
+}
+
+// Bookkeeping / Ledger System
+
+// SQLite does not support Enum, using String with defaults
+
+model LedgerEntry {
+  id              String            @id @default(cuid())
+  userId          String
+  
+  // type: SALARY_FIAT, FEE, DIGITAL_ASSET, REIMBURSEMENT_EXTRA, OTHER
+  // type: Shared with Reimbursement: technology, marketing, administrative, hr, other
+  type            String            @default("other")
+  amountOriginal  Decimal
+  currency        String
+  amountUsdEquivalent Decimal       @default(0)
+  
+  title           String
+  description     String?
+  transactionDate DateTime          @default(now())
+  
+  attachmentUrl   String?
+  txHash          String?
+  
+  // status: PENDING, APPROVED, REJECTED
+  status          String            @default("PENDING")
+  
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewNote      String?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  user            User              @relation("UserLedgerEntries", fields: [userId], references: [id])
+  reviewer        User?             @relation("LedgerReviewer", fields: [reviewedBy], references: [id])
 }
