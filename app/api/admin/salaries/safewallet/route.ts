@@ -59,14 +59,7 @@ export async function POST(request: Request) {
         }
       },
       orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        userId: true,
-        month: true,
-        amountUsdt: true,
-        paymentAmountUsdt: true,
-        status: true,
-        createdAt: true,
+      include: {
         user: {
           select: {
             id: true,

@@ -1,57 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { SafeWalletItem, SafeWalletBatch, SafeWalletIssue, SafeWalletPayload } from "@/lib/safewallet";
 
-interface SafeWalletItem {
-  reimbursementId: string;
-  title: string;
-  description: string | null;
-  amountOriginal: number;
-  currency: string;
-  amountUsdt: number;
-  exchangeRateToUsd: number;
-  applicantId: string;
-  applicantName: string;
-  applicantEmail: string;
-  chain: string;
-}
 
-interface SafeWalletBatch {
-  applicantId: string;
-  applicantName: string;
-  applicantEmail: string;
-  evmAddress: string | null;
-  solanaAddress: string | null;
-  chainAddresses: Record<string, string>;
-  chains: string[];
-  totalAmountUsdt: number;
-  reimbursementIds: string[];
-  items: SafeWalletItem[];
-}
-
-interface SafeWalletIssue {
-  applicantId: string;
-  applicantName: string;
-  type: string;
-  chain?: string;
-  message: string;
-}
-
-interface SafeWalletPayload {
-  version: string;
-  createdAt: string;
-  token: string;
-  transactions: Array<{
-    to: string;
-    value: string;
-    data: string;
-    description: string;
-    metadata: {
-      applicantId: string;
-      reimbursementIds: string[];
-    };
-  }>;
-}
 
 interface SafeWalletResponse {
   totalPayments: number;
@@ -385,6 +337,35 @@ export default function AdminSalariesPage() {
   const selectedSalaryIds = useMemo(() => {
     return filteredBatches.flatMap((batch) => batch.items.map((item) => item.reimbursementId));
   }, [filteredBatches]);
+
+  const handleUpdateAmount = async (id: string, value: string) => {
+    const amount = parseFloat(value);
+    if (isNaN(amount) || amount < 0) {
+      setError("请输入有效的金额");
+      return;
+    }
+
+    try {
+      // Optimistic update could go here, but for now we just reload
+      const response = await fetch("/api/admin/salaries/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id, paymentAmountUsdt: amount })
+      });
+
+      if (!response.ok) {
+        const result = (await response.json()) as { error?: string };
+        throw new Error(result.error || "更新失败");
+      }
+
+      await fetchData();
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "更新失败，请重试");
+    }
+  };
 
   const handleMarkPaid = async () => {
     if (selectedSalaryIds.length === 0) {
