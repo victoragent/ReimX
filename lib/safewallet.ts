@@ -21,6 +21,8 @@ export interface SafeWalletItem {
   applicantName: string;
   applicantEmail: string;
   chain: string;
+  status?: string;
+  transactionHash?: string | null;
 }
 
 export interface SafeWalletBatch {
@@ -410,7 +412,9 @@ export function aggregateSalariesForSafeWallet(payments: SalaryPaymentWithUser[]
     applicantId: payment.userId,
     applicantName: payment.user.username,
     applicantEmail: payment.user.email,
-    chain: "evm"
+    chain: "evm",
+    status: payment.status,
+    transactionHash: payment.transactionHash
   }));
 
   const batchesMap = new Map<string, SafeWalletBatch>();

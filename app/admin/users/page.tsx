@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
     const [error, setError] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("");
-    const [statusFilter, setStatusFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("active");
     const [currentPage, setCurrentPage] = useState(1);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [editForm, setEditForm] = useState({
@@ -339,7 +339,7 @@ export default function AdminUsersPage() {
 
             const isNewUser = !editingUser.id;
 
-            const { evmAddress, solanaAddress, entries } = deriveLegacyAddresses(chainAddresses);
+            const { entries } = deriveLegacyAddresses(chainAddresses);
 
             const payload: Record<string, unknown> = {
                 username: editForm.username,
@@ -348,8 +348,8 @@ export default function AdminUsersPage() {
                 status: editForm.status,
                 tgAccount: editForm.tgAccount || "",
                 whatsappAccount: editForm.whatsappAccount || "",
-                evmAddress: evmAddress || "",
-                solanaAddress: solanaAddress || "",
+                evmAddress: editForm.evmAddress || "",
+                solanaAddress: editForm.solanaAddress || "",
                 chainAddresses: entries.length > 0 ? JSON.stringify(entries) : ""
             };
 

@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 const updateSchema = z.object({
     id: z.string().min(1),
-    paymentAmountUsdt: z.number().nonnegative()
+    paymentAmountUsdt: z.number().nonnegative().optional(),
+    notes: z.string().optional()
 });
 
 export async function PATCH(request: NextRequest) {
@@ -36,11 +37,19 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "请求参数无效", issues: parsed.error.flatten() }, { status: 400 });
         }
 
-        const { id, paymentAmountUsdt } = parsed.data;
+        const { id, paymentAmountUsdt, notes } = parsed.data;
+
+        const data: Record<string, any> = {};
+        if (paymentAmountUsdt !== undefined) data.paymentAmountUsdt = paymentAmountUsdt;
+        if (notes !== undefined) data.notes = notes;
+
+        if (Object.keys(data).length === 0) {
+            return NextResponse.json({ message: "无更新内容" });
+        }
 
         const salaryPayment = await prisma.salaryPayment.update({
             where: { id },
-            data: { paymentAmountUsdt }
+            data
         });
 
         return NextResponse.json({

@@ -138,6 +138,7 @@ export default function AdminSalariesPage() {
   const [selection, setSelection] = useState<SelectionState>({});
   const [loading, setLoading] = useState(false);
   const [scheduleLoading, setScheduleLoading] = useState(false);
+  const [isMarkPaidModalOpen, setIsMarkPaidModalOpen] = useState(false);
   const [markingPaid, setMarkingPaid] = useState(false);
   const [transactionHash, setTransactionHash] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -359,6 +360,27 @@ export default function AdminSalariesPage() {
         const result = (await response.json()) as { error?: string };
         throw new Error(result.error || "更新失败");
       }
+      await fetchData();
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "更新失败，请重试");
+    }
+  };
+
+  const handleUpdateNotes = async (id: string, value: string) => {
+    try {
+      const response = await fetch("/api/admin/salaries/update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id, notes: value })
+      });
+
+      if (!response.ok) {
+        const result = (await response.json()) as { error?: string };
+        throw new Error(result.error || "更新失败");
+      }
 
       await fetchData();
     } catch (err: any) {
@@ -368,10 +390,7 @@ export default function AdminSalariesPage() {
   };
 
   const handleMarkPaid = async () => {
-    if (selectedSalaryIds.length === 0) {
-      setError("请选择至少一个工资记录");
-      return;
-    }
+    // Note: selectedSalaryIds validation moved to the trigger button
 
     try {
       setMarkingPaid(true);
@@ -396,6 +415,7 @@ export default function AdminSalariesPage() {
       } else {
         setMessage(result.message || "已标记为已发放");
         setTransactionHash("");
+        setIsMarkPaidModalOpen(false);
         await fetchData();
       }
     } catch (err) {
@@ -404,6 +424,15 @@ export default function AdminSalariesPage() {
     } finally {
       setMarkingPaid(false);
     }
+  };
+
+  const handleOpenMarkPaidModal = () => {
+    if (selectedSalaryIds.length === 0) {
+      setError("请选择至少一个工资记录");
+      return;
+    }
+    setError(null);
+    setIsMarkPaidModalOpen(true);
   };
 
   const handleCopyPayload = async () => {
@@ -572,41 +601,35 @@ export default function AdminSalariesPage() {
               <option value="USDC">USDC</option>
             </select>
           </div>
-          <div className="lg:col-span-2">
-            <label className="block text-sm font-medium text-slate-700">Safe Wallet 交易哈希（可选）</label>
-            <input
-              type="text"
-              placeholder="若已在 Safe Wallet 发放，请填写链上交易哈希"
-              value={transactionHash}
-              onChange={(event) => setTransactionHash(event.target.value)}
-              className="mt-1 block w-full rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-slate-200/50 focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-            />
-            <p className="mt-2 text-xs text-slate-500">用于导出后回填记录，便于审计追踪。</p>
-          </div>
+
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex bg-slate-100 rounded-full p-1 gap-1">
-            <button
-              onClick={() => handleSchedule()}
-              disabled={scheduleLoading}
-              className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
-            >
-              {scheduleLoading ? "处理中..." : `生成 ${month} 工资`}
-            </button>
-            <button
-              onClick={() => {
-                if (confirm(`确定要完全重新生成 ${month} 的工资单吗？\n\n警告：所有状态为“待发放 (Pending)”的现有工资单将被删除并重新创建。已发放或已计划的记录不会受影响。`)) {
-                  handleSchedule(true);
-                }
-              }}
-              disabled={scheduleLoading}
-              className="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition disabled:opacity-50"
-              title="重新生成：删除待发放记录并重新计算"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-              </svg>
-            </button>
+            {statusFilter !== "paid" && (
+              <>
+                <button
+                  onClick={() => handleSchedule()}
+                  disabled={scheduleLoading}
+                  className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
+                >
+                  {scheduleLoading ? "处理中..." : `生成 ${month} 工资`}
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm(`确定要完全重新生成 ${month} 的工资单吗？\n\n警告：所有状态为“待发放 (Pending)”的现有工资单将被删除并重新创建。已发放或已计划的记录不会受影响。`)) {
+                      handleSchedule(true);
+                    }
+                  }}
+                  disabled={scheduleLoading}
+                  className="inline-flex items-center justify-center rounded-full px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition disabled:opacity-50"
+                  title="重新生成：删除待发放记录并重新计算"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
           <button
             onClick={fetchData}
@@ -615,13 +638,15 @@ export default function AdminSalariesPage() {
           >
             刷新数据
           </button>
-          <button
-            onClick={handleMarkPaid}
-            disabled={markingPaid || selectedSalaryIds.length === 0}
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-emerald-700 disabled:opacity-60"
-          >
-            {markingPaid ? "更新中..." : selectedSalaryIds.length ? `标记 ${selectedSalaryIds.length} 条为已发放` : "标记为已发放"}
-          </button>
+          {statusFilter !== "paid" && (
+            <button
+              onClick={handleOpenMarkPaidModal}
+              disabled={markingPaid || selectedSalaryIds.length === 0}
+              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-slate-200/50 transition hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {markingPaid ? "更新中..." : selectedSalaryIds.length ? `标记 ${selectedSalaryIds.length} 条为已发放` : "标记为已发放"}
+            </button>
+          )}
         </div>
         <div className="text-xs text-slate-500">已选 {selectedSalaryIds.length} 条工资记录。</div>
         {error && (
@@ -716,8 +741,8 @@ export default function AdminSalariesPage() {
                           <th className="px-4 py-2 text-left font-medium text-slate-500">包含</th>
                           <th className="px-4 py-2 text-left font-medium text-slate-500">工资记录</th>
                           <th className="px-4 py-2 text-left font-medium text-slate-500">原始金额 (USDT)</th>
-                          <th className="px-4 py-2 text-left font-medium text-slate-500">实发金额</th>
-                          <th className="px-4 py-2 text-left font-medium text-slate-500">说明</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">实发金额 (USDT)</th>
+                          <th className="px-4 py-2 text-left font-medium text-slate-500">说明 (备注)</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
@@ -744,25 +769,60 @@ export default function AdminSalariesPage() {
                                 {item.baseAmount ? item.baseAmount.toFixed(2) : "-"}
                               </td>
                               <td className="px-4 py-2 align-top">
-                                <input
-                                  type="number"
-                                  className="w-24 rounded border-slate-200 px-2 py-1 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-200"
-                                  defaultValue={item.amountOriginal}
-                                  onBlur={(e) => {
-                                    const val = parseFloat(e.target.value);
-                                    if (!isNaN(val) && val !== item.amountOriginal) {
-                                      handleUpdateAmount(item.reimbursementId, e.target.value);
-                                    }
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.currentTarget.blur();
-                                    }
-                                  }}
-                                />
+                                {item.status === "paid" ? (
+                                  <span className="font-semibold text-emerald-600">{item.amountOriginal.toFixed(2)}</span>
+                                ) : (
+                                  <input
+                                    type="number"
+                                    className="w-24 rounded border-slate-200 px-2 py-1 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-200"
+                                    defaultValue={item.amountOriginal}
+                                    onBlur={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      if (!isNaN(val) && val !== item.amountOriginal) {
+                                        handleUpdateAmount(item.reimbursementId, e.target.value);
+                                      }
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        e.currentTarget.blur();
+                                      }
+                                    }}
+                                  />
+                                )}
                               </td>
                               <td className="px-4 py-2 align-top text-slate-600">
-                                {item.description || "—"}
+                                {item.status === "paid" ? (
+                                  <div className="space-y-1">
+                                    <span>{item.description || "—"}</span>
+                                    {item.transactionHash && (
+                                      <div className="text-xs text-slate-400 break-all">
+                                        EVIDENCE: {item.transactionHash.startsWith("http") ? (
+                                          <a href={item.transactionHash} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:underline">
+                                            链接
+                                          </a>
+                                        ) : item.transactionHash}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    className="w-full rounded border border-slate-200 px-2 py-1 text-sm text-slate-900 focus:border-indigo-500 focus:ring-indigo-200 placeholder-slate-400"
+                                    placeholder="添加备注..."
+                                    defaultValue={item.description || ""}
+                                    title="点击修改备注"
+                                    onBlur={(e) => {
+                                      if (e.target.value !== (item.description || "")) {
+                                        handleUpdateNotes(item.reimbursementId, e.target.value);
+                                      }
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        e.currentTarget.blur();
+                                      }
+                                    }}
+                                  />
+                                )}
                               </td>
                             </tr>
                           );
@@ -807,6 +867,52 @@ export default function AdminSalariesPage() {
             ))}
           </ul>
         </section>
+      )}
+
+      {/* Mark Paid Modal */}
+      {isMarkPaidModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+            <h3 className="mb-4 text-xl font-semibold text-slate-900">确认标记已发放</h3>
+            <p className="mb-6 text-sm text-slate-600">
+              您即将标记 <span className="font-bold text-indigo-600">{selectedSalaryIds.length}</span> 条记录为"已发放"。
+              <br />
+              此操作将更新这些记录的状态，并记录发放时间。
+            </p>
+
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Safe Wallet 交易哈希 / 浏览器 URL（可选）
+              </label>
+              <input
+                type="text"
+                value={transactionHash}
+                onChange={(e) => setTransactionHash(e.target.value)}
+                placeholder="例如：https://etherscan.io/tx/0x..."
+                className="block w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              />
+              <p className="mt-2 text-xs text-slate-500">
+                如果您已在 Safe Wallet 完成交易，请在此粘贴交易哈希或 URL 以留存证据。
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsMarkPaidModalOpen(false)}
+                className="rounded-full px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleMarkPaid}
+                disabled={markingPaid}
+                className="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-70"
+              >
+                {markingPaid ? "处理中..." : "确认标记已发放"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
