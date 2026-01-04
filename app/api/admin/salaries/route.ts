@@ -123,7 +123,8 @@ export async function POST(request: NextRequest) {
 
     const userWhere: Record<string, unknown> = {
       salaryUsdt: { gt: 0 },
-      status: "active"
+      status: "active",
+      isApproved: true
     };
 
     if (userIds && userIds.length > 0) {
