@@ -30,6 +30,8 @@ model User {
   passwordResetTokens   PasswordResetToken[]
   ledgerEntries   LedgerEntry[]     @relation("UserLedgerEntries")
   reviewedLedgers LedgerEntry[]     @relation("LedgerReviewer")
+  assets          Asset[]
+  assetRecords    AssetRecord[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
@@ -130,4 +132,55 @@ model LedgerEntry {
   
   user            User              @relation("UserLedgerEntries", fields: [userId], references: [id])
   reviewer        User?             @relation("LedgerReviewer", fields: [reviewedBy], references: [id])
+}
+
+// Asset Management System
+
+// AssetStatus: ACTIVE, SOLD, DEPLETED, WRITTEN_OFF
+// AssetRecordType: INITIAL, CONSUMPTION, REVALUATION, ADDITION
+
+model Asset {
+  id              String      @id @default(cuid())
+  userId          String
+  
+  name            String
+  description     String?
+  type            String      // e.g. "FIXED", "CRYPTO", "SUBSCRIPTION"
+  
+  initialValue    Decimal
+  currency        String
+  currentValue    Decimal
+  
+  quantity        Decimal?
+  unit            String?
+  
+  purchaseDate    DateTime
+  
+  status          String      @default("ACTIVE") // ACTIVE, SOLD, DEPLETED, WRITTEN_OFF
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  user            User          @relation(fields: [userId], references: [id])
+  records         AssetRecord[]
+}
+
+model AssetRecord {
+  id              String          @id @default(cuid())
+  assetId         String
+  userId          String
+  
+  type            String          // INITIAL, CONSUMPTION, REVALUATION, ADDITION
+  
+  amountChange    Decimal
+  valueAfter      Decimal
+  
+  date            DateTime        @default(now())
+  
+  note            String?
+  
+  createdAt       DateTime        @default(now())
+  
+  asset           Asset           @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id])
 }

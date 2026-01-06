@@ -30,7 +30,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             { name: "用户管理", href: "/admin/users", icon: "👥" },
             { name: "报销管理", href: "/admin/reimbursements", icon: "💰" },
             { name: "工资管理", href: "/admin/salaries", icon: "💼" },
-            { name: "财务账本", href: "/admin/ledger", icon: "📒" },
+            { name: "财务记账", href: "/admin/ledger", icon: "📒" },
+            { name: "公司资产", href: "/admin/assets", icon: "🏢" },
             { name: "数据分析", href: "/admin/analytics", icon: "📈" }
         ],
         []
