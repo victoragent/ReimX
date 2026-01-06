@@ -10,6 +10,8 @@ export default function AssetsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
+    const [totalValueUsd, setTotalValueUsd] = useState<number | null>(null);
+
     const fetchAssets = async () => {
         try {
             setIsLoading(true);
@@ -17,6 +19,7 @@ export default function AssetsPage() {
             if (res.ok) {
                 const data = await res.json();
                 setAssets(data as any[]);
+                calculateTotalValue(data as any[]);
             }
         } catch (error) {
             console.error("Failed to fetch assets", error);
@@ -25,12 +28,45 @@ export default function AssetsPage() {
         }
     };
 
+    const calculateTotalValue = async (currentAssets: any[]) => {
+        try {
+            // Get unique currencies
+            const currencies = Array.from(new Set(currentAssets.map((a: any) => a.currency)));
+            const rates: Record<string, number> = { USD: 1 };
+
+            // Fetch rates for non-USD currencies
+            await Promise.all(
+                currencies.filter(c => c !== "USD").map(async (c) => {
+                    try {
+                        // @ts-ignore
+                        const res = await fetch(`/api/exchange?currency=${c}`);
+                        if (res.ok) {
+                            const data = await res.json() as { rate: number };
+                            if (data.rate) rates[c as string] = data.rate;
+                        }
+                    } catch (e) {
+                        console.error(`Failed to fetch rate for ${c}`, e);
+                    }
+                })
+            );
+
+            // Sum up
+            const total = currentAssets.reduce((sum: number, asset: any) => {
+                const rate = rates[asset.currency] || 0;
+                const value = Number(asset.currentValue || asset.initialValue || 0);
+                return sum + (value * rate);
+            }, 0);
+
+            setTotalValueUsd(total);
+        } catch (error) {
+            console.error("Failed to calculate total value", error);
+        }
+    };
+
     useEffect(() => {
         fetchAssets();
     }, []);
 
-    // Simple Calculate Total Value (Rough estimate, ignoring currency conversion for UI demo)
-    // Real implementation should convert to common currency.
     const totalAssets = assets.length;
 
     return (
@@ -70,7 +106,11 @@ export default function AssetsPage() {
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-500">总估值 (Est)</p>
-                            <h3 className="text-2xl font-bold text-gray-900">Pending...</h3>
+                            <h3 className="text-2xl font-bold text-gray-900">
+                                {totalValueUsd !== null
+                                    ? `$${totalValueUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    : "Computing..."}
+                            </h3>
                         </div>
                     </div>
                 </div>

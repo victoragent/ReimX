@@ -55,7 +55,7 @@ export default function UserLedgerPage() {
             <div className="flex items-center justify-between border-b border-gray-100 pb-5">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-black">我的记账本</h1>
-                    <p className="mt-2 text-sm text-gray-500">记录您的额外收支与资产变动</p>
+                    <p className="mt-2 text-sm text-gray-500">记录您的额外收支变动（工资、报销之外）</p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}

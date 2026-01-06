@@ -88,6 +88,10 @@ export function AssetForm({ onSuccess }: { onSuccess: () => void }) {
                     >
                         <option value="CNY">CNY</option>
                         <option value="USD">USD</option>
+                        <option value="HKD">HKD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="JPY">JPY</option>
                         <option value="USDT">USDT</option>
                         <option value="BTC">BTC</option>
                         <option value="ETH">ETH</option>

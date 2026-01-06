@@ -61,10 +61,11 @@ export function LedgerTable({ entries, isAdmin = false, onReview, onDelete }: Le
 
     const getTypeLabel = (type: string) => {
         const map: Record<string, string> = {
-            technology: "技术/研发",
-            marketing: "市场/运营",
-            administrative: "行政/办公",
-            hr: "人力/招聘",
+            technology: "技术",
+            travel: "差旅",
+            administrative: "行政",
+            hr: "人力",
+            operations: "运营",
             other: "其他"
         };
         return map[type] || type;

@@ -6,15 +6,17 @@ import { Loader2, Upload, Calendar as CalendarIcon, Save } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Global Expense Types matching Reimbursement system
+// Global Expense Types
 const GLOBAL_EXPENSE_TYPES = [
-    { value: "technology", label: "技术/研发 (Technology)" },
-    { value: "marketing", label: "市场/运营 (Marketing)" },
-    { value: "administrative", label: "行政/办公 (Administrative)" },
-    { value: "hr", label: "人力/招聘 (HR)" },
+    { value: "technology", label: "技术 (Technical)" },
+    { value: "travel", label: "差旅 (Travel)" },
+    { value: "administrative", label: "行政 (Administrative)" },
+    { value: "hr", label: "人力 (HR)" },
+    { value: "operations", label: "运营 (Operations)" },
     { value: "other", label: "其他 (Other)" },
 ];
 
-const CURRENCIES = ["CNY", "USD", "USDT", "ETH", "BTC", "SOL"];
+const CURRENCIES = ["CNY", "USD", "HKD", "EUR", "GBP", "JPY", "USDT", "ETH", "BTC", "SOL"];
 
 interface LedgerFormProps {
     onSuccess?: () => void;
@@ -250,15 +252,28 @@ export function LedgerForm({ onSuccess, className }: LedgerFormProps) {
                             type="number"
                             step="0.01"
                             required
-                            readOnly
                             value={formData.amountUsdEquivalent}
+                            onChange={handleChange}
                             placeholder="0.00"
-                            className="flex h-10 w-full rounded-md border border-gray-200 bg-gray-50 pl-7 pr-3 py-2 text-sm text-gray-500 focus:outline-none cursor-not-allowed"
+                            className="flex h-10 w-full rounded-md border border-gray-200 bg-white pl-7 pr-3 py-2 text-sm text-black focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
                         />
                     </div>
-                    <p className="text-xs text-slate-500">
-                        * 请输入当前汇率折算后的美元价值
-                    </p>
+                    <div className="text-xs text-slate-500 min-h-[1.25rem] mt-1.5">
+                        {quoteLoading && <span>正在更新汇率...</span>}
+                        {quoteError && <span className="text-rose-500">汇率获取失败: {quoteError}</span>}
+                        {quote && !quoteLoading && formData.currency !== "USD" && (
+                            <span className="inline-flex items-center gap-1">
+                                <span>参考汇率: {quote.rate.toFixed(4)}</span>
+                                <span className="text-gray-400">|</span>
+                                <span>来源: {quote.source}</span>
+                                <span className="text-gray-400">|</span>
+                                <span>≈ ${(Number(formData.amountOriginal) * quote.rate).toFixed(2)} USD</span>
+                            </span>
+                        )}
+                        {(!quote || formData.currency === "USD") && (
+                            <span>* 可手动调整美元等值金额</span>
+                        )}
+                    </div>
                 </div>
 
                 <div className="space-y-2">

@@ -25,7 +25,11 @@ export const currencies = [
   "MYR",
   "PHP",
   "VND",
-  "NZD"
+  "NZD",
+  "BTC",
+  "ETH",
+  "SOL",
+  "USDT"
 ] as const;
 export type Currency = (typeof currencies)[number];
 
@@ -73,5 +77,9 @@ export const currencyLabels: Record<Currency, string> = {
   MYR: "马来西亚林吉特 (MYR)",
   PHP: "菲律宾比索 (PHP)",
   VND: "越南盾 (VND)",
-  NZD: "新西兰元 (NZD)"
+  NZD: "新西兰元 (NZD)",
+  BTC: "比特币 (BTC)",
+  ETH: "以太坊 (ETH)",
+  SOL: "Solana (SOL)",
+  USDT: "泰达币 (USDT)"
 };
