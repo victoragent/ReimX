@@ -161,7 +161,7 @@ function getEmailBody(data: NotificationData): string {
       actionText = '您的报销款项已成功支付。';
       break;
     case 'password_reset':
-      const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/reset-password?token=${resetToken}`;
+      const resetUrl = `${process.env.NEXTAUTH_URL || 'https://reim-x.vercel.app'}/reset-password?token=${resetToken}`;
       return `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">密码重置请求</h2>
