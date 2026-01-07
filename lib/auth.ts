@@ -24,20 +24,30 @@ export const authOptions = {
                 const parsed = credentialsSchema.safeParse(credentials);
                 if (!parsed.success) return null;
 
-                const user = await prisma.user.findUnique({
-                    where: { email: parsed.data.email },
-                    select: {
-                        id: true,
-                        email: true,
-                        username: true,
-                        password: true,
-                        role: true,
-                        status: true,
-                        isApproved: true
-                    }
-                });
+                const emailInput = parsed.data.email.toLowerCase();
 
-                if (!user) return null;
+                // 1. Case-insensitive search to handle historical data
+                // Using raw query to be compatible with both SQLite and Postgres
+                const users = await prisma.$queryRaw<any[]>`
+                    SELECT * FROM "User" WHERE LOWER(email) = LOWER(${emailInput})
+                `;
+
+                if (users.length === 0) return null;
+
+                // 2. Conflict Protection: strict safety check
+                if (users.length > 1) {
+                    console.error(`Login blocked: Multiple users found for email ${emailInput}`);
+                    throw new Error("账户存在冲突，请联系管理员处理");
+                }
+
+                const user = users[0];
+
+                // Normalize boolean fields for SQLite compatibility (might return 1/0)
+                if (typeof user.isApproved === 'number') {
+                    user.isApproved = user.isApproved === 1;
+                }
+
+
 
                 // 检查用户状态
                 if (user.status === "suspended") {
@@ -56,6 +66,21 @@ export const authOptions = {
 
                 const valid = await bcrypt.compare(parsed.data.password, user.password);
                 if (!valid) return null;
+
+                // 3. Opportunistic Fix: Auto-correct email casing if needed
+                if (user.email !== emailInput) {
+                    try {
+                        await prisma.user.update({
+                            where: { id: user.id },
+                            data: { email: emailInput }
+                        });
+                        console.log(`Auto-corrected email casing for user ${user.id}: ${user.email} -> ${emailInput}`);
+                        user.email = emailInput; // Update local object for returned session
+                    } catch (error) {
+                        // Non-blocking error, log and continue
+                        console.error("Failed to auto-correct email casing:", error);
+                    }
+                }
 
                 return {
                     id: user.id,

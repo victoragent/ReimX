@@ -26,13 +26,16 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const { username, email, password, tgAccount, whatsappAccount, evmAddress, solanaAddress } = parsed.data;
+        const { username, password, tgAccount, whatsappAccount, evmAddress, solanaAddress } = parsed.data;
+        const email = parsed.data.email.toLowerCase();
 
-        const existingUser = await prisma.user.findUnique({
-            where: { email }
-        });
+        // Check for existing user case-insensitively using raw query for compatibility
+        // Returns array of users
+        const existingUsers = await prisma.$queryRaw<any[]>`
+            SELECT id FROM "User" WHERE LOWER(email) = LOWER(${email})
+        `;
 
-        if (existingUser) {
+        if (existingUsers.length > 0) {
             return NextResponse.json(
                 { error: "该邮箱已被注册" },
                 { status: 400 }
@@ -44,7 +47,7 @@ export async function POST(request: NextRequest) {
         const user = await prisma.user.create({
             data: {
                 username,
-                email,
+                email, // Saved as lowercase
                 password: hashedPassword,
                 tgAccount,
                 whatsappAccount,
